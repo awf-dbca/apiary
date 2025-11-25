@@ -276,10 +276,9 @@
             },
         },
         data:function () {
-            let vm=this;
             return{
                 values:null,
-                pBody: 'pBody'+vm.uuid(),
+                pBody: 'pBody'+uuid(),
                 checklist_answers : [],
                 transfereeEmail: '',
                 //apiaryApprovals: {},

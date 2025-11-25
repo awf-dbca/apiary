@@ -5,7 +5,6 @@ import App from './App'
 import router from './router'
 import 'bootstrap'
 import helpers from '@/utils/helpers'
-// import api_endpoints from './api'
 
 import $ from 'jquery';
 import { extendMoment } from 'moment-range';
@@ -32,37 +31,11 @@ import 'select2-bootstrap-theme/dist/select2-bootstrap.min.css';
 
 extendMoment(moment);
 
-// require( '../node_modules/bootstrap/dist/css/bootstrap.css' );
+require( '../node_modules/bootstrap/dist/css/bootstrap.css' );
 //require('../node_modules/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css')
 require( '../node_modules/font-awesome/css/font-awesome.min.css' )
 require('../node_modules/eonasdan-bootstrap-datetimepicker')
 require('../node_modules/jquery.easing')
-
-// Vue.config.devtools = true;
-// Vue.config.productionTip = false
-// Vue.use( resource );
-// Vue.prototype.$log = console.log
-
-// Add CSRF Token to every request
-// Vue.http.interceptors.push( function ( request, next ) {
-//   // modify headers
-//   if ( request.url != api_endpoints.countries ) {
-//     request.headers.set( 'X-CSRFToken', helpers.getCookie( 'csrftoken' ) );
-//   }
-
-//   // continue to next interceptor
-//   next();
-// } );
-
-
-// new Vue( {
-//   el: '#app',
-//   router,
-//   template: '<App/>',
-//   components: {
-//     App
-//   }
-// } )
 
 const app = createApp(App);
 
