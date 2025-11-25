@@ -276,10 +276,9 @@
             },
         },
         data:function () {
-            let vm=this;
             return{
                 values:null,
-                pBody: 'pBody'+vm.uuid(),
+                pBody: 'pBody'+uuid(),
                 checklist_answers : [],
                 transfereeEmail: '',
                 //apiaryApprovals: {},
@@ -662,11 +661,13 @@
                             'originating_approval_id': this.proposal.proposal_apiary.originating_approval_id,
                         })
                     })
-                    .then(response => response.json())
-                    .then(res => {
-                        if (!res.ok) {
-                            throw new Error(`HTTP error! Status: ${res.status}`);
+                    .then(async response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
                         }
+                        return response.json();
+                    })
+                    .then(res => {
                         console.log(res);
                         if (res && res.licence_holders) {
                             this.licenceHolders = res.licence_holders.licence_holders;

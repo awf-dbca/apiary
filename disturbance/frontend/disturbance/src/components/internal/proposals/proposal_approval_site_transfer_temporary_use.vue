@@ -156,7 +156,13 @@ import SectionsProposalTemporaryUse from '@/components/common/apiary/sections_pr
 export default {
     name: 'ApprovalScreenSiteTransferTemporaryUse',
     props: {
-        proposal: Object
+        // proposal: Object
+        proposal: {
+            type: Object,
+            default: function(){
+                return {}
+            }
+        }
     },
     data: function() {
         return {
