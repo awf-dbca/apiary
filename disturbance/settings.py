@@ -244,6 +244,17 @@ if len(GIT_COMMIT_HASH) == 0:
 APPLICATION_VERSION = env("APPLICATION_VERSION", "1.0.0") + "-" + GIT_COMMIT_HASH[:7]
 
 APIARY_EXTERNAL_URL = env('APIARY_EXTERNAL_URL', 'External url not configured')
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+if env('EMAIL_INSTANCE') is not None and env('EMAIL_INSTANCE','') != 'PROD':
+    SESSION_FILE_PATH = env('SESSION_FILE_PATH', BASE_DIR+'/session_store/')
+    if not os.path.isdir(SESSION_FILE_PATH):
+        os.mkdir(SESSION_FILE_PATH)       
+else:
+    SESSION_FILE_PATH = env('SESSION_FILE_PATH', '/app/session_store/')
+
+SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', True)
+CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', True)
+SESSION_COOKIE_AGE = env('SESSION_COOKIE_AGE',3600)
 LEDGER_UI_ACCOUNTS_MANAGEMENT = [
     {'first_name': {'options' : {'view': True, 'edit': True}}},
     {'last_name': {'options' : {'view': True, 'edit': True}}},
@@ -256,4 +267,20 @@ LEDGER_UI_ACCOUNTS_MANAGEMENT = [
     {'address_details' : {'options' : {'billing_address': {'show': False}}}},
 ]
 LEDGER_UI_SYSTEM_ACCOUNTS_MANAGEMENT['address_details']['options']['billing_address']['show'] = False
+LEDGER_UI_ORGANISATION_MANAGEMENT = [
+        {'organisation_name': {'options' : {'view': True, 'edit': True}}},
+        {'organisation_abn': {'options' : {'view': True, 'edit': True}}},
+        {'postal_address': {'options' : {'view': True, 'edit': True}}}
+]
+
+LEDGER_UI_ACCOUNTS_MANAGEMENT_KEYS = []
+for am in LEDGER_UI_ACCOUNTS_MANAGEMENT:
+    LEDGER_UI_ACCOUNTS_MANAGEMENT_KEYS.append(list(am.keys())[0])
 # LEDGER_UI_CARDS_MANAGEMENT = env('LEDGER_UI_CARDS_MANAGEMENT', True)
+VUE3_ENTRY_SCRIPT = env(  # This is not a reserved keyword.
+    "VUE3_ENTRY_SCRIPT",
+    "src/main.js"  # This path will be auto prefixed with the static_url_prefix from DJANGO_VITE above
+)  # Path of the vue3 entry point script served by vite
+CSRF_TRUSTED_ORIGINS_STRING = env("CSRF_TRUSTED_ORIGINS", default='[]')
+CSRF_TRUSTED_ORIGINS = json.loads(str(CSRF_TRUSTED_ORIGINS_STRING))
+LEDGER_SYSTEM_ID = env('PAYMENT_INTERFACE_SYSTEM_PROJECT_CODE', 'PAYMENT_INTERFACE_SYSTEM_PROJECT_CODE not configured')
