@@ -30,4 +30,7 @@ def apiary_url(request):
         'KMI_SERVER_URL': KMI_SERVER_URL,
         'ledger_totals': lt,
         'LEDGER_UI_URL': f'{settings.LEDGER_UI_URL}',
+        'GIT_COMMIT_HASH' : settings.GIT_COMMIT_HASH,
+        "vue3_entry_script": settings.VUE3_ENTRY_SCRIPT,
+        'LEDGER_SYSTEM_ID': f'{settings.LEDGER_SYSTEM_ID}',
     }
