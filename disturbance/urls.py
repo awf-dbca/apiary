@@ -166,6 +166,8 @@ urlpatterns = [
     re_path(r'^api/oracle_job$', main_api.OracleJob.as_view(), name='get-oracle'),
     re_path(r'^api/reports/booking_settlements$', main_api.BookingSettlementReportView.as_view(),
         name='booking-settlements-report'),
+
+    re_path(r'kb-proxy/(?P<path>.*)', views.mapProxyView),
 ] + ledger_patterns #+ media_serv_patterns
 
 if not are_migrations_running():
