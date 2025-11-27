@@ -42,22 +42,22 @@
                         <i class='fa fa-4x fa-spinner fa-spin'></i>
                     </div>
                     <div class="basemap-button">
-                        <img id="basemap_sat" src="../../../assets/satellite_icon.jpg" @click="setBaseLayer('sat')" />
-                        <img id="basemap_osm" src="../../../assets/map_icon.png" @click="setBaseLayer('osm')" />
+                        <img id="basemap_sat" :src="satelliteIconUrl" @click="setBaseLayer('sat')" />
+                        <img id="basemap_osm" :src="mapIconUrl" @click="setBaseLayer('osm')" />
                     </div>
                     <div class="optional-layers-wrapper">
                         <div class="optional-layers-button">
                             <template v-if="mode === 'layer'">
-                                <img src="../../../assets/info-bubble.svg" @click="set_mode('measure')" />
+                                <img :src="infoBubbleSvgUrl" @click="set_mode('measure')" />
                             </template>
                             <template v-else>
-                                <img src="../../../assets/ruler.svg" @click="set_mode('layer')" />
+                                <img :src="rulerSvgUrl" @click="set_mode('layer')" />
                             </template>
                         </div>
                         <div style="position:relative">
                             <transition v-if="optionalLayers.length">
                                 <div class="optional-layers-button" @mouseover="hover=true" v-if="optionalLayers.length">
-                                    <img src="../../../assets/layers.svg" />
+                                    <img :src="layersSvgUrl" />
                                 </div>
                             </transition>
                             <transition v-if="optionalLayers.length">
@@ -304,6 +304,13 @@
                 search_box_id: uuid(),
                 search_input_id: uuid(),
                 search_address_latlng_text: '',
+
+                 // AT the moment (specify the path) this works but not ideal, need to find a way to load images from assets folder
+                satelliteIconUrl: '/static/disturbance_vue/src/satellite_icon.jpg',
+                mapIconUrl: '/static/disturbance_vue/src/map_icon.png',
+                layersSvgUrl: '/static/disturbance_vue/src/layers.svg',
+                rulerSvgUrl: '/static/disturbance_vue/src/ruler.svg',
+                infoBubbleSvgUrl: '/static/disturbance_vue/src/info-bubble.svg',
             }
         },
         components: {
@@ -1550,6 +1557,7 @@
 </script>
 
 <style lang="css" scoped>
+    @import '../apiary/map_address_search_scoped.css';
     .map-wrapper {
         position: relative;
         padding: 0;
@@ -1765,7 +1773,6 @@
         left: 50%;
         z-index: 100000;
     }
-    @import './map_address_search_scoped.css'
 </style>
 
 <style>

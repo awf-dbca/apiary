@@ -339,7 +339,6 @@ import modal from '@vue-utils/bootstrap-modal.vue'
 import alert from '@vue-utils/alert.vue'
 import {helpers,api_endpoints} from "@/utils/hooks.js"
 import ComponentSiteSelection from '@/components/common/apiary/component_site_selection.vue'
-import moment from 'moment'
 export default {
     name:'ProposedApiaryIssuance',
     components:{

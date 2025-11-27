@@ -207,14 +207,14 @@ def gisdata(request):
 class LedgerPayView(TemplateView):
     template_name = 'disturbance/dash/index.html'
 
-    # def get_context_data(self, **kwargs):
-    #     context = super(LedgerPayView, self).get_context_data(**kwargs)
-    #     context['dev'] = settings.DEV_STATIC
-    #     context['dev_url'] = settings.DEV_STATIC_URL
-    #     context['empty_menu'] = True  # We don't want any menu items for now
-    #     if hasattr(settings, 'DEV_APP_BUILD_URL') and settings.DEV_APP_BUILD_URL:
-    #         context['app_build_url'] = settings.DEV_APP_BUILD_URL
-    #     return context
+    def get_context_data(self, **kwargs):
+        context = super(LedgerPayView, self).get_context_data(**kwargs)
+        # context['dev'] = settings.DEV_STATIC
+        # context['dev_url'] = settings.DEV_STATIC_URL
+        context['empty_menu'] = True  # We don't want any menu items for now
+        # if hasattr(settings, 'DEV_APP_BUILD_URL') and settings.DEV_APP_BUILD_URL:
+        #     context['app_build_url'] = settings.DEV_APP_BUILD_URL
+        return context
     
 
 @api_view(['POST',])

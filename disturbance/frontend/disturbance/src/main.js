@@ -1,23 +1,35 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+import './jquery-global.js';
+
+import 'vite/modulepreload-polyfill';
 import { createApp } from 'vue';
-import App from './App'
+import App from './App.vue'
 import router from './router'
 import 'bootstrap'
 import helpers from '@/utils/helpers'
 
-import $ from 'jquery';
+import moment from 'moment';
 import { extendMoment } from 'moment-range';
+extendMoment(moment);
+window.moment = moment;
+
+// import 'eonasdan-bootstrap-datetimepicker';
+
+import select2 from 'select2';
+import swal from 'sweetalert2';
+window.swal = swal;
+select2();
 import jsZip from 'jszip';
 window.JSZip = jsZip;
-window.$ = $;
+import _ from 'lodash';
+window._ = _;
 
 import 'datatables.net';
 import 'datatables.net-bs';
 import 'datatables.net-responsive-bs';
 import 'datatables.net-buttons/js/dataTables.buttons.js'
 import 'datatables.net-buttons/js/buttons.html5.js'
-
 import "datatables.net-bs/css/dataTables.bootstrap.css"
 import "datatables.net-responsive-bs/css/responsive.bootstrap.css"
 
@@ -25,17 +37,13 @@ import "sweetalert2/dist/sweetalert2.css"
 
 import 'jquery-validation'
 
-import 'select2';
 import 'select2/dist/css/select2.min.css';
 import 'select2-bootstrap-theme/dist/select2-bootstrap.min.css';
 
-extendMoment(moment);
 
-require( '../node_modules/bootstrap/dist/css/bootstrap.css' );
-//require('../node_modules/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css')
-require( '../node_modules/font-awesome/css/font-awesome.min.css' )
-require('../node_modules/eonasdan-bootstrap-datetimepicker')
-require('../node_modules/jquery.easing')
+import '../node_modules/bootstrap/dist/css/bootstrap.css';
+import '../node_modules/font-awesome/css/font-awesome.min.css';
+import '../node_modules/jquery.easing';
 
 const app = createApp(App);
 

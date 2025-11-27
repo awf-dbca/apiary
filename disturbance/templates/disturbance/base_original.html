@@ -1,7 +1,6 @@
 {% load bootstrap3 %}
 
 {% load static %}
-{% load django_vite %}
 
 {% load users %}
 {% load utils %}
@@ -22,14 +21,13 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
             {% bootstrap_css %}
                 <link type="text/css" href="{% static 'disturbance/css/base.css' %}" rel="stylesheet">
-            <!-- {% if not dev %}
-                <link rel="stylesheet" href="{% static 'disturbance_vue/css/app.css' %}?v={{build_tag}}">
-                <link rel="stylesheet" href="{% static 'disturbance_vue/css/chunk-vendors.css' %}?v={{build_tag}}">
-            {% endif %} -->
+            {% if not dev %}
+	    <link rel="stylesheet" href="{% static 'disturbance_vue/css/app.css' %}?v={{build_tag}}">
+        <link rel="stylesheet" href="{% static 'disturbance_vue/css/chunk-vendors.css' %}?v={{build_tag}}">
+            {% endif %}
             {% block extra_css %}
             {% endblock %}
             {% block extra_js %}
-                {% vite_hmr_client %}
             {% endblock %}
             <title>
                 {% block title %}
@@ -40,14 +38,11 @@
         </meta>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="shortcut icon" type="image/ico" href="/static/favicon.ico"/>
-        {% block custom_js %}
-            <script language="javascript">
-                env = {
-                    "kmi_server_url": "{{ KMI_SERVER_URL }}"
-                }
-            </script>
-            {% vite_asset vue3_entry_script %}
-        {% endblock custom_js %}
+        <script language="javascript">
+            env = {
+                "kmi_server_url": "{{ KMI_SERVER_URL }}"
+            }
+        </script>
     </head>
     <body>
         <header class="topmast">
@@ -155,6 +150,7 @@
                         </div>
                     </nav>
                 </div>
+
             </div>
         {% endblock %}
         {% block breadcrumbs %}
@@ -186,6 +182,24 @@
         {% endblock %}
 
         {% block modals %}
+        {% endblock %}
+        {% if not dev %}
+            <!--<script type="text/javascript" src="https://static.dpaw.wa.gov.au/static/cdnjs/ajax/libs/jquery/2.1.2/jquery.min.js"></script>
+            <script type="text/javascript" src="https://static.dpaw.wa.gov.au/static/cdnjs/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
+	{% comment %} <script type="text/javascript" src="{% static 'disturbance_vue/static/js/manifest.js' %}?v={{build_tag}}"></script>
+	<script type="text/javascript" src="{% static 'disturbance_vue/static/js/vendor.js' %}?v={{build_tag}}"></script>
+            {% if app_build_url %}
+	    <!-- script type="text/javascript" src="{% static 'disturbance_vue/static/js/app.js' %}?v={{build_tag}}"></script -->
+	<script type="text/javascript" src="{{ app_build_url }}?v={{build_tag}}"></script>
+            {% else %} {% endcomment %}
+    <script type="text/javascript" src="{% static 'disturbance_vue/js/chunk-vendors.js' %}?v={{build_tag}}"></script>
+	<script type="text/javascript" src="{% static 'disturbance_vue/js/app.js' %}?v={{build_tag}}"></script>
+
+            {% comment %} {% endif %} {% endcomment %}
+        {% else %}
+            <script type="text/javascript" src="{{ dev_url }}"></script>
+        {% endif %}
+        {% block custom_js %}
         {% endblock %}
     </body>
 </html>
