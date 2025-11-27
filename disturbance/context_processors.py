@@ -17,8 +17,8 @@ def apiary_url(request):
 
     return {
         'DEBUG': settings.DEBUG,
-        'DEV_STATIC': settings.DEV_STATIC,
-        'DEV_STATIC_URL': settings.DEV_STATIC_URL,
+        # 'DEV_STATIC': settings.DEV_STATIC,
+        # 'DEV_STATIC_URL': settings.DEV_STATIC_URL,
         'TEMPLATE_GROUP': 'apiary',
         'SYSTEM_NAME': settings.SYSTEM_NAME,
         'PUBLIC_URL': PUBLIC_URL,

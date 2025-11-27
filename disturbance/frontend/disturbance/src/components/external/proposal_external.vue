@@ -571,7 +571,7 @@ export default {
                     const errorData = await response.json();
                     throw { body: errorData };
                 }
-                const res = await response.json();
+                // const res = await response.json();
 
                 if (confirmation_required) {
                     swal.fire({

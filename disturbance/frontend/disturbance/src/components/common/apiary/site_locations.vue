@@ -68,25 +68,25 @@
                     <input :id="search_input_id" class="search-input" placeholder="longitude, latitude OR address to search"/>
                 </div>
                 <div id="basemap-button">
-                    <img id="basemap_sat" src="../../../assets/satellite_icon.jpg" @click="setBaseLayer('sat')" />
-                    <img id="basemap_osm" src="../../../assets/map_icon.png" @click="setBaseLayer('osm')" />
+                    <img id="basemap_sat" :src="satelliteIconUrl" @click="setBaseLayer('sat')" />
+                    <img id="basemap_osm" :src="mapIconUrl" @click="setBaseLayer('osm')" />
                 </div>
                 <div class="optional-layers-wrapper" @mouseleave="hover=false">
                     <div class="optional-layers-button">
                         <template v-if="mode === 'normal'">
-                            <img src="../../../assets/normal.svg" @click="set_mode('layer')" />
+                            <img :src="normalSvgUrl" @click="set_mode('layer')" />
                         </template>
                         <template v-else-if="mode === 'layer'">
-                            <img src="../../../assets/info-bubble.svg" @click="set_mode('measure')" />
+                            <img :src="infoBubbleSvgUrl" @click="set_mode('measure')" />
                         </template>
                         <template v-else>
-                            <img src="../../../assets/ruler.svg" @click="set_mode('normal')" />
+                            <img :src="rulerSvgUrl" @click="set_mode('normal')" />
                         </template>
                     </div>
                     <div style="position:relative">
                         <transition v-if="optionalLayers.length">
                             <div class="optional-layers-button" v-if="optionalLayers.length" @mouseover="hover=true">
-                                <img src="../../../assets/layers.svg" />
+                                <img :src="layersSvgUrl" />
                             </div>
                         </transition>
                         <transition v-if="optionalLayers.length">
@@ -467,6 +467,14 @@
                 mapboxAccessToken: null,
                 search_box_id: uuid(),
                 search_input_id: uuid(),
+
+                // AT the moment (specify the path) this works but not ideal, need to find a way to load images from assets folder
+                satelliteIconUrl: '/static/disturbance_vue/src/satellite_icon.jpg',
+                mapIconUrl: '/static/disturbance_vue/src/map_icon.png',
+                layersSvgUrl: '/static/disturbance_vue/src/layers.svg',
+                rulerSvgUrl: '/static/disturbance_vue/src/ruler.svg',
+                infoBubbleSvgUrl: '/static/disturbance_vue/src/info-bubble.svg',
+                normalSvgUrl: '/static/disturbance_vue/src/normal.svg',
             }
         },
         components: {
@@ -1995,6 +2003,7 @@
 </script>
 
 <style lang="css">
+@import './map_address_search_scoped.css';
     .delete_button {
         color: #337ab7 !important;
     }
@@ -2207,7 +2216,7 @@
     .v-leave-active {
           transition: 0.4s;
     }
-    @import './map_address_search_scoped.css'
+    
 </style>
 
 <style>

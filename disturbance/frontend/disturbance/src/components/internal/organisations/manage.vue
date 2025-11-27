@@ -368,6 +368,7 @@ export default {
                 this.$refs.add_contact.contact = response.body;
                 this.addContact();
             }).then((response) => {
+                console.log(response)
                 this.$refs.contacts_datatable.vmDataTable.ajax.reload();
             },(error) => {
                 console.log(error);
@@ -480,6 +481,7 @@ export default {
                         confirmButton: 'btn btn-primary',
                     },
                 })
+                console.log(response)
                 vm.$refs.contacts_datatable.vmDataTable.ajax.reload();
             }, (error) => {
                 console.log(error);

@@ -31,7 +31,7 @@
     import datatable from '@vue-utils/datatable.vue'
     import { v4 as uuid } from 'uuid';
     import { helpers, constants } from '@/utils/hooks'
-    import OnSiteInformationModal from './on_site_information_modal'
+    import OnSiteInformationModal from './on_site_information_modal.vue'
 
     export default {
         props:{

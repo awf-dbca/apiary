@@ -6,8 +6,8 @@
             </div>
             <div :id="idMap" class="mapLeaf"></div>
             <div class="basemap-button">
-                <img :id="idBasemapSat" class="basemap-button-img" src="../../assets/satellite_icon.jpg" @click.stop="setBaseLayer('sat')" />
-                <img :id="idBasemapOsm" class="basemap-button-img" src="../../assets/map_icon.png" @click.stop="setBaseLayer('osm')" />
+                <img :id="idBasemapSat" class="basemap-button-img" :src="layersSvgUrl" @click.stop="setBaseLayer('sat')" />
+                <img :id="idBasemapOsm" class="basemap-button-img" :src="mapIconUrl" @click.stop="setBaseLayer('osm')" />
             </div>
             <div class="cursor-location">
                 <div v-if="cursor_location">
@@ -153,7 +153,8 @@ export default {
 
     let vm = this;
     let baseDic = {
-      shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+      // shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+      shadowUrl: new URL('leaflet/dist/images/marker-shadow.png', import.meta.url).href,
       shadowSize: [41, 41],
       shadowAnchor: [12, 41],
       iconSize: [32, 32],
@@ -161,7 +162,8 @@ export default {
       popupAnchor: [0, -20]
     };
     vm.icon_default = Leaf.icon({
-      iconUrl: require("../../assets/marker-gray-locked.svg"),
+      // iconUrl: require("../../assets/marker-gray-locked.svg"),
+      iconUrl: new URL("../../assets/marker-gray-locked.svg", import.meta.url).href,
       ...baseDic
     });
     vm.guid = guid();
@@ -185,7 +187,10 @@ export default {
         idMap: vm.guid + "mapLeaf",
         idSearchInput: vm.guid + "SearchInput",
         idBasemapSat: vm.guid + "BasemapSat",
-        idBasemapOsm: vm.guid + "BasemapOsm"
+        idBasemapOsm: vm.guid + "BasemapOsm",
+        // AT the moment (specify the path) this works but not ideal, need to find a way to load images from assets folder
+        satelliteIconUrl: '/static/disturbance_vue/src/satellite_icon.jpg',
+        mapIconUrl: '/static/disturbance_vue/src/map_icon.png',
     };
   },
     computed: {

@@ -372,7 +372,7 @@ export default {
             });
 
         },
-        initialiseActionLogs: function(vm_uid,ref,datatable_options,table){
+        initialiseActionLogs: function(vm_uid,ref,datatable_options){
             let actionLogId = 'actions-log-table'+vm_uid;
             let popover_name = 'popover-'+ uuid()+'-logs';
             $(ref).popover({
@@ -398,7 +398,7 @@ export default {
                 trigger: "click",
                 template: `<div class="popover ${popover_name}" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>`,
             }).on('inserted.bs.popover', function () {
-                table = $('#'+actionLogId).DataTable(datatable_options);
+                $('#'+actionLogId).DataTable(datatable_options);
             }).on('shown.bs.popover', function () {
                 var el = ref;
                 // var popoverheight = parseInt($('.'+popover_name).height());
