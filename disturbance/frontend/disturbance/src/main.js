@@ -10,9 +10,9 @@ import 'bootstrap'
 import helpers from '@/utils/helpers'
 
 import moment from 'moment';
+window.moment = moment;
 import { extendMoment } from 'moment-range';
 extendMoment(moment);
-window.moment = moment;
 
 // import 'eonasdan-bootstrap-datetimepicker';
 

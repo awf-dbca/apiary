@@ -3,6 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 import sys
 import os, hashlib
 from confy import env
+import json
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #confy.read_environment_file(BASE_DIR+"/.env")
 os.environ.setdefault("BASE_DIR", BASE_DIR)
@@ -222,7 +223,6 @@ LOGGING['handlers']['console']['level'] = 'DEBUG'
 LOGGING['handlers']['file']['formatter'] = 'verbose2'
 LOGGING['handlers']['file']['level'] = 'INFO'
 
-import json
 #print(json.dumps(LOGGING, indent=4))
 
 KMI_SERVER_URL = env('KMI_SERVER_URL', 'https://kmi.dbca.wa.gov.au')
@@ -303,8 +303,8 @@ VUE3_ENTRY_SCRIPT = env(  # This is not a reserved keyword.
     "VUE3_ENTRY_SCRIPT",
     "src/main.js"  # This path will be auto prefixed with the static_url_prefix from DJANGO_VITE above
 )  # Path of the vue3 entry point script served by vite
-CSRF_TRUSTED_ORIGINS_STRING = env("CSRF_TRUSTED_ORIGINS", default='[]')
-CSRF_TRUSTED_ORIGINS = json.loads(str(CSRF_TRUSTED_ORIGINS_STRING))
+# CSRF_TRUSTED_ORIGINS_STRING = env("CSRF_TRUSTED_ORIGINS", default='[]')
+# CSRF_TRUSTED_ORIGINS = json.loads(str(CSRF_TRUSTED_ORIGINS_STRING))
 LEDGER_SYSTEM_ID = env('PAYMENT_INTERFACE_SYSTEM_PROJECT_CODE', 'PAYMENT_INTERFACE_SYSTEM_PROJECT_CODE not configured')
 LEDGER_USER = env('LEDGER_USER', '')
 LEDGER_PASS = env('LEDGER_PASS', '')
