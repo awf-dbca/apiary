@@ -4,6 +4,10 @@ import sys
 import os, hashlib
 from confy import env
 import json
+import logging
+
+logger = logging.getLogger(__name__)
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #confy.read_environment_file(BASE_DIR+"/.env")
 os.environ.setdefault("BASE_DIR", BASE_DIR)
@@ -29,7 +33,6 @@ SSO_SETTING_URL=env('SSO_SETTING_URL','')
 INSTALLED_APPS += [
     'reversion',
     'reversion_compare',
-    'bootstrap3',
     'disturbance',
     'taggit',
     'rest_framework',
@@ -229,7 +232,7 @@ KMI_SERVER_URL = env('KMI_SERVER_URL', 'https://kmi.dbca.wa.gov.au')
 # DEV_APP_BUILD_URL = env('DEV_APP_BUILD_URL')  # URL of the Dev app.js served by webpack & express
 
 TEMPLATE_TITLE = "Apiary System"
-TEMPLATE_HEADER_LOGO = "/static/disturbance/img/dbca-logo.png"
+TEMPLATE_HEADER_LOGO = "/static/disturbance/img/logo-park-stay-trunc.gif"
 TEMPLATE_GROUP = "parkswildlifev2"
 
 LEDGER_TEMPLATE = "bootstrap5"

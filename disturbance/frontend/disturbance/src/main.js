@@ -2,11 +2,13 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import './jquery-global.js';
 
+import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.css'; // CSS first
+
 import 'vite/modulepreload-polyfill';
 import { createApp } from 'vue';
 import App from './App.vue'
 import router from './router'
-import 'bootstrap'
 import helpers from '@/utils/helpers'
 
 import moment from 'moment';
@@ -14,7 +16,6 @@ window.moment = moment;
 import { extendMoment } from 'moment-range';
 extendMoment(moment);
 
-// import 'eonasdan-bootstrap-datetimepicker';
 
 import select2 from 'select2';
 import swal from 'sweetalert2';
@@ -24,6 +25,8 @@ import jsZip from 'jszip';
 window.JSZip = jsZip;
 import _ from 'lodash';
 window._ = _;
+
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import 'datatables.net';
 import 'datatables.net-bs';
@@ -40,10 +43,8 @@ import 'jquery-validation'
 import 'select2/dist/css/select2.min.css';
 import 'select2-bootstrap-theme/dist/select2-bootstrap.min.css';
 
-
-import '../node_modules/bootstrap/dist/css/bootstrap.css';
-import '../node_modules/font-awesome/css/font-awesome.min.css';
-import '../node_modules/jquery.easing';
+import 'font-awesome/css/font-awesome.min.css';
+import 'jquery.easing';
 
 const app = createApp(App);
 
