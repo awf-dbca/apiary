@@ -14,7 +14,7 @@
     "@vue/compat": "^3.5.22",
     "autoprefixer": "^10.4.22",
     "awesomplete": "^1.1.7",
-    "bootstrap": "^3.4.0",
+    "bootstrap": "^5.3.7",
     "datatables.net-bs": "^2.3.4",
     "datatables.net-buttons": "^3.2.5",
     "datatables.net-responsive-bs": "^3.0.7",

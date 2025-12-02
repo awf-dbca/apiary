@@ -1,5 +1,10 @@
 from confy import env
 from django.conf import settings
+from disturbance.settings import (
+    TEMPLATE_GROUP,
+    TEMPLATE_HEADER_LOGO,
+    TEMPLATE_TITLE,
+)
 from ledger_api_client.helpers import is_payment_admin
 from disturbance.settings import KMI_SERVER_URL
 import logging
@@ -16,9 +21,10 @@ def apiary_url(request):
     lt = ledger_api_utils.get_ledger_totals()
 
     return {
+        "template_group": TEMPLATE_GROUP,
+        "template_header_logo": TEMPLATE_HEADER_LOGO,
+        "template_title": TEMPLATE_TITLE,
         'DEBUG': settings.DEBUG,
-        # 'DEV_STATIC': settings.DEV_STATIC,
-        # 'DEV_STATIC_URL': settings.DEV_STATIC_URL,
         'TEMPLATE_GROUP': 'apiary',
         'SYSTEM_NAME': settings.SYSTEM_NAME,
         'PUBLIC_URL': PUBLIC_URL,
@@ -33,4 +39,5 @@ def apiary_url(request):
         'GIT_COMMIT_HASH' : settings.GIT_COMMIT_HASH,
         "vue3_entry_script": settings.VUE3_ENTRY_SCRIPT,
         'LEDGER_SYSTEM_ID': f'{settings.LEDGER_SYSTEM_ID}',
+        'DJANGO_SETTINGS': settings,
     }

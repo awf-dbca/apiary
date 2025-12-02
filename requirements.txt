@@ -6,7 +6,6 @@ git+https://github.com/dbca-wa/webtemplate2.git#egg=webtemplate_dbca
 coverage~=7.8.0
 coveralls~=4.0.1
 reportlab~=4.4.1
-django_bootstrap3~=23.6
 django-reversion~=4.0.2
 django-reversion-compare~=0.16.2
 django-countries~=7.6.1
