@@ -23,6 +23,7 @@ ENV APIARY_URL=[]
 ENV SYSTEM_NAME="Disturbance Assessment System"
 ENV APIARY_SYSTEM_NAME="Apiary System"
 ENV PAYMENT_OFFICERS_GROUP="Apiary Payments Officers"
+ENV NODE_MAJOR=20
 
 # Use Australian Mirrors
 RUN sed 's/archive.ubuntu.com/au.archive.ubuntu.com/g' /etc/apt/sources.list > /etc/apt/sourcesau.list
