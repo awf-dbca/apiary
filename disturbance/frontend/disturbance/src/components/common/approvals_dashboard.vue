@@ -1,116 +1,105 @@
-<template id="proposal_dashboard">
+<template id="approvals_dashboard">
     <div class="row">
         <div class="col-sm-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{{dashboardTitle}} <small v-if="is_external">{{dashboardDescription}}</small>
-                        <a :href="'#'+pBody" data-toggle="collapse"  data-parent="#userInfo" expanded="true" :aria-controls="pBody">
-                            <span class="glyphicon glyphicon-chevron-up pull-right "></span>
-                        </a>
-                    </h3>
+            <div class="row">
+                <div v-if="templateGroupDetermined && !apiaryTemplateGroup">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="">Region</label>
+                            <select class="form-control" v-model="filterProposalRegion">
+                                <option value="All">All</option>
+                                <option v-for="r in proposal_regions" :value="r" :key="r">{{r}}</option>
+                            </select>
+                            <!--
+                            <select style="width:100%" class="form-control input-sm" multiple ref="filterRegion" >
+                                <option v-for="r in proposal_regions" :value="r">{{r}}</option>
+                            </select>
+                            -->
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="">Activity</label>
+                            <select class="form-control" v-model="filterProposalActivity">
+                                <option value="All">All</option>
+                                <option v-for="a in proposal_activityTitles" :value="a" :key="a">{{a}}</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="panel-body collapse in" :id="pBody">
-                    <div class="row">
-                        <div v-if="templateGroupDetermined && !apiaryTemplateGroup">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="">Region</label>
-                                    <select class="form-control" v-model="filterProposalRegion">
-                                        <option value="All">All</option>
-                                        <option v-for="r in proposal_regions" :value="r" :key="r">{{r}}</option>
-                                    </select>
-                                    <!--
-                                    <select style="width:100%" class="form-control input-sm" multiple ref="filterRegion" >
-                                        <option v-for="r in proposal_regions" :value="r">{{r}}</option>
-                                    </select>
-                                    -->
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="">Activity</label>
-                                    <select class="form-control" v-model="filterProposalActivity">
-                                        <option value="All">All</option>
-                                        <option v-for="a in proposal_activityTitles" :value="a" :key="a">{{a}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!--div class="col-md-3">
-                            <div class="form-group">
-                                <label for="">Region</label>
-                                <select class="form-control" v-model="filterProposalRegion">
-                                    <option value="All">All</option>
-                                    <option v-for="r in proposal_regions" :value="r">{{r}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="">Activity</label>
-                                <select class="form-control" v-model="filterProposalActivity">
-                                    <option value="All">All</option>
-                                    <option v-for="a in proposal_activityTitles" :value="a">{{a}}</option>
-                                </select>
-                            </div>
-                        </div-->
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="">Status</label>
-                                <select class="form-control" v-model="filterProposalStatus">
-                                    <option value="All">All</option>
-                                    <option v-for="s in approval_status" :value="s" :key="s">{{s}}</option>
-                                </select>
-                            </div>
-                        </div>
+                <!--div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">Region</label>
+                        <select class="form-control" v-model="filterProposalRegion">
+                            <option value="All">All</option>
+                            <option v-for="r in proposal_regions" :value="r">{{r}}</option>
+                        </select>
                     </div>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label for="">Start From</label>
-                            <div class="input-group date" ref="proposalStartDateFromPicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalStartFrom">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="">Start To</label>
-                            <div class="input-group date" ref="proposalStartDateToPicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalStartTo">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">Activity</label>
+                        <select class="form-control" v-model="filterProposalActivity">
+                            <option value="All">All</option>
+                            <option v-for="a in proposal_activityTitles" :value="a">{{a}}</option>
+                        </select>
                     </div>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label for="">Expiry From</label>
-                            <div class="input-group date" ref="proposalExpiryDateFromPicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalExpiryFrom">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="">Expiry To</label>
-                            <div class="input-group date" ref="proposalExpiryDateToPicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalExpiryTo">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
+                </div-->
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">Status</label>
+                        <select class="form-control" v-model="filterProposalStatus">
+                            <option value="All">All</option>
+                            <option v-for="s in approval_status" :value="s" :key="s">{{s}}</option>
+                        </select>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-12" style="margin-top:25px;">
-                            <div v-if="datatableReady">
-                                <datatable ref="proposal_datatable" :id="datatable_id" :dtOptions="proposal_options" :dtHeaders="proposal_headers"/>
-                            </div>
-                        </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="">Start From</label>
+                    <div class="input-group date" ref="proposalStartDateFromPicker">
+                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalStartFrom">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="">Start To</label>
+                    <div class="input-group date" ref="proposalStartDateToPicker">
+                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalStartTo">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="">Expiry From</label>
+                    <div class="input-group date" ref="proposalExpiryDateFromPicker">
+                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalExpiryFrom">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="">Expiry To</label>
+                    <div class="input-group date" ref="proposalExpiryDateToPicker">
+                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalExpiryTo">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12" style="margin-top:25px;">
+                    <div v-if="datatableReady">
+                        <datatable ref="proposal_datatable" :id="datatable_id" :dtOptions="proposal_options" :dtHeaders="proposal_headers"/>
                     </div>
                 </div>
             </div>

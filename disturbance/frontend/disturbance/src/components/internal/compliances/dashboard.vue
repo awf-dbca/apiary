@@ -1,6 +1,12 @@
 <template>
 <div class="container" id="internalDash">
-    <ComplianceDashTable level="internal" :url="compliances_url"/>
+    <div class="row">
+        <div class="col-sm-12">
+            <FormSection :form-collapse="false" label="Compliances with requirements" Index="compliances">
+                <ComplianceDashTable level="internal" :url="compliances_url"/>
+            </FormSection>
+        </div>
+    </div>
 </div>
 </template>
 <script>
@@ -10,6 +16,7 @@ import {
 //   helpers
 }
 from '@/utils/hooks'
+import FormSection from '@/components/forms/section_toggle.vue';
 export default {
     name: 'InternalCompliancesDashboard',
     data() {
@@ -21,6 +28,7 @@ export default {
     },
     components: {
         ComplianceDashTable,
+        FormSection
     },
     computed: {
     },

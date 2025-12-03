@@ -1,94 +1,82 @@
-<template id="proposal_dashboard">
+<template id="compliances_dashboard">
     <div class="row">
         <div class="col-sm-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Compliance with requirements <small v-if="is_external">View submitted compliances and submit new ones</small>
-                        <a :href="'#'+pBody" data-toggle="collapse"  data-parent="#userInfo" expanded="true" :aria-controls="pBody">
-                            <span class="glyphicon glyphicon-chevron-up pull-right "></span>
-                        </a>
-                    </h3>
+            <div class="row">
+                <div v-show="!apiaryTemplateGroup && select2Applied">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="">Region</label>
+                            <select style="width:100%" class="form-control input-sm" ref="filterRegion" >
+                                <template v-if="select2Applied">
+                                    <option v-for="r in proposal_regions" :value="r" :key="r">{{r}}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="">Activity</label>
+                            <select class="form-control" v-model="filterProposalActivity">
+                                <option value="All">All</option>
+                                <option v-for="a in proposal_activityTitles" :value="a" :key="a">{{a}}</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="panel-body collapse in" :id="pBody">
-                    <div class="row">
-                        <div v-show="!apiaryTemplateGroup && select2Applied">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="">Region</label>
-                                    <select style="width:100%" class="form-control input-sm" ref="filterRegion" >
-                                        <template v-if="select2Applied">
-                                            <option v-for="r in proposal_regions" :value="r" :key="r">{{r}}</option>
-                                        </template>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="">Activity</label>
-                                    <select class="form-control" v-model="filterProposalActivity">
-                                        <option value="All">All</option>
-                                        <option v-for="a in proposal_activityTitles" :value="a" :key="a">{{a}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="">Status</label>
-                                <select class="form-control" v-model="filterComplianceStatus">
-                                    <option value="All">All</option>
-                                    <option v-for="s in status_values" :value="s" :key="s">{{s}}</option>
-                                </select>
-                            </div>
-                        </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">Status</label>
+                        <select class="form-control" v-model="filterComplianceStatus">
+                            <option value="All">All</option>
+                            <option v-for="s in status_values" :value="s" :key="s">{{s}}</option>
+                        </select>
                     </div>
-                    <!--<div class="row">
-                        <div class="col-md-3">
-                            <label for="">Start date From</label>
-                            <div class="input-group date" ref="complianceStartDateFromPicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterComplianceStartFrom">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="">Start date To</label>
-                            <div class="input-group date" ref="complianceStartDateToPicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterComplianceStartTo">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>-->
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label for="">Due date From</label>
-                            <div class="input-group date" ref="complianceDueDateFromPicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterComplianceDueFrom">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="">Due date To</label>
-                            <div class="input-group date" ref="complianceDueDateToPicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterComplianceDueTo">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
+                </div>
+            </div>
+            <!--<div class="row">
+                <div class="col-md-3">
+                    <label for="">Start date From</label>
+                    <div class="input-group date" ref="complianceStartDateFromPicker">
+                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterComplianceStartFrom">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-12" style="margin-top:25px;">
-                            <div v-if="datatableReady">
-                                <datatable ref="proposal_datatable" :id="datatable_id" :dtOptions="proposal_options" :dtHeaders="proposal_headers"/>
-                            </div>
-                        </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="">Start date To</label>
+                    <div class="input-group date" ref="complianceStartDateToPicker">
+                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterComplianceStartTo">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>-->
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="">Due date From</label>
+                    <div class="input-group date" ref="complianceDueDateFromPicker">
+                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterComplianceDueFrom">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="">Due date To</label>
+                    <div class="input-group date" ref="complianceDueDateToPicker">
+                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterComplianceDueTo">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12" style="margin-top:25px;">
+                    <div v-if="datatableReady">
+                        <datatable ref="proposal_datatable" :id="datatable_id" :dtOptions="proposal_options" :dtHeaders="proposal_headers"/>
                     </div>
                 </div>
             </div>

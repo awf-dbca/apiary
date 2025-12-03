@@ -1,9 +1,8 @@
 <template lang="html">
-    <div>
         <div class="row col-sm-12" style="margin-bottom: 0.5em;">
-            <template v-if="is_external">
+            <div v-if="is_external">
                 <button :disabled="!onSiteInformationEnabled" class="btn btn-primary pull-right" @click="openOnSiteInformationModalToAdd">Add</button>
-            </template>
+            </div>
         </div>
 
         <div class="row col-sm-12">
@@ -15,7 +14,7 @@
             />
         </div>
 
-        <template v-if="approval_id">
+        <div v-if="approval_id">
             <OnSiteInformationModal
                 ref="on_site_information_modal"
                 :on_site_information="on_site_information_to_edit"
@@ -23,8 +22,7 @@
                 :key="modalBindId"
                 @on_site_information_added="onSiteInformationAdded"
             />
-        </template>
-    </div>
+        </div>
 </template>
 
 <script>

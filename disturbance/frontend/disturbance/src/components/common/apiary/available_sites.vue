@@ -1,104 +1,108 @@
 <template>
     <div class="container">
-        <!-- <div @click="fixCanvasCss">Fix</div> -->
-        <FormSection :formCollapse="false" label="Sites" Index="available_sites">
-            <div class="map-wrapper">
-                <div v-show="!fullscreen" id="filter_search_row_wrapper">
-                    <div class="filter_search_wrapper" style="margin-bottom: 5px;" id="filter_search_row">
-                        <div v-show="select2Applied">
-                            <div class="row" id="filters_parent">
-                                <div class="col-sm-1">
-                                    <label class="control-label">Status</label>
-                                </div>
-                                <div class="col-sm-3">
-                                    <select class="form-control" ref="filterStatus" ></select>
-                                </div>
-                                <div class="col-sm-1">
-                                    <label class="control-label">Availability</label>
-                                </div>
-                                <div class="col-sm-3">
-                                    <select class="form-control" ref="filterAvailability" ></select>
-                                </div>
-                                <div class="col-sm-1">
-                                    <label :for="search_text" class="control-label">Search</label>
-                                </div>
-                                <div class="col-sm-3">
-                                    <input v-model="search_text" pattern="[0-9]*" id="search_text" required class="form-control" />
+        <div class="row">
+            <div class="col-sm-12">
+                <!-- <div @click="fixCanvasCss">Fix</div> -->
+                <FormSection :formCollapse="false" label="Sites" Index="available_sites">
+                    <div class="map-wrapper">
+                        <div v-show="!fullscreen" id="filter_search_row_wrapper">
+                            <div class="filter_search_wrapper" style="margin-bottom: 5px;" id="filter_search_row">
+                                <div v-show="select2Applied">
+                                    <div class="row" id="filters_parent">
+                                        <div class="col-sm-1">
+                                            <label class="control-label">Status</label>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <select class="form-control" ref="filterStatus" ></select>
+                                        </div>
+                                        <div class="col-sm-1">
+                                            <label class="control-label">Availability</label>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <select class="form-control" ref="filterAvailability" ></select>
+                                        </div>
+                                        <div class="col-sm-1">
+                                            <label :for="search_text" class="control-label">Search</label>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <input v-model="search_text" pattern="[0-9]*" id="search_text" required class="form-control" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div :id="elem_id" class="map" style="position: relative;">
-                    <div :id="search_box_id" class="search-box">
-                        <input :id="search_input_id" class="search-input" placeholder="longitude, latitude OR address to search"/>
-                    </div>
-                    <div v-show="fullscreen" id="filter_search_on_map">
+                        <div :id="elem_id" class="map" style="position: relative;">
+                            <div :id="search_box_id" class="search-box">
+                                <input :id="search_input_id" class="search-input" placeholder="longitude, latitude OR address to search"/>
+                            </div>
+                            <div v-show="fullscreen" id="filter_search_on_map">
 
-                        <!-- filters on map here -->
+                                <!-- filters on map here -->
 
-                    </div>
-                    <div v-if="loading_sites" class="spinner_on_map">
-                        <i class='fa fa-4x fa-spinner fa-spin'></i>
-                    </div>
-                    <div class="basemap-button">
-                        <img id="basemap_sat" :src="satelliteIconUrl" @click="setBaseLayer('sat')" />
-                        <img id="basemap_osm" :src="mapIconUrl" @click="setBaseLayer('osm')" />
-                    </div>
-                    <div class="optional-layers-wrapper">
-                        <div class="optional-layers-button">
-                            <template v-if="mode === 'layer'">
-                                <img :src="infoBubbleSvgUrl" @click="set_mode('measure')" />
-                            </template>
-                            <template v-else>
-                                <img :src="rulerSvgUrl" @click="set_mode('layer')" />
-                            </template>
-                        </div>
-                        <div style="position:relative">
-                            <transition v-if="optionalLayers.length">
-                                <div class="optional-layers-button" @mouseover="hover=true" v-if="optionalLayers.length">
-                                    <img :src="layersSvgUrl" />
+                            </div>
+                            <div v-if="loading_sites" class="spinner_on_map">
+                                <i class='fa fa-4x fa-spinner fa-spin'></i>
+                            </div>
+                            <div class="basemap-button">
+                                <img id="basemap_sat" :src="satelliteIconUrl" @click="setBaseLayer('sat')" />
+                                <img id="basemap_osm" :src="mapIconUrl" @click="setBaseLayer('osm')" />
+                            </div>
+                            <div class="optional-layers-wrapper">
+                                <div class="optional-layers-button">
+                                    <template v-if="mode === 'layer'">
+                                        <img :src="infoBubbleSvgUrl" @click="set_mode('measure')" />
+                                    </template>
+                                    <template v-else>
+                                        <img :src="rulerSvgUrl" @click="set_mode('layer')" />
+                                    </template>
                                 </div>
-                            </transition>
-                            <transition v-if="optionalLayers.length">
-                                <div div class="layer_options" v-show="hover" @mouseleave="hover=false" >
-                                    <div v-for="layer in optionalLayers" :key="layer.ol_uid">
-                                        <input
-                                            type="checkbox"
-                                            :id="layer.ol_uid"
-                                            :checked="layer.values_.visible"
-                                            @change="changeLayerVisibility(layer)"
-                                            class="layer_option"
-                                        />
-                                        <label :for="layer.ol_uid" class="layer_option">{{ layer.get('title') }}</label>
-                                    </div>
+                                <div style="position:relative">
+                                    <transition v-if="optionalLayers.length">
+                                        <div class="optional-layers-button" @mouseover="hover=true" v-if="optionalLayers.length">
+                                            <img :src="layersSvgUrl" />
+                                        </div>
+                                    </transition>
+                                    <transition v-if="optionalLayers.length">
+                                        <div div class="layer_options" v-show="hover" @mouseleave="hover=false" >
+                                            <div v-for="layer in optionalLayers" :key="layer.ol_uid">
+                                                <input
+                                                    type="checkbox"
+                                                    :id="layer.ol_uid"
+                                                    :checked="layer.values_.visible"
+                                                    @change="changeLayerVisibility(layer)"
+                                                    class="layer_option"
+                                                />
+                                                <label :for="layer.ol_uid" class="layer_option">{{ layer.get('title') }}</label>
+                                            </div>
+                                        </div>
+                                    </transition>
                                 </div>
-                            </transition>
+                            </div>
+                        </div>
+                        <div class="button_row">
+                            <span class="view_all_button" @click="displayAllFeatures">View All On Map</span>
                         </div>
                     </div>
-                </div>
-                <div class="button_row">
-                    <span class="view_all_button" @click="displayAllFeatures">View All On Map</span>
-                </div>
-            </div>
-            <div :id="popup_id" class="ol-popup">
-                <a href="#" :id="popup_closer_id" class="ol-popup-closer">
-                    <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='20' width='20' class="close-icon">
-                        <g transform='scale(3)'>
-                            <path d     ="M 5.2916667,2.6458333 A 2.6458333,2.6458333 0 0 1 2.6458335,5.2916667 2.6458333,2.6458333 0 0 1 0,2.6458333 2.6458333,2.6458333 0 0 1 2.6458335,0 2.6458333,2.6458333 0 0 1 5.2916667,2.6458333 Z" style="fill:#ffffff;fill-opacity:1;stroke-width:0.182031" id="path846" />
-                            <path d     ="M 1.5581546,0.94474048 2.6457566,2.0324189 3.7334348,0.94474048 4.3469265,1.5581547 3.2592475,2.6458334 4.3469265,3.7334353 3.7334348,4.3469261 2.6457566,3.2593243 1.5581546,4.3469261 0.9447402,3.7334353 2.0323422,2.6458334 0.9447402,1.5581547 Z" style="fill:#f46464;fill-opacity:1;stroke:none;stroke-width:0.0512157" id="path2740-3" />
-                        </g>
-                    </svg>
-                </a>
-                <div :id="popup_content_id"></div>
-            </div>
-        </FormSection>
+                    <div :id="popup_id" class="ol-popup">
+                        <a href="#" :id="popup_closer_id" class="ol-popup-closer">
+                            <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='20' width='20' class="close-icon">
+                                <g transform='scale(3)'>
+                                    <path d     ="M 5.2916667,2.6458333 A 2.6458333,2.6458333 0 0 1 2.6458335,5.2916667 2.6458333,2.6458333 0 0 1 0,2.6458333 2.6458333,2.6458333 0 0 1 2.6458335,0 2.6458333,2.6458333 0 0 1 5.2916667,2.6458333 Z" style="fill:#ffffff;fill-opacity:1;stroke-width:0.182031" id="path846" />
+                                    <path d     ="M 1.5581546,0.94474048 2.6457566,2.0324189 3.7334348,0.94474048 4.3469265,1.5581547 3.2592475,2.6458334 4.3469265,3.7334353 3.7334348,4.3469261 2.6457566,3.2593243 1.5581546,4.3469261 0.9447402,3.7334353 2.0323422,2.6458334 0.9447402,1.5581547 Z" style="fill:#f46464;fill-opacity:1;stroke:none;stroke-width:0.0512157" id="path2740-3" />
+                                </g>
+                            </svg>
+                        </a>
+                        <div :id="popup_content_id"></div>
+                    </div>
+                </FormSection>
 
-        <ContactLicenceHolderModal
-            ref="contact_licence_holder_modal"
-            :key="modalBindId"
-            @contact_licence_holder="contactLicenceHolderOK"
-        />
+                <ContactLicenceHolderModal
+                    ref="contact_licence_holder_modal"
+                    :key="modalBindId"
+                    @contact_licence_holder="contactLicenceHolderOK"
+                />
+            </div>
+        </div>
     </div>
 </template>
 

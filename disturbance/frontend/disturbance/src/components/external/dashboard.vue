@@ -2,21 +2,31 @@
 <div class="container" id="externalDash">
     <div class="row">
         <div class="col-sm-12">
-            <div class="well well-sm">
-                <span v-html="welcomeMessage"></span>
-                <!--p>
-                    Welcome to the {{system_name}} online system dashboard.<br/><br/> Here you can access your existing approvals/licences, view any proposals/applications in progress, lodge new<br/> proposals/applications or submit information required to comply with requirements listed on your approval/license
-                </p-->
+            <div class="card mb-2 bg-light">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-9">
+                            <span v-html="welcomeMessage"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <FormSection :form-collapse="false" label="Applications" Index="proposals" subtitle="View existing applications and lodge new ones">
+                <ProposalDashTable level='external' :url='proposals_url'/>
+            </FormSection>
+            <FormSection :form-collapse="false" label="Licences" Index="proposals" subtitle="View existing licences and amend or renew them">
+                <ApprovalDashTable level='external' :url='approvals_url'/>
+            </FormSection>
+            <FormSection :form-collapse="false" label="Compliance with requirements" Index="proposals" subtitle="View submitted compliances and submit new ones">
+                <ComplianceDashTable level='external' :url='compliances_url'/>
+            </FormSection>
         </div>
     </div>
-    <ProposalDashTable level='external' :url='proposals_url'/>
-    <ApprovalDashTable level='external' :url='approvals_url'/>
-    <ComplianceDashTable level='external' :url='compliances_url'/>
 </div>
 </template>
 <script>
 
+import FormSection from '@/components/forms/section_toggle.vue';
 import ProposalDashTable from '@common-utils/proposals_dashboard.vue'
 import ApprovalDashTable from '@common-utils/approvals_dashboard.vue'
 import ComplianceDashTable from '@common-utils/compliances_dashboard.vue'
@@ -43,7 +53,8 @@ export default {
     components:{
         ProposalDashTable,
         ApprovalDashTable,
-        ComplianceDashTable
+        ComplianceDashTable,
+        FormSection,
     },
     watch: {},
     computed: {

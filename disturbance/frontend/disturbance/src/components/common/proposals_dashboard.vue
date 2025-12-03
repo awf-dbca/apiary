@@ -4,87 +4,76 @@
             proposals_dashboard.vue
         </template>
         <div class="col-sm-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{{dashboardTitle}} <small v-if="is_external">{{dashboardDescription}}</small>
-                        <a :href="'#'+pBody" data-toggle="collapse"  data-parent="#userInfo" expanded="true" :aria-controls="pBody">
-                            <span class="glyphicon glyphicon-chevron-up pull-right "></span>
-                        </a>
-                    </h3>
+            <div class="row">
+                <div v-if="!apiaryTemplateGroup">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <div v-show="select2Applied">
+                                <label for="">Region</label>
+                                <select style="width:100%" class="form-control input-sm" ref="filterRegion" >
+                                    <template v-if="select2Applied">
+                                        <option v-for="r in proposal_regions" :value="r" :key="r">{{r}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="panel-body collapse in" :id="pBody">
-                    <div class="row">
-                        <div v-if="!apiaryTemplateGroup">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <div v-show="select2Applied">
-                                        <label for="">Region</label>
-                                        <select style="width:100%" class="form-control input-sm" ref="filterRegion" >
-                                            <template v-if="select2Applied">
-                                                <option v-for="r in proposal_regions" :value="r" :key="r">{{r}}</option>
-                                            </template>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="">{{ activityFilterLabel }}</label>
-                                <select class="form-control" v-model="filterProposalActivity">
-                                    <option value="All">All</option>
-                                    <option v-for="a in proposal_activityTitles" :value="a" :key="a">{{a}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="">Status</label>
-                                <select class="form-control" v-model="filterProposalStatus">
-                                    <option value="All">All</option>
-                                    <option v-for="s in proposal_status" :value="s.value" :key="s.value">{{s.name}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div v-if="is_external" class="col-md-3">
-                            <router-link  style="margin-top:25px;" class="btn btn-primary pull-right" :to="{ name: 'apply_proposal' }">{{newProposalText}}</router-link>
-                        </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">{{ activityFilterLabel }}</label>
+                        <select class="form-control" v-model="filterProposalActivity">
+                            <option value="All">All</option>
+                            <option v-for="a in proposal_activityTitles" :value="a" :key="a">{{a}}</option>
+                        </select>
                     </div>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label for="">Lodged From</label>
-                            <div class="input-group date" ref="proposalDateFromPicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalLodgedFrom">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="">Lodged To</label>
-                            <div class="input-group date" ref="proposalDateToPicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalLodgedTo">
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="">Submitter</label>
-                                <select class="form-control" v-model="filterProposalSubmitter">
-                                    <option value="All">All</option>
-                                    <option v-for="s in proposal_submitters" :value="s.email" :key="s.email">{{s.search_term}}</option>
-                                </select>
-                            </div>
-                        </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">Status</label>
+                        <select class="form-control" v-model="filterProposalStatus">
+                            <option value="All">All</option>
+                            <option v-for="s in proposal_status" :value="s.value" :key="s.value">{{s.name}}</option>
+                        </select>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div v-if="datatableReady">
-                                <datatable ref="proposal_datatable" :id="datatable_id" :dtOptions="dt_options" :dtHeaders="dt_headers"/>
-                            </div>
-                        </div>
+                </div>
+                <div v-if="is_external" class="col-md-3">
+                    <router-link  style="margin-top:25px;" class="btn btn-primary pull-right" :to="{ name: 'apply_proposal' }">{{newProposalText}}</router-link>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="">Lodged From</label>
+                    <div class="input-group date" ref="proposalDateFromPicker">
+                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalLodgedFrom">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="">Lodged To</label>
+                    <div class="input-group date" ref="proposalDateToPicker">
+                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalLodgedTo">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">Submitter</label>
+                        <select class="form-control" v-model="filterProposalSubmitter">
+                            <option value="All">All</option>
+                            <option v-for="s in proposal_submitters" :value="s.email" :key="s.email">{{s.search_term}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div v-if="datatableReady">
+                        <datatable ref="proposal_datatable" :id="datatable_id" :dtOptions="dt_options" :dtHeaders="dt_headers"/>
                     </div>
                 </div>
             </div>

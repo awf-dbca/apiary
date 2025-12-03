@@ -2,7 +2,7 @@
     <div>
 
         <template v-if="is_internal">
-            <div class="form-group row">
+            <div class="form-group row mb-3">
                 <label class="col-sm-3">Do not charge annual site fee until</label>
                 <div class="col-sm-3">
                     <div class="input-group date" ref="untilDatePicker">
@@ -26,10 +26,10 @@
             </div>
         </template>
 
-        <div class="form-group row">
+        <div class="form-group row mb-3">
             <label class="col-sm-3">Calendar year</label>
             <div class="col-sm-4">
-                <select class="form-control" v-model="year_name_selected">
+                <select class="form-select" v-model="year_name_selected">
                     <template v-if="annual_rental_fee_periods">
                         <option value="all">
                             All
@@ -44,7 +44,7 @@
             </div>
         </div>
 
-        <div class="form-group row">
+        <div class="form-group row mb-3">
             <label class="col-sm-3">Invoice</label>
             <div class="col-sm-9">
                 <template v-for="annual_rental_fee_period in annual_rental_fee_periods">
@@ -64,7 +64,6 @@
                 </template>
             </div>
         </div>
-
     </div>
 </template>
 
