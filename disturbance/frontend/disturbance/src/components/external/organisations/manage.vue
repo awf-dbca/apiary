@@ -121,6 +121,10 @@ export default {
                     processing: constants.DATATABLE_PROCESSING_HTML,
                 },
                 responsive: true,
+                dom:
+                    "<'row'<'col-sm-5'l><'col-sm-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-5'i><'col-sm-7'p>>",
                 ajax: {
                     "url": '',
                     "dataSrc": ''
@@ -163,6 +167,10 @@ export default {
                     "url": '',
                     "dataSrc": ''
                 },
+                dom:
+                    "<'row'<'col-sm-5'l><'col-sm-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-5'i><'col-sm-7'p>>",
                 columns: [
                     {
                         data:'last_name',

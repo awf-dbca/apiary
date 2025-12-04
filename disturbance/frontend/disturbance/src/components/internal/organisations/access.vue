@@ -160,7 +160,7 @@ export default {
             deferRender: true, 
             autowidth: true,
             order: [[2, 'desc']],
-            dom:
+             dom:
                 "<'row'<'col-sm-5'l><'col-sm-6'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -195,6 +195,10 @@ export default {
             autowidth: true,
             order: [[0, 'desc']],
             processing:true,
+            dom:
+                "<'row'<'col-sm-5'l><'col-sm-6'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-5'i><'col-sm-7'p>>",
             ajax: {
                 "url": helpers.add_endpoint_json(api_endpoints.organisation_requests,vm.$route.params.access_id+'/comms_log'),
                 "dataSrc": '',
