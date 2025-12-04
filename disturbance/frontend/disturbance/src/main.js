@@ -29,12 +29,17 @@ window._ = _;
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import 'datatables.net';
-import 'datatables.net-bs';
-import 'datatables.net-responsive-bs';
+import 'datatables.net-bs5';
+
 import 'datatables.net-buttons/js/dataTables.buttons.js'
+import 'datatables.net-buttons-bs5';
 import 'datatables.net-buttons/js/buttons.html5.js'
-import "datatables.net-bs/css/dataTables.bootstrap.css"
-import "datatables.net-responsive-bs/css/responsive.bootstrap.css"
+
+import 'datatables.net-responsive/js/dataTables.responsive.js';
+import 'datatables.net-responsive-bs5';
+
+import '@/../node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css';
+import '@/../node_modules/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css';
 
 import "sweetalert2/dist/sweetalert2.css"
 

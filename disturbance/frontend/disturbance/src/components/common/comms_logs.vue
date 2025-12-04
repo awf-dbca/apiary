@@ -73,10 +73,9 @@ export default {
                 autowidth: true,
                 order: [[3, 'desc']], // order the non-formatted date as a hidden column
                 dom:
-                    "<'row'<'col-sm-5'l><'col-sm-6'f>>" +
+                    "<'row'<'col-sm-4'l><'col-sm-8'f>>" +
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-5'i><'col-sm-7'p>>",
-                processing:true,
                 ajax: {
                     "url": vm.logs_url, 
                     "dataSrc": '',
@@ -114,6 +113,10 @@ export default {
                 autowidth: true,
                 order: [[8, 'desc']], // order the non-formatted date as a hidden column
                 processing:true,
+                dom:
+                    "<'row'<'col-sm-4'l><'col-sm-8'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-5'i><'col-sm-7'p>>",
                 ajax: {
                     "url": vm.comms_url, 
                     "dataSrc": '',

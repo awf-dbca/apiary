@@ -62,25 +62,33 @@ export default {
                     "dataSrc": ''
                 },
                 order: [],
-                dom: 'lBfrtip',
+                dom: "<'d-flex align-items-center'<'me-auto'l>fB>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'d-flex align-items-center'<'me-auto'i>p>",
                 // buttons:[
                 // 'excel', 'csv', ], //'copy'
                 buttons:[
                 {
                     extend: 'excelHtml5',
+                    className: 'btn btn-primary me-2 rounded',
                     text:"Excel",
                     exportOptions:{
                         orthogonal:'export'
                     }
                 },
                 {
-                    extend: 'csv',
+                    extend: 'csvHTML5',
+                    className: 'btn btn-primary me-2 rounded',
                     text:"CSV",
                     exportOptions:{
                         orthogonal:'export'
                     }
                 }
                 ], //'copy'
+                columnDefs: [
+                    { responsivePriority: 1, targets: 0 }, // First visible column has top priority (e.g. proposal_number
+                    { responsivePriority: 2, targets: -1 }, // If the actions is the last entry in columns then this will make it 2nd top priority soo as long as the screen is a decent size it will always be shown
+                ],
                 columns: [
                     {
                         data: "requirement",
