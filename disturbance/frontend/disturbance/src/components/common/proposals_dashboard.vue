@@ -10,7 +10,7 @@
                         <div class="form-group">
                             <div v-show="select2Applied">
                                 <label for="">Region</label>
-                                <select style="width:100%" class="form-control input-sm" ref="filterRegion" >
+                                <select style="width:100%" class="form-select input-sm" ref="filterRegion" >
                                     <template v-if="select2Applied">
                                         <option v-for="r in proposal_regions" :value="r" :key="r">{{r}}</option>
                                     </template>
@@ -22,7 +22,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="">{{ activityFilterLabel }}</label>
-                        <select class="form-control" v-model="filterProposalActivity">
+                        <select class="form-select" v-model="filterProposalActivity">
                             <option value="All">All</option>
                             <option v-for="a in proposal_activityTitles" :value="a" :key="a">{{a}}</option>
                         </select>
@@ -31,7 +31,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="">Status</label>
-                        <select class="form-control" v-model="filterProposalStatus">
+                        <select class="form-select" v-model="filterProposalStatus">
                             <option value="All">All</option>
                             <option v-for="s in proposal_status" :value="s.value" :key="s.value">{{s.name}}</option>
                         </select>
@@ -63,7 +63,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="">Submitter</label>
-                        <select class="form-control" v-model="filterProposalSubmitter">
+                        <select class="form-select" v-model="filterProposalSubmitter">
                             <option value="All">All</option>
                             <option v-for="s in proposal_submitters" :value="s.email" :key="s.email">{{s.search_term}}</option>
                         </select>

@@ -7,7 +7,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="">Organisation</label>
-                            <select class="form-control" v-model="filterOrganisation">
+                            <select class="form-select" v-model="filterOrganisation">
                                 <option value="All">All</option>
                                 <option v-for="o in organisationChoices" :value="o" :key="o">{{o}}</option>
                             </select>
@@ -16,7 +16,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="">Applicant</label>
-                            <select class="form-control" v-model="filterApplicant">
+                            <select class="form-select" v-model="filterApplicant">
                                 <option value="All">All</option>
                                 <option v-for="a  in applicantChoices" :value="a" :key="a">{{a}}</option>
                             </select>
@@ -25,7 +25,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="">Role</label>
-                            <select class="form-control" v-model="filterRole">
+                            <select class="form-select" v-model="filterRole">
                                 <option value="All">All</option>
                                 <option v-for="r in roleChoices" :value="r" :key="r">{{r}}</option>
                             </select>
@@ -34,7 +34,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="">Status</label>
-                            <select class="form-control" v-model="filterStatus">
+                            <select class="form-select" v-model="filterStatus">
                                 <option value="All">All</option>
                                 <option v-for="s in statusChoices" :value="s" :key="s">{{s}}</option>
                             </select>

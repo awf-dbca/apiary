@@ -32,7 +32,7 @@
                         <label class="col-sm-4 col-form-label">Site</label>
                         <div class="col-sm-8">
                             <!-- select class="form-control" v-model="on_site_information.apiary_site" -->
-                            <select class="form-control" v-model="on_site_information.apiary_site_id">
+                            <select class="form-select" v-model="on_site_information.apiary_site_id">
                                 <option value=""></option>
                                 <!-- option v-for="site in apiary_sites_options" :value="site" :key="site.id" -->
                                 <option v-for="site in apiary_sites_options" :value="site.id" :key="site.id">
