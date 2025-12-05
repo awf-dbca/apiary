@@ -14,7 +14,7 @@
                         <div class="col-sm-12">
                             <button v-if="hasAssessorMode" @click.prevent="addRequirement()" style="margin-bottom:10px;" class="btn btn-primary pull-right">Add Requirement</button>
                         </div>
-                        <datatable ref="target_requirements_datatable" :id="'target-approval-requirements-datatable-'+uuid()" :dtOptions="requirement_options" :dtHeaders="requirement_headers"/>
+                        <datatable ref="target_requirements_datatable" :id="'target-approval-requirements-datatable-'+keyVersion" :dtOptions="requirement_options" :dtHeaders="requirement_headers"/>
                     </form>
                 </div>
             </div>
@@ -24,11 +24,11 @@
         :proposal_id="proposal.id" 
         :requirements="requirements"
         :sitetransfer_approval_id="targetApprovalId"
-        v-bind:key="uuid"/>
+        v-bind:key="keyVersion"/>
     </div>
 </template>
 <script>
-import { v4 as uuid } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import {
     api_endpoints,
     helpers,
@@ -47,7 +47,7 @@ export default {
     data: function() {
         let vm = this;
         return {
-            panelBody: "proposal-requirements-"+uuid(),
+            panelBody: "proposal-requirements-"+uuidv4(),
             //targetApproval: {},
             requirements: [],
             requirement_headers:[
@@ -57,7 +57,7 @@ export default {
                 "Action",
                 "Order"
             ],
-            uuid: 0,
+            keyVersion: 0,
             requirement_options:{
                 autoWidth: false,
                 language: {
@@ -250,7 +250,7 @@ export default {
     },
     methods:{
         addRequirement(){
-            this.uuid += 1;
+            this.keyVersion += 1;
             this.$nextTick(() => {
                 this.$refs.target_requirement_detail.isModalOpen = true;
             });

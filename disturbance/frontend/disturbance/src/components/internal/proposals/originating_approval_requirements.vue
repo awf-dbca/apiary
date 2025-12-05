@@ -232,6 +232,7 @@ export default {
         */
     },
     methods:{
+        uuid,
         addRequirement(){
             this.$refs.originating_requirement_detail.isModalOpen = true;
         },
