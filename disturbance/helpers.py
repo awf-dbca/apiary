@@ -8,6 +8,9 @@ import logging
 from rest_framework import serializers
 
 from disturbance.components.organisations.models import Organisation
+from disturbance.components.main.models import MapLayer
+from django.core.cache import cache
+
 logger = logging.getLogger(__name__)
 
 def belongs_to(user, group_name):
@@ -147,3 +150,17 @@ def is_authorised_to_modify_draft(request, instance):
 
     if not authorised:
         raise serializers.ValidationError('You are not authorised to modify this application.')
+    
+def get_proxy_cache():
+    proxy_cache_dumped_data =cache.get('utils_cache.get_proxy_cache()')
+    proxy_cache_array = []
+    if proxy_cache_dumped_data is None:
+        proxy_cache_query = MapLayer.objects.all()
+        
+        for pr in proxy_cache_query:
+            proxy_cache_array.append({'layer_name': pr.layer_name, 'cache_expiry' : pr.cache_expiry})
+
+        cache.set('utils_cache.get_proxy_cache()', proxy_cache_array, 86400)
+    else:
+        proxy_cache_array =  proxy_cache_dumped_data
+    return proxy_cache_array

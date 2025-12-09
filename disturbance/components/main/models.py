@@ -11,6 +11,8 @@ from ledger_api_client.ledger_models import EmailUserRO as EmailUser
 from django.db.models import JSONField
 from datetime import date
 
+from django.core.cache import cache
+
 from disturbance.components.main.utils import overwrite_regions_polygons, overwrite_districts_polygons
 
 class RevisionedMixin(models.Model):
@@ -73,6 +75,7 @@ class MapLayer(models.Model):
     option_for_internal = models.BooleanField(default=True)
     option_for_external = models.BooleanField(default=True)
     display_all_columns = models.BooleanField(default=False)
+    cache_expiry = models.IntegerField(default=300)
 
     class Meta:
         app_label = 'disturbance'
@@ -87,6 +90,11 @@ class MapLayer(models.Model):
         for column in self.columns.all():
             column_names.append(column.name)
         return ','.join(column_names)
+    
+    def save(self, *args, **kwargs):
+        cache.delete('utils_cache.get_proxy_cache()')
+        self.full_clean()
+        super(MapLayer, self).save(*args, **kwargs)
 
 
 class MapColumn(models.Model):

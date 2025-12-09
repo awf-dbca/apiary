@@ -118,10 +118,8 @@
                         </div>
                         <div class="grow1">
                             <div class="input-group date" ref="expiryDatePicker">
-                                <input type="text" class="form-control" placeholder="DD/MM/YYYY" id="expiry_date_input_element" :readonly="readonly"/>
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
+                                <input type="date" class="form-control" v-model="expiry_date_local" placeholder="DD/MM/YYYY" id="expiry_date_input_element" :readonly="readonly" />
+                                
                             </div>
                         </div>
                     </div>
@@ -280,6 +278,13 @@
             ApiaryChecklist,
             DeedPoll,
             ManageUser,
+        },
+        watch: {
+            
+            expiry_date_local: function(newDate){
+                let vm = this;
+                vm.$emit('expiry_date_changed', vm.expiry_date_local)
+            }
         },
         computed:{
             showVacantWhenSubmitted: function(){
@@ -458,23 +463,23 @@
             },
             addEventListeners: function () {
                 let vm = this;
-                let el_fr = $(vm.$refs.expiryDatePicker);
-                let options = {
-                    format: "DD/MM/YYYY",
-                    showClear: true ,
-                    useCurrent: false,
-                };
-                el_fr.datetimepicker(options);
-                el_fr.on("dp.change", function(e) {
-                    if (e.date){
-                        // Date selected
-                        vm.expiry_date_local= e.date.format('DD/MM/YYYY')  // e.date is moment object
-                    } else {
-                        // Date not selected
-                        vm.expiry_date_local = null;
-                    }
-                    vm.$emit('expiry_date_changed', vm.expiry_date_local)
-                });
+                // let el_fr = $(vm.$refs.expiryDatePicker);
+                // let options = {
+                //     format: "DD/MM/YYYY",
+                //     showClear: true ,
+                //     useCurrent: false,
+                // };
+                // el_fr.datetimepicker(options);
+                // el_fr.on("dp.change", function(e) {
+                //     if (e.date){
+                //         // Date selected
+                //         vm.expiry_date_local= e.date.format('DD/MM/YYYY')  // e.date is moment object
+                //     } else {
+                //         // Date not selected
+                //         vm.expiry_date_local = null;
+                //     }
+                //     vm.$emit('expiry_date_changed', vm.expiry_date_local)
+                // });
                 //***
                 // Set dates in case they are passed from the parent component
                 //***

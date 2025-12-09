@@ -96,6 +96,7 @@
     import MeasureStyles, { formatLength } from '@/components/common/apiary/measure.js'
     import Awesomplete from 'awesomplete'
     import { api_endpoints } from '@/utils/hooks'
+    import { toRaw } from 'vue';
 
     export default {
         props:{
@@ -168,15 +169,16 @@
         },
         mounted: function(){
             let vm = this;
-            this.$nextTick(() => {
-                vm.addEventListeners()
-            });
+            
             vm.initMap()
             vm.setBaseLayer('osm')
             vm.set_mode('layer')
             vm.addOptionalLayers()
             vm.displayAllFeatures()
             vm.initAwesomplete()
+            this.$nextTick(() => {
+                vm.addEventListeners()
+            });
         },
         components: {
 
@@ -445,8 +447,10 @@
 
                 vm.map = new Map({
                     layers: [
-                        vm.tileLayerOsm,
-                        vm.tileLayerSat,
+                        // vm.tileLayerOsm,
+                        // vm.tileLayerSat,
+                        toRaw(vm.tileLayerOsm), 
+                        toRaw(vm.tileLayerSat),
                     ],
                     //target: 'map',
                     target: vm.elem_id,
@@ -762,9 +766,13 @@
                 let vm = this
 
                 let searchLatLng = document.getElementById(this.search_input_id)
-                searchLatLng.addEventListener('input', function(ev){
-                    vm.search(ev.target.value);
-                })
+                if (searchLatLng) {
+                    searchLatLng.addEventListener('input', function(ev){
+                        vm.search(ev.target.value);
+                    });
+                } else {
+                    console.error('searchLatLng is null');
+                }
             },
             displayAllFeatures: function() {
                 if (this.apiarySitesQuerySource.getFeatures().length>0){
@@ -913,6 +921,10 @@
     }
     .layer_option:hover {
         cursor: pointer;
+    }
+     .map {
+        width: 100%;
+        height: 500px;
     }
     
 </style>

@@ -25,7 +25,7 @@
 {% endblock extra_css %}
 
 {% block extra_js %}
-    {% vite_hmr_client %}
+    {% vite_hmr_client app='default' %}
 {% endblock extra_js %}
 
 {% block custom_js %}
@@ -34,7 +34,7 @@
             "kb_server_url": "{{ KB_SERVER_URL }}",
         }
     </script>
-    {% vite_asset vue3_entry_script %}
+    {% vite_asset vue3_entry_script app='default' %}
 {% endblock custom_js %}
 
 {% block menu_items_left_brand %}
@@ -48,7 +48,7 @@
 
 {% block menu_items2_right %}
   {% if request.user.is_authenticated %}
-
+    
   {% else %}
     <a href="ssologin/" class="btn btn-primary btn-sm">Login</a>
   {% endif %}

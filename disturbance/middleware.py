@@ -9,6 +9,7 @@ from disturbance.components.ap_payments.models import ApplicationFee
 from reversion.middleware  import RevisionMiddleware
 from reversion.views import _request_creates_revision
 from urllib.parse import quote_plus
+from django.utils.deprecation import MiddlewareMixin
 
 logger = logging.getLogger(__name__)
 
@@ -57,12 +58,8 @@ class FirstTimeDefaultNag(object):
             and "/firsttime/" not in request.get_full_path()):
 
             path_first_time = '/ledger-ui/accounts-firsttime'
-
             if (not request.user.first_name) or \
                 (not request.user.last_name) or \
-                (not request.user.legal_first_name) or \
-                (not request.user.legal_last_name) or \
-                (not request.user.dob and not request.user.legal_dob) or \
                 (not request.user.residential_address) or \
                 (not (
                     request.user.phone_number or request.user.mobile_number
@@ -87,8 +84,15 @@ class RevisionOverrideMiddleware(RevisionMiddleware):
         return _request_creates_revision(request) and 'checkout' not in request.get_full_path()
 
 
-class CacheControlMiddleware(object):
-    def process_response(self, request, response):
+
+class CacheControlMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
         if request.path[:5] == '/api/' or request.path == '/':
             response['Cache-Control'] = 'private, no-store'
         elif request.path[:8] == '/static/':
@@ -96,5 +100,4 @@ class CacheControlMiddleware(object):
         else:
             response['Cache-Control'] = 'private, no-store'
         return response
-
 

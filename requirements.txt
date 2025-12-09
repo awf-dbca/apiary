@@ -3,6 +3,7 @@ django-extensions~=3.2.3
 git+https://github.com/dbca-wa/ledger_api_client.git
 git+https://github.com/dbca-wa/dpaw-utils.git@0.4.2#egg=dpaw-utils
 git+https://github.com/dbca-wa/webtemplate2.git#egg=webtemplate_dbca
+git+https://github.com/dbca-wa/wagov_utils.git#egg=wagov_utils
 coverage~=7.8.0
 coveralls~=4.0.1
 reportlab~=4.4.1
