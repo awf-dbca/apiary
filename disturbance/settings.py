@@ -80,11 +80,11 @@ REST_FRAMEWORK = {
 USE_DJANGO_JQUERY= True
 # JQUERY_URL = True
 
-MIDDLEWARE = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-)
+# MIDDLEWARE = (
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+# )
 
 MIDDLEWARE_CLASSES += [
     'disturbance.middleware.FirstTimeNagScreenMiddleware',
@@ -92,6 +92,7 @@ MIDDLEWARE_CLASSES += [
     'disturbance.middleware.CacheControlMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
+
 
 TEMPLATES[0]['DIRS'].append(os.path.join(BASE_DIR, 'disturbance', 'templates'))
 TEMPLATES[0]['DIRS'].append(os.path.join(BASE_DIR, 'disturbance', 'components','ap_payments', 'templates'))
@@ -284,6 +285,8 @@ for am in LEDGER_UI_ACCOUNTS_MANAGEMENT:
 # LEDGER_UI_CARDS_MANAGEMENT = env('LEDGER_UI_CARDS_MANAGEMENT', True)
 
 RUNNING_DEVSERVER = len(sys.argv) > 1 and sys.argv[1] == "runserver"
+
+MIDDLEWARE = MIDDLEWARE_CLASSES 
 
 # Make sure this returns true when in local development
 # so you can use the vite dev server with hot module reloading
