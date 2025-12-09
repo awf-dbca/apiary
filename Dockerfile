@@ -137,8 +137,7 @@ RUN mkdir -p /app/disturbance/static/disturbance_vue/static
 RUN ls -al /app/disturbance/frontend/disturbance
 RUN cd /app/disturbance/frontend/disturbance/; npm install
 RUN cd /app/disturbance/frontend/disturbance/; npm run build
-# Please renabled once fixed 
-# RUN python manage_ds.py collectstatic --noinput
+RUN python manage_ds.py collectstatic --noinput
 RUN mkdir /app/tmp/
 RUN chmod 777 /app/tmp/
 

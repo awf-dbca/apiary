@@ -94,7 +94,7 @@
                                           <div class="form-group">
                                             <label for="" class="col-sm-3 control-label" >Country</label>
                                             <div class="col-sm-4">
-                                                <select class="form-control" name="country" v-model="org.address.country">
+                                                <select class="form-select" name="country" v-model="org.address.country">
                                                     <option v-for="c in countries" :value="c.code" :key="c.code">{{ c.name }}</option>
                                                 </select>
                                             </div>

@@ -48,10 +48,10 @@
                             <div class="col-sm-12 top-buffer-s">
                                 <strong>Currently assigned to</strong><br/>
                                 <div class="form-group">
-                                    <select v-show="isLoading" class="form-control">
+                                    <select v-show="isLoading" class="form-select">
                                         <option value="">Loading...</option>
                                     </select>
-                                    <select @change="assignTo" :disabled="isFinalised || !check_assessor()" v-if="!isLoading" class="form-control" v-model="access.assigned_officer">
+                                    <select @change="assignTo" :disabled="isFinalised || !check_assessor()" v-if="!isLoading" class="form-select" v-model="access.assigned_officer">
                                         <option value="null">Unassigned</option>
                                         <option v-for="member in members" :value="member.id" :key="member.id">{{member.name}}</option>
                                     </select>

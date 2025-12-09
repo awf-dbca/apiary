@@ -13,13 +13,13 @@
                                             <label class="control-label">Status</label>
                                         </div>
                                         <div class="col-sm-3">
-                                            <select class="form-control" ref="filterStatus" ></select>
+                                            <select class="form-select" ref="filterStatus" ></select>
                                         </div>
                                         <div class="col-sm-1">
                                             <label class="control-label">Availability</label>
                                         </div>
                                         <div class="col-sm-3">
-                                            <select class="form-control" ref="filterAvailability" ></select>
+                                            <select class="form-select" ref="filterAvailability" ></select>
                                         </div>
                                         <div class="col-sm-1">
                                             <label :for="search_text" class="control-label">Search</label>

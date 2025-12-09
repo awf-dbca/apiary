@@ -52,7 +52,7 @@
                             <div class="col-sm-12 top-buffer-s">
                                 <strong>Currently assigned to</strong><br/>
                                 <div class="form-group">
-                                    <select ref="assigned_officer_referral" :disabled="!canProcess" class="form-control" v-model="apiaryReferral.assigned_officer_id">
+                                    <select ref="assigned_officer_referral" :disabled="!canProcess" class="form-select" v-model="apiaryReferral.assigned_officer_id">
                                         <option :value="null"></option>
                                         <option v-for="member in apiaryReferral.allowed_assessors" :value="member.id" :key="member.id">{{member.first_name}} {{member.last_name}}</option>
                                     </select>
