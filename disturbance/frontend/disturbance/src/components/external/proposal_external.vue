@@ -65,6 +65,7 @@
                     @total_num_of_sites_on_map="total_num_of_sites_on_map_changed"
                     @fee_remote_renewal="update_fee_remote_renewal"
                     @fee_south_west_renewal="update_fee_south_west_renewal"
+                    class="row"
                 />
             </template>
             <template v-else-if="proposal && proposal.application_type=='Site Transfer'">
