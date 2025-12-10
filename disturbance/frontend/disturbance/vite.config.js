@@ -44,7 +44,7 @@ export default defineConfig(() => {
                 // Probably a better way but I couldn't figure it out
                 targets: [
                     // Copy the non-svgs to src but leave the svgs in assets
-                    // { src: 'src/assets/*.gif', dest: 'src' },
+                    { src: 'src/assets/*.gif', dest: 'src' },
                     { src: 'src/assets/*.jpg', dest: 'src' },
                     { src: 'src/assets/*.json', dest: 'src' },
                     { src: 'src/assets/*.png', dest: 'src' },
@@ -95,7 +95,7 @@ export default defineConfig(() => {
                 input: {
                     main: path.resolve(__dirname, 'src/main.js'),
                 },
-                // external: ['moment'],
+                external: ['moment'],
             },
             emptyOutDir: true,
         },

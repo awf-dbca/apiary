@@ -52,19 +52,35 @@
                 <div class="col-md-3">
                     <label for="">Lodged From</label>
                     <div class="input-group date" ref="proposalDateFromPicker">
-                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalLodgedFrom">
+                        <!-- <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalLodgedFrom">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
+                        </span> -->
+                         <input
+                            id="proposal-lodged-from"
+                            type="date"
+                            class="form-control"
+                            v-model="proposal_lodged_from"
+                            placeholder="DD/MM/YYYY"
+                            :max="proposal_lodged_to"
+                        >
                     </div>
                 </div>
                 <div class="col-md-3">
                     <label for="">Lodged To</label>
                     <div class="input-group date" ref="proposalDateToPicker">
-                        <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalLodgedTo">
+                        <!-- <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalLodgedTo">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
+                        </span> -->
+                        <input
+                                id="proposal-lodged-to"
+                                type="date"
+                                class="form-control"
+                                v-model="proposal_lodged_to"
+                                placeholder="DD/MM/YYYY"
+                                :min="proposal_lodged_from"
+                            >
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -115,17 +131,12 @@ export default {
             filterProposalActivity: 'All',
             filterProposalApplicationType: 'All',
             filterProposalStatus: 'All',
-            filterProposalLodgedFrom: '',
-            filterProposalLodgedTo: '',
+            // filterProposalLodgedFrom: '',
+            // filterProposalLodgedTo: '',
+            proposal_lodged_from: '',
+            proposal_lodged_to: '',
             filterProposalSubmitter: 'All',
             dateFormat: 'DD/MM/YYYY',
-            datepickerOptions:{
-                format: 'DD/MM/YYYY',
-                showClear:true,
-                useCurrent:false,
-                keepInvalid:true,
-                allowInputToggle:true
-            },
             proposal_status:[],
             proposal_activityTitles : [],
             proposal_applicationTypes : [],
@@ -162,8 +173,10 @@ export default {
                     "data": function ( d ) {
                         d.regions = vm.filterProposalRegion.join();
                         //d.processing_status = vm.filterProposalStatus;
-                        d.date_from = vm.filterProposalLodgedFrom != '' && vm.filterProposalLodgedFrom != null ? moment(vm.filterProposalLodgedFrom, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
-                        d.date_to = vm.filterProposalLodgedTo != '' && vm.filterProposalLodgedTo != null ? moment(vm.filterProposalLodgedTo, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
+                        // d.date_from = vm.filterProposalLodgedFrom != '' && vm.filterProposalLodgedFrom != null ? moment(vm.filterProposalLodgedFrom, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
+                        // d.date_to = vm.filterProposalLodgedTo != '' && vm.filterProposalLodgedTo != null ? moment(vm.filterProposalLodgedTo, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
+                        d.date_from = vm.proposal_lodged_from != '' && vm.proposal_lodged_from != null ? moment(vm.proposal_lodged_from, 'YYYY-MM-DD').format('YYYY-MM-DD'): '';
+                        d.date_to = vm.proposal_lodged_to != '' && vm.proposal_lodged_to != null ? moment(vm.proposal_lodged_to, 'YYYY-MM-DD').format('YYYY-MM-DD'): '';
                         d.application_type = vm.filterProposalApplicationType;
                         d.proposal_activity = vm.filterProposalActivity;
                         d.submitter = vm.filterProposalSubmitter;
@@ -398,10 +411,7 @@ export default {
                 vm.$refs.proposal_datatable.vmDataTable.column('proposal__submitter__email:name').search('').draw();
             }
         },
-        filterProposalLodgedFrom: function(){
-            this.$refs.proposal_datatable.vmDataTable.draw();
-        },
-        filterProposalLodgedTo: function(){
+        dateRangeIdentifierForReloadProposalTable: function(){
             this.$refs.proposal_datatable.vmDataTable.draw();
         }
     },
@@ -422,6 +432,27 @@ export default {
             return returnVal;
         },
         */
+       filterProposalLodgedFrom: {
+            get() {
+                // If our internal date exists, convert it for submission, etc
+                if (this.proposal_lodged_from) {
+                    return moment(this.proposal_lodged_from, 'YYYY-MM-DD').format('DD/MM/YYYY');
+                }
+                return ''; // Otherwise, return an empty string.
+            }
+        },
+        filterProposalLodgedTo : {
+            get() {
+                // If our internal date exists, convert it for submission, etc
+                if (this.proposal_lodged_from) {
+                    return moment(this.proposal_lodged_to, 'YYYY-MM-DD').format('DD/MM/YYYY');
+                }
+                return ''; // Otherwise, return an empty string.
+            }
+        },
+        dateRangeIdentifierForReloadProposalTable() {
+            return `${this.proposal_lodged_from}|${this.proposal_lodged_to}`;
+        },
         dashboardTitle: function() {
             let title = ''
             if (this.apiaryTemplateGroup) {
@@ -477,25 +508,25 @@ export default {
         addEventListeners: function(){
             let vm = this;
             // Initialise Proposal Date Filters
-            $(vm.$refs.proposalDateToPicker).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.proposalDateToPicker).on('dp.change', function(e){
-                if ($(vm.$refs.proposalDateToPicker).data('DateTimePicker').date()) {
-                    vm.filterProposalLodgedTo =  e.date.format('DD/MM/YYYY');
-                }
-                else if ($(vm.$refs.proposalDateToPicker).data('date') === "") {
-                    vm.filterProposaLodgedTo = "";
-                }
-             });
-            $(vm.$refs.proposalDateFromPicker).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.proposalDateFromPicker).on('dp.change',function (e) {
-                if ($(vm.$refs.proposalDateFromPicker).data('DateTimePicker').date()) {
-                    vm.filterProposalLodgedFrom = e.date.format('DD/MM/YYYY');
-                    $(vm.$refs.proposalDateToPicker).data("DateTimePicker").minDate(e.date);
-                }
-                else if ($(vm.$refs.proposalDateFromPicker).data('date') === "") {
-                    vm.filterProposalLodgedFrom = "";
-                }
-            });
+            // $(vm.$refs.proposalDateToPicker).datetimepicker(vm.datepickerOptions);
+            // $(vm.$refs.proposalDateToPicker).on('dp.change', function(e){
+            //     if ($(vm.$refs.proposalDateToPicker).data('DateTimePicker').date()) {
+            //         vm.filterProposalLodgedTo =  e.date.format('DD/MM/YYYY');
+            //     }
+            //     else if ($(vm.$refs.proposalDateToPicker).data('date') === "") {
+            //         vm.filterProposaLodgedTo = "";
+            //     }
+            //  });
+            // $(vm.$refs.proposalDateFromPicker).datetimepicker(vm.datepickerOptions);
+            // $(vm.$refs.proposalDateFromPicker).on('dp.change',function (e) {
+            //     if ($(vm.$refs.proposalDateFromPicker).data('DateTimePicker').date()) {
+            //         vm.filterProposalLodgedFrom = e.date.format('DD/MM/YYYY');
+            //         $(vm.$refs.proposalDateToPicker).data("DateTimePicker").minDate(e.date);
+            //     }
+            //     else if ($(vm.$refs.proposalDateFromPicker).data('date') === "") {
+            //         vm.filterProposalLodgedFrom = "";
+            //     }
+            // });
             // End Proposal Date Filters
             // External Discard listener
             vm.$refs.proposal_datatable.vmDataTable.on('click', 'a[data-discard-proposal]', function(e) {

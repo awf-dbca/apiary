@@ -281,7 +281,7 @@
         },
         watch: {
             
-            expiry_date_local: function(newDate){
+            expiry_date_local: function(){
                 let vm = this;
                 vm.$emit('expiry_date_changed', vm.expiry_date_local)
             }

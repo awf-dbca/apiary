@@ -7,27 +7,40 @@
                         <alert v-if="showError" type="danger"><strong>{{errorString}}</strong></alert>
                         <div class="col-sm-12">
                             <div class="form-group">
-                                <div class="row">
+                                <div class="row mb-3">
                                     <div class="col-sm-3">
 
-                                        <label class="control-label pull-left"  for="Name">Surrender Date</label>
+                                        <label class="col-form-label pull-left"  for="Name">Surrender Date</label>
                                     </div>
                                     <div class="col-sm-9">
                                         <div class="input-group date" ref="surrender_date" style="width: 70%;">
-                                            <input type="text" class="form-control" name="surrender_date" placeholder="DD/MM/YYYY" v-model="approval.surrender_date">
+                                            <!-- <input type="text" class="form-control" name="surrender_date" placeholder="DD/MM/YYYY" v-model="approval.surrender_date">
                                             <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
+                                            </span> -->
+                                            <input
+                                                v-model="
+                                                    approval.surrender_date
+                                                "
+                                                type="date"
+                                                class="form-control"
+                                                name="surrender_date"
+                                                placeholder="DD/MM/YYYY"
+                                                required
+                                            />
+                                            <div class="invalid-feedback">
+                                                Please enter a valid date
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <div class="row">
+                                <div class="row mb-3">
                                     <div class="col-sm-3">
 
-                                        <label class="control-label pull-left"  for="Name">Surrender Details</label>
+                                        <label class="col-form-label pull-left"  for="Name">Surrender Details</label>
                                     </div>
                                     <div class="col-sm-9">
                                         <textarea name="surrender_details" class="form-control" style="width:70%;" v-model="approval.surrender_details"></textarea>
@@ -41,8 +54,8 @@
             </div>
             <template #footer>
                 <button type="button" v-if="issuingApproval" disabled class="btn btn-default" @click="ok"><i class="fa fa-spinner fa-spin"></i> Processing</button>
-                <button type="button" v-else class="btn btn-default" @click="ok">Ok</button>
-                <button type="button" class="btn btn-default" @click="cancel">Cancel</button>
+                <button type="button" v-else class="btn btn-primary" @click="ok">Ok</button>
+                <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>
             </template>
         </modal>
     </div>
@@ -112,7 +125,6 @@ export default {
             this.approval = {};
             this.errors = false;
             $('.has-error').removeClass('has-error');
-            $(this.$refs.surrender_date).data('DateTimePicker').clear();
             this.validation_form.resetForm();
         },
         fetchContact: function(id){
@@ -193,20 +205,6 @@ export default {
             });
        },
        eventListeners:function () {
-            let vm = this;
-            // Initialise Date Picker
-
-            $(vm.$refs.surrender_date).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.surrender_date).on('dp.change', function(e){
-                if ($(vm.$refs.surrender_date).data('DateTimePicker').date()) {
-                    vm.approval.surrender_date =  e.date.format('DD/MM/YYYY');
-                }
-                else if ($(vm.$refs.surrender_date).data('date') === "") {
-                    vm.approval.surrender_date = "";
-                }
-             });
-
-
        }
    },
    mounted:function () {
