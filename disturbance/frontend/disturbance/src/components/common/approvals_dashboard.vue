@@ -292,7 +292,7 @@ export default {
                 return ''; // Otherwise, return an empty string.
             }
         },
-        filterProposaExpiryTo : {
+        filterProposalExpiryTo : {
             get() {
                 // If our internal date exists, convert it for submission, etc
                 if (this.proposal_expiry_to) {
