@@ -5,21 +5,24 @@
             <FormSection :form-collapse="false" label="Search Organisations">
                 <div class="row">
                     <form name="searchOrganisationForm">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="control-label" for="Organisation">Search Organisation</label>
-                                <select v-if="organisations == null" class="form-select" name="organisation">
-                                    <option value="">Loading...</option>
-                                </select>
-                                <select v-else ref="searchOrg" class="form-select" name="organisation">
-                                    <option value="">Select Organisation</option>
-                                    <option v-for="o in organisations" :value="o.id" :key="o.id">{{ o.name }}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-12 text-center">
+                      <div class="form-group">
+                        <label class="col-form-label" for="Organisation">Search Organisation</label>
+                        <div class="row">
+                          <div class="col-md-8">
+                            <select v-if="organisations == null" class="form-select" name="organisation">
+                                <option value="">Loading...</option>
+                            </select>
+                            <select v-else ref="searchOrg" class="form-select" name="organisation">
+                                <option value="">Select Organisation</option>
+                                <option v-for="o in organisations" :value="o.id" :key="o.id">{{ o.name }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-4">
                             <router-link v-if="selected_organisation !== ''" :to="{name:'internal-org-detail',params:{'org_id':parseInt(selected_organisation)}}" class="btn btn-primary">View Details</router-link>
+                            <span v-else class="btn btn-primary disabled" style="pointer-events: none; opacity: 0.6;">View Details</span>
+                          </div>
                         </div>
+                    </div>
                     </form>
                 </div>
             </FormSection>
@@ -67,7 +70,7 @@
         <div class="col-sm-12">
             <FormSection :form-collapse="false" label="Search Keywords">
               <div class="row">
-                <div>
+                <div class="col-lg-12">
                     <div class="form-group">
                       <label for="" class="control-label col-lg-12">Filter</label>
                       <div class="form-check form-check-inline col-md-3">
@@ -84,39 +87,34 @@
                           <label class="form-check-label" for="searchCompliance">Compliance with requirements</label>
                       </div> 
                       <label for="" class="control-label col-lg-12">Keyword</label>                              
-                        <div class="col-md-8">
-                          <input type="search"  class="form-control input-sm" name="details" placeholder="" v-model="keyWord" />
-                        </div> 
-                        <div class="col-md-1">                                  
-                        </div>
-                        <div class="col-md-3">
-                          <input type="button" @click.prevent="add" class="btn btn-primary" value="Add"/>
+                        <div class="row">
+                          <div class="col-md-8">
+                            <input type="search"  class="form-control input-sm" name="details" placeholder="" v-model="keyWord" style="width:100%"/>
+                          </div> 
+                          <div class="col-md-3">
+                            <input type="button" @click.prevent="add" class="btn btn-primary" value="Add"/>
+                          </div>     
                         </div>                                                                               
                     </div>
-                                                
                 </div>
-                              
               </div>
 
-              <div class="row">
+              <div class="row mb-3">
                 <div class="col-lg-12">
                     <ul class="list-inline" style="display: inline; width: auto;">                          
                         <li class="list-inline-item" v-for="(item,i) in searchKeywords" :key="i">
-                          <button @click.prevent="" class="btn btn-light" style="margin-top:5px; margin-bottom: 5px">{{item}}</button><a href="" @click.prevent="removeKeyword(i)"><span class="glyphicon glyphicon-remove "></span></a>
+                          <button @click.prevent="" class="btn btn-light" style="margin-top:5px; margin-bottom: 5px">{{item}}</button><a href="" @click.prevent="removeKeyword(i)"><span class="bi bi-x "></span></a>
                         </li>
                     </ul>
                 </div>
               </div>
 
-              <div class="row">
+              <div class="row mb-2">
                 <div class="col-lg-12">
-                  <div >
-                    <button  v-if="searching" type="button" class="btn btn-primary" style="margin-bottom: 5px" value="Search" disabled>
-                      Search<i class="fa fa-circle-o-notch fa-spin fa-fw"></i></button>
-                    <input v-else type="button" @click.prevent="search" class="btn btn-primary" style="margin-bottom: 5px" value="Search"/>
-                    <input type="reset" @click.prevent="reset" class="btn btn-primary" style="margin-bottom: 5px" value="Clear"/>
-
-                  </div>
+                  <button  v-if="searching" type="button" class="btn btn-primary btn-margin" style="margin-bottom: 5px" value="Search" disabled>
+                    Search<i class="fa fa-circle-o-notch fa-spin fa-fw"></i></button>
+                  <input v-else type="button" @click.prevent="search" class="btn btn-primary btn-margin" style="margin-bottom: 5px" value="Search"/>
+                  <input type="reset" @click.prevent="reset" class="btn btn-primary" style="margin-bottom: 5px" value="Clear"/>
                 </div> 
               </div>
 
@@ -132,21 +130,27 @@
     <div class="row">
         <div class="col-sm-12">
             <FormSection :form-collapse="false" label="Search Reference Number">
-              <div class="row">
-                  <label for="" class="control-label col-lg-12">Keyword</label>                              
+              <div class="row mb-1">
+                  <label for="" class="control-label col-lg-12">Keyword</label>  
+                  <div class="row">
                     <div class="col-md-8">
                         <input type="search"  class="form-control input-sm" name="referenceWord" placeholder="" v-model="referenceWord" />
                     </div> 
-                    <div >
+                    <div class="col-md-3">
                       <input type="button" @click.prevent="search_reference" class="btn btn-primary" style="margin-bottom: 5px" value="Search"/>
+                    </div>
                   </div>
-                  <alert v-if="showError" type="danger"><strong>{{errorString}}</strong></alert>
+                  <div>
+                    <alert v-if="showError" type="danger"><strong>{{errorString}}</strong></alert>
+                  </div>
               </div>
             </FormSection>
         </div>
     </div>
     <div class="row">
-      <searchSection></searchSection>
+      <div class="col-sm-12">
+        <searchSection></searchSection>
+      </div>
     </div>
 </div>
 </template>

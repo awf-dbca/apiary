@@ -1,172 +1,176 @@
 <template>
-<div class="container" id="internalSearch">
-  <div class="row">
-    <div class="col-sm-12">
-      <FormSection :form-collapse="false" label="Search Question">
-        <div class="row">
-          <div class="col-sm-12">
-            <div>
-              <label for="" class="control-label" >Proposal Type</label>
-              <div>
-                  <div class="form-group">
-                    <select class="form-select" style="width:40%" v-model="selected_application_name" @change="chainedSelectAppType(selected_application_name)">
-                        <option value="" selected disabled>Proposal Type</option>
-                        <option v-for="application_type in application_types" :value="application_type.text" :key="application_type.value">
-                              {{ application_type.text }}
-                        </option>
-                    </select>
-                  </div>
+<div id="internalSearch">
+  <FormSection :form-collapse="false" label="Search Question">
+    <div class="row">
+      <div class="col-sm-12">
+        <div>
+          <label for="" class="control-label" >Proposal Type</label>
+          <div>
+              <div class="form-group">
+                <select class="form-select" style="width:40%" v-model="selected_application_name" @change="chainedSelectAppType(selected_application_name)">
+                    <option value="" selected disabled>Proposal Type</option>
+                    <option v-for="application_type in application_types" :value="application_type.text" :key="application_type.value">
+                          {{ application_type.text }}
+                    </option>
+                </select>
               </div>
-            </div>
-            <div v-if="display_region_selectbox">
-              <label for="" class="control-label" >Region  
-                <!-- <a :href="region_help_url" target="_blank"><i class="fa fa-question-circle" style="color:blue">&nbsp;</i></a>  -->
-              </label>
-              <div >
-                <div class="form-group">
-                    <select v-model="selected_region" class="form-select" style="width:40%" @change="chainedSelectDistricts(selected_region)">
-                        <option value="" selected disabled>Select region</option>
-                        <option v-for="region in regions" :value="region.value" :key="region.value">
-                            {{ region.text }}
-                        </option>
-                    </select>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="display_region_selectbox">
-              <label for="" class="control-label">District 
-                <!-- <a :href="district_help_url" target="_blank"><i class="fa fa-question-circle" style="color:blue">&nbsp;</i></a> -->
-              </label>
-              <div >
-                <div class="form-group">
-                    <select  v-model="selected_district" class="form-select" style="width:40%">
-                    <option value="" selected disabled>Select district</option>
-                        <option v-for="district in districts" :value="district.value" :key="district.value">
-                            {{ district.text }}
-                        </option>
-                    </select>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="display_activity_matrix_selectbox">
-              <!--<div v-if="activities.length > 0">-->
-                <label for="" class="control-label" >Activity Type  
-                  <!-- <a :href="activity_type_help_url" target="_blank"><i class="fa fa-question-circle" style="color:blue">&nbsp;</i></a> -->
-                </label>
-                <div >
-                  <div class="form-group">
-                    <select v-model="selected_activity" class="form-select" style="width:40%">
-                      <option value="" selected disabled>Select activity</option>
-                      <option v-for="activity in activities" :value="activity.value" :key="activity.value">
-                        {{ activity.text }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              <!--</div>-->
-            </div>
-
-            <div v-if="display_section_selectbox">
-              <!--<div v-if="sections.length > 0">-->
-                <label for="" class="control-label" >Sections </label>
-                <div >
-                  <div class="form-group">
-                    <select v-model="selected_section" class="form-select" style="width:40%" @change="chainedSelectSections(selected_section)">
-                      <option value="" selected disabled>Select section</option>
-                      <option v-for="section in sections" :value="section.value" :key="section.value">
-                        {{ section.text }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              <!--</div>-->
-            </div>
-
-            <div>
-              <!--<div v-if="questions.length > 0">-->
-                <label for="" class="control-label" >Questions </label>
-                <div >
-                  <div class="form-group">
-                    <select v-model="selected_question" class="form-select" style="width:40%" @change="chainedSelectOptions(selected_question)">
-                      <option value="" selected disabled>Select question</option>
-                      <option v-for="question in questions" :value="question.value" :key="question.value">
-                        {{ question.text }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              <!--</div>-->
-            </div>
-
-            <div v-if="selected_question">
-              <div v-if="date_type">
-                <label class="control-label"  for="Name">Answer</label>
-                <div class="form-group">
-                    <div class="input-group date" ref="question_date" style="width: 70%;">
-                        <input type="text" class="form-control" name="question_date" placeholder="DD/MM/YYYY" v-model="selected_option">
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
-                    </div>
-                </div>
-              </div>
-
-              <div v-else-if="select_type"> <!--&& options.length > 0">-->
-                <label for="" class="control-label" >Options </label>
-                <div >
-                  <div class="form-group">
-                    <select v-model="selected_option" class="form-select" style="width:40%" >
-                      <option value="" selected disabled>Select option</option>
-                      <option v-for="option in options" :value="option.value" :key="option.value">
-                        {{ option.text }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div v-else>
-                <label class="control-label"  for="Name">Answer</label>
-                <div class="form-group">
-                    <div class="input-group" style="width: 70%;">
-                        <input type="text" class="form-control" name="question_date"  v-model="selected_option">
-                    </div>
-                </div>
-              </div>
+          </div>
+        </div>
+        <div v-if="display_region_selectbox">
+          <label for="" class="control-label" >Region  
+            <!-- <a :href="region_help_url" target="_blank"><i class="fa fa-question-circle" style="color:blue">&nbsp;</i></a>  -->
+          </label>
+          <div >
+            <div class="form-group">
+                <select v-model="selected_region" class="form-select" style="width:40%" @change="chainedSelectDistricts(selected_region)">
+                    <option value="" selected disabled>Select region</option>
+                    <option v-for="region in regions" :value="region.value" :key="region.value">
+                        {{ region.text }}
+                    </option>
+                </select>
             </div>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-lg-12">
-              <ul class="list-inline" style="display: inline; width: auto;">                          
-                  <li class="list-inline-item" v-for="(item,i) in searchKeywords" :key="i">
-                    <button @click.prevent="" class="btn btn-light" style="margin-top:5px; margin-bottom: 5px">{{item}}</button><a href="" @click.prevent="removeKeyword(i)"><span class="glyphicon glyphicon-remove "></span></a>
-                  </li>
-              </ul>
+        <div v-if="display_region_selectbox">
+          <label for="" class="control-label">District 
+            <!-- <a :href="district_help_url" target="_blank"><i class="fa fa-question-circle" style="color:blue">&nbsp;</i></a> -->
+          </label>
+          <div >
+            <div class="form-group">
+                <select  v-model="selected_district" class="form-select" style="width:40%">
+                <option value="" selected disabled>Select district</option>
+                    <option v-for="district in districts" :value="district.value" :key="district.value">
+                        {{ district.text }}
+                    </option>
+                </select>
+            </div>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-lg-12">
+        <div v-if="display_activity_matrix_selectbox">
+          <!--<div v-if="activities.length > 0">-->
+            <label for="" class="control-label" >Activity Type  
+              <!-- <a :href="activity_type_help_url" target="_blank"><i class="fa fa-question-circle" style="color:blue">&nbsp;</i></a> -->
+            </label>
             <div >
-              <input type="button" @click.prevent="search" class="btn btn-primary" style="margin-bottom: 5px" value="Search"/>
-              <input type="reset" @click.prevent="reset" class="btn btn-primary" style="margin-bottom: 5px" value="Clear"/>
-
+              <div class="form-group">
+                <select v-model="selected_activity" class="form-select" style="width:40%">
+                  <option value="" selected disabled>Select activity</option>
+                  <option v-for="activity in activities" :value="activity.value" :key="activity.value">
+                    {{ activity.text }}
+                  </option>
+                </select>
+              </div>
             </div>
-          </div> 
+          <!--</div>-->
         </div>
 
+        <div v-if="display_section_selectbox">
+          <!--<div v-if="sections.length > 0">-->
+            <label for="" class="control-label" >Sections </label>
+            <div >
+              <div class="form-group">
+                <select v-model="selected_section" class="form-select" style="width:40%" @change="chainedSelectSections(selected_section)">
+                  <option value="" selected disabled>Select section</option>
+                  <option v-for="section in sections" :value="section.value" :key="section.value">
+                    {{ section.text }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          <!--</div>-->
+        </div>
 
-        <div class="row">
-          <div class="col-lg-12">
-              <datatable ref="proposal_datatable" :id="datatable_id" :dtOptions="proposal_options"  :dtHeaders="proposal_headers"/>
+        <div>
+          <!--<div v-if="questions.length > 0">-->
+            <label for="" class="control-label" >Questions </label>
+            <div >
+              <div class="form-group">
+                <select v-model="selected_question" class="form-select" style="width:40%" @change="chainedSelectOptions(selected_question)">
+                  <option value="" selected disabled>Select question</option>
+                  <option v-for="question in questions" :value="question.value" :key="question.value">
+                    {{ question.text }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          <!--</div>-->
+        </div>
+
+        <div v-if="selected_question">
+          <div v-if="date_type">
+            <label class="control-label"  for="Name">Answer</label>
+            <div class="form-group">
+                <div class="input-group date" ref="question_date" style="width: 70%;">
+                    <!-- <input type="text" class="form-control" name="question_date" placeholder="DD/MM/YYYY" v-model="selected_option"> -->
+                    <input type="date" class="form-control" name="question_date" placeholder="DD/MM/YYYY" v-model="selected_option">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+          </div>
+
+          <div v-else-if="select_type"> <!--&& options.length > 0">-->
+            <label for="" class="control-label" >Options </label>
+            <div >
+              <div class="form-group">
+                <select v-model="selected_option" class="form-select" style="width:40%" >
+                  <option value="" selected disabled>Select option</option>
+                  <option v-for="option in options" :value="option.value" :key="option.value">
+                    {{ option.text }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div v-else>
+            <label class="control-label"  for="Name">Answer</label>
+            <div class="form-group">
+                <div class="input-group" style="width: 70%;">
+                    <input type="text" class="form-control" name="question_date"  v-model="selected_option">
+                </div>
+            </div>
           </div>
         </div>
-      </FormSection>
+      </div>
     </div>
-  </div>
+
+    <div class="row mb-3">
+      <div class="col-lg-12">
+          <ul class="list-inline" style="display: inline; width: auto;">                          
+              <li class="list-inline-item" v-for="(item,i) in searchKeywords" :key="i">
+                <button @click.prevent="" class="btn btn-light" style="margin-top:5px; margin-bottom: 5px">{{item}}</button><a href="" @click.prevent="removeKeyword(i)"><span class="bi bi-x "></span></a>
+              </li>
+          </ul>
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-lg-12">
+        <div >
+          <button type="button" class="btn btn-primary btn-margin" @click.prevent="search()" :disabled="search_btn_disabled">
+              <i v-if="search_btn_disabled" class="fa fa-search fa-spinner fa-spin"></i>
+              <i v-else class="fa fa-search"></i>
+              Search
+          </button>
+          <button type="button" class="btn btn-primary btn-margin" @click.prevent="reset">
+              <i class="fa fa-eraser"></i>
+              Clear
+          </button>
+
+        </div>
+      </div> 
+    </div>
+
+
+    <div class="row">
+      <div class="col-lg-12">
+          <datatable ref="proposal_datatable" :id="datatable_id" :dtOptions="proposal_options"  :dtHeaders="proposal_headers"/>
+      </div>
+    </div>
+  </FormSection>
 </div>
 </template>
 <script>
@@ -195,6 +199,7 @@ export default {
       searchProposal: true,
       searchApproval: false,
       searchCompliance: false,
+      search_btn_disabled: false,
       referenceWord: '',
       keyWord: null,
       selected_organisation:'',
@@ -403,24 +408,36 @@ export default {
           }
           else
           {
-            // this function seems to be not used so didn't update fetch call
-            vm.$http.post('/api/search_sections.json',{
-              application_type_name: vm.selected_application_name,
-              region: vm.selected_region,
-              district: vm.selected_district,
-              activity: vm.selected_activity,
-              section_label: vm.selected_section,
-              question_id: vm.selected_question,
-              option_label: vm.selected_option,
-              is_internal: true,
-            }).then(res => {
-              vm.results = res.body;
+            vm.search_btn_disabled = true;
+            fetch('/api/search_sections.json',{
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                proposal_type_id: vm.selected_proposal_type_id,
+                region: vm.selected_region,
+                district: vm.selected_district,
+                activity: vm.selected_activity,
+                section_label: vm.selected_section,
+                question_id: vm.selected_question,
+                option_label: vm.selected_option,
+                is_internal: true,
+              })
+            }).then(async (res) => {
+              if (!res.ok) {
+                  throw new Error(`HTTP error! Status: ${res.status}`);
+              }
+              vm.results = await res.json();
               vm.$refs.proposal_datatable.vmDataTable.clear()
               vm.$refs.proposal_datatable.vmDataTable.rows.add(vm.results);
               vm.$refs.proposal_datatable.vmDataTable.draw();
-            },
-            err => {
+              //$('#loadingSpinner2').hide();
+              vm.search_btn_disabled = false;
+            }).catch(err => {
               console.log(err);
+              //$('#loadingSpinner2').hide();
+              vm.search_btn_disabled = false;
             });
           }
 
@@ -566,7 +583,7 @@ export default {
             var api_options = found_question.options;
             if(found_question.answer_type=='date'){
               vm.date_type =true;
-              $(vm.$refs.question_date).datetimepicker(vm.datepickerOptions);
+              // $(vm.$refs.question_date).datetimepicker(vm.datepickerOptions);
               //vm.eventListeners()
             }
             else if (api_options.length > 0) {
@@ -680,18 +697,18 @@ export default {
           });
       },
       eventListeners:function () {
-            let vm = this;
+            // let vm = this;
             // Initialise Date Picker
             //console.log('here');
-            $(vm.$refs.question_date).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.question_date).on('dp.change', function(e){
-                if ($(vm.$refs.question_date).data('DateTimePicker').date()) {
-                    vm.selected_option =  e.date.format('DD/MM/YYYY');
-                }
-                else if ($(vm.$refs.question_date).data('date') === "") {
-                    vm.selected_option = "";
-                }
-             });
+            // $(vm.$refs.question_date).datetimepicker(vm.datepickerOptions);
+            // $(vm.$refs.question_date).on('dp.change', function(e){
+            //     if ($(vm.$refs.question_date).data('DateTimePicker').date()) {
+            //         vm.selected_option =  e.date.format('DD/MM/YYYY');
+            //     }
+            //     else if ($(vm.$refs.question_date).data('date') === "") {
+            //         vm.selected_option = "";
+            //     }
+            //  });
        },
 
     },

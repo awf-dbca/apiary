@@ -59,41 +59,73 @@
             <div class="row">
                 <div class="col-md-3">
                     <label for="">Start From</label>
-                    <div class="input-group date" ref="proposalStartDateFromPicker">
+                    <!-- <div class="input-group date" ref="proposalStartDateFromPicker">
                         <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalStartFrom">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
-                    </div>
+                    </div> -->
+                    <input
+                        id="proposal-start-from"
+                        type="date"
+                        class="form-control"
+                        v-model="proposal_start_from"
+                        placeholder="DD/MM/YYYY"
+                        :max="proposal_start_to"
+                    >
                 </div>
                 <div class="col-md-3">
                     <label for="">Start To</label>
-                    <div class="input-group date" ref="proposalStartDateToPicker">
+                    <!-- <div class="input-group date" ref="proposalStartDateToPicker">
                         <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalStartTo">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
-                    </div>
+                    </div> -->
+                    <input
+                        id="proposal-start-to"
+                        type="date"
+                        class="form-control"
+                        v-model="proposal_start_to"
+                        placeholder="DD/MM/YYYY"
+                        :min="proposal_start_from"
+                    >
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-3">
                     <label for="">Expiry From</label>
-                    <div class="input-group date" ref="proposalExpiryDateFromPicker">
+                    <!-- <div class="input-group date" ref="proposalExpiryDateFromPicker">
                         <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalExpiryFrom">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
-                    </div>
+                    </div> -->
+                     <input
+                        id="proposal-expiry-from"
+                        type="date"
+                        class="form-control"
+                        v-model="proposal_expiry_from"
+                        placeholder="DD/MM/YYYY"
+                        :max="proposal_expiry_to"
+                    >
                 </div>
                 <div class="col-md-3">
                     <label for="">Expiry To</label>
-                    <div class="input-group date" ref="proposalExpiryDateToPicker">
+                    <!-- <div class="input-group date" ref="proposalExpiryDateToPicker">
                         <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterProposalExpiryTo">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
-                    </div>
+                    </div> -->
+                    <input
+                        id="proposal-expiry-to"
+                        type="date"
+                        class="form-control"
+                        v-model="proposal_expiry_to"
+                        placeholder="DD/MM/YYYY"
+                        :min="proposal_expiry_from"
+                    >
                 </div>
             </div>
             <div class="row">
@@ -156,10 +188,14 @@ export default {
             filterProposalRegion: 'All',
             filterProposalActivity: 'All',
             filterProposalStatus: 'All',
-            filterProposalStartFrom: '',
-            filterProposalStartTo: '',
-            filterProposalExpiryFrom: '',
-            filterProposalExpiryTo: '',
+            // filterProposalStartFrom: '',
+            // filterProposalStartTo: '',
+            proposal_start_from: '',
+            proposal_start_to: '',
+            // filterProposalExpiryFrom: '',
+            // filterProposalExpiryTo: '',
+            proposal_expiry_from: '',
+            proposal_expiry_to: '',
             filterProposalSubmitter: 'All',
             dashboardTitle: '',
             dashboardDescription: '',
@@ -230,20 +266,62 @@ export default {
                 vm.$refs.proposal_datatable.vmDataTable.column('status:name').search('').draw();
             }
         },
-        filterProposalStartFrom: function(){
+        // filterProposalStartFrom: function(){
+        //     this.$refs.proposal_datatable.vmDataTable.draw();
+        // },
+        // filterProposalStartTo: function(){
+        //     this.$refs.proposal_datatable.vmDataTable.draw();
+        // },
+        // filterProposalExpiryFrom: function(){
+        //     this.$refs.proposal_datatable.vmDataTable.draw();
+        // },
+        // filterProposalExpiryTo: function(){
+        //     this.$refs.proposal_datatable.vmDataTable.draw();
+        // }
+        dateRangeIdentifierForReloadProposalTable: function(){
             this.$refs.proposal_datatable.vmDataTable.draw();
         },
-        filterProposalStartTo: function(){
-            this.$refs.proposal_datatable.vmDataTable.draw();
-        },
-        filterProposalExpiryFrom: function(){
-            this.$refs.proposal_datatable.vmDataTable.draw();
-        },
-        filterProposalExpiryTo: function(){
-            this.$refs.proposal_datatable.vmDataTable.draw();
-        }
     },
     computed: {
+        filterProposalExpiryFrom: {
+            get() {
+                // If our internal date exists, convert it for submission, etc
+                if (this.proposal_expiry_from) {
+                    return moment(this.proposal_expiry_from, 'YYYY-MM-DD').format('DD/MM/YYYY');
+                }
+                return ''; // Otherwise, return an empty string.
+            }
+        },
+        filterProposalExpiryTo : {
+            get() {
+                // If our internal date exists, convert it for submission, etc
+                if (this.proposal_expiry_to) {
+                    return moment(this.proposal_expiry_to, 'YYYY-MM-DD').format('DD/MM/YYYY');
+                }
+                return ''; // Otherwise, return an empty string.
+            }
+        },
+        dateRangeIdentifierForReloadProposalTable() {
+            return `${this.proposal_expiry_from}|${this.proposal_expiry_to}|${this.proposal_start_from}|${this.proposal_start_to}`;
+        },
+        filterProposalStartFrom: {
+            get() {
+                // If our internal date exists, convert it for submission, etc
+                if (this.proposal_start_from) {
+                    return moment(this.proposal_start_from, 'YYYY-MM-DD').format('DD/MM/YYYY');
+                }
+                return ''; // Otherwise, return an empty string.
+            }
+        },
+        filterProposaStartTo : {
+            get() {
+                // If our internal date exists, convert it for submission, etc
+                if (this.proposal_start_to) {
+                    return moment(this.proposal_start_to, 'YYYY-MM-DD').format('DD/MM/YYYY');
+                }
+                return ''; // Otherwise, return an empty string.
+            }
+        },
         status: function(){
             //return this.is_external ? this.external_status : this.internal_status;
             return [];
@@ -521,10 +599,14 @@ export default {
                     // adding extra GET params for Custom filtering
                     "data": function ( d ) {
                         //d.regions = vm.filterProposalRegion.join(); // no need to add this since we can filter normally (filter is not multi-select in Approval table)
-                        d.start_date_from = vm.filterProposalStartFrom != '' && vm.filterProposalStartFrom != null ? moment(vm.filterProposalStartFrom, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
-                        d.start_date_to = vm.filterProposalStartTo != '' && vm.filterProposalStartTo != null ? moment(vm.filterProposalStartTo, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
-                        d.expiry_date_from = vm.filterProposalExpiryFrom != '' && vm.filterProposalExpiryFrom != null ? moment(vm.filterProposalExpiryFrom, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
-                        d.expiry_date_to = vm.filterProposalExpiryTo != '' && vm.filterProposalExpiryTo != null ? moment(vm.filterProposalExpiryTo, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
+                        // d.start_date_from = vm.filterProposalStartFrom != '' && vm.filterProposalStartFrom != null ? moment(vm.filterProposalStartFrom, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
+                        // d.start_date_to = vm.filterProposalStartTo != '' && vm.filterProposalStartTo != null ? moment(vm.filterProposalStartTo, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
+                        d.start_date_from = vm.proposal_start_from != '' && vm.proposal_start_from != null ? moment(vm.proposal_start_from, 'YYYY-MM-DD').format('YYYY-MM-DD'): '';
+                        d.start_date_to = vm.proposal_start_to != '' && vm.proposal_start_to != null ? moment(vm.proposal_start_to, 'YYYY-MM-DD').format('YYYY-MM-DD'): '';
+                        // d.expiry_date_from = vm.filterProposalExpiryFrom != '' && vm.filterProposalExpiryFrom != null ? moment(vm.filterProposalExpiryFrom, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
+                        // d.expiry_date_to = vm.filterProposalExpiryTo != '' && vm.filterProposalExpiryTo != null ? moment(vm.filterProposalExpiryTo, 'DD/MM/YYYY').format('YYYY-MM-DD'): '';
+                        d.expiry_date_from = vm.proposal_expiry_from != '' && vm.proposal_expiry_from != null ? moment(vm.proposal_expiry_from, 'YYYY-MM-DD').format('YYYY-MM-DD'): '';
+                        d.expiry_date_to = vm.proposal_expiry_to != '' && vm.proposal_expiry_to != null ? moment(vm.proposal_expiry_to, 'YYYY-MM-DD').format('YYYY-MM-DD'): '';
                         d.region = vm.filterProposalRegion;
                         d.proposal_activity = vm.filterProposalActivity;
                         d.approval_status = vm.filterProposalStatus;
@@ -616,44 +698,44 @@ export default {
         addEventListeners: function(){
             let vm = this;
             // Initialise Proposal Date Filters
-            $(vm.$refs.proposalStartDateToPicker).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.proposalStartDateToPicker).on('dp.change', function(e){
-                if ($(vm.$refs.proposalStartDateToPicker).data('DateTimePicker').date()) {
-                    vm.filterProposalStartTo =  e.date.format('DD/MM/YYYY');
-                }
-                else if ($(vm.$refs.proposalStartDateToPicker).data('date') === "") {
-                    vm.filterProposaStartTo = "";
-                }
-             });
-            $(vm.$refs.proposalStartDateFromPicker).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.proposalStartDateFromPicker).on('dp.change',function (e) {
-                if ($(vm.$refs.proposalStartDateFromPicker).data('DateTimePicker').date()) {
-                    vm.filterProposalStartFrom = e.date.format('DD/MM/YYYY');
-                    $(vm.$refs.proposalStartDateToPicker).data("DateTimePicker").minDate(e.date);
-                }
-                else if ($(vm.$refs.proposalStartDateFromPicker).data('date') === "") {
-                    vm.filterProposalStartFrom = "";
-                }
-            });
-            $(vm.$refs.proposalExpiryDateToPicker).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.proposalExpiryDateToPicker).on('dp.change', function(e){
-                if ($(vm.$refs.proposalExpiryDateToPicker).data('DateTimePicker').date()) {
-                    vm.filterProposalExpiryTo =  e.date.format('DD/MM/YYYY');
-                }
-                else if ($(vm.$refs.proposalExpiryDateToPicker).data('date') === "") {
-                    vm.filterProposaExpiryTo = "";
-                }
-             });
-            $(vm.$refs.proposalExpiryDateFromPicker).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.proposalExpiryDateFromPicker).on('dp.change',function (e) {
-                if ($(vm.$refs.proposalExpiryDateFromPicker).data('DateTimePicker').date()) {
-                    vm.filterProposalExpiryFrom = e.date.format('DD/MM/YYYY');
-                    $(vm.$refs.proposalExpiryDateToPicker).data("DateTimePicker").minDate(e.date);
-                }
-                else if ($(vm.$refs.proposalExpiryDateFromPicker).data('date') === "") {
-                    vm.filterProposalExpiryFrom = "";
-                }
-            });
+            // $(vm.$refs.proposalStartDateToPicker).datetimepicker(vm.datepickerOptions);
+            // $(vm.$refs.proposalStartDateToPicker).on('dp.change', function(e){
+            //     if ($(vm.$refs.proposalStartDateToPicker).data('DateTimePicker').date()) {
+            //         vm.filterProposalStartTo =  e.date.format('DD/MM/YYYY');
+            //     }
+            //     else if ($(vm.$refs.proposalStartDateToPicker).data('date') === "") {
+            //         vm.filterProposaStartTo = "";
+            //     }
+            //  });
+            // $(vm.$refs.proposalStartDateFromPicker).datetimepicker(vm.datepickerOptions);
+            // $(vm.$refs.proposalStartDateFromPicker).on('dp.change',function (e) {
+            //     if ($(vm.$refs.proposalStartDateFromPicker).data('DateTimePicker').date()) {
+            //         vm.filterProposalStartFrom = e.date.format('DD/MM/YYYY');
+            //         $(vm.$refs.proposalStartDateToPicker).data("DateTimePicker").minDate(e.date);
+            //     }
+            //     else if ($(vm.$refs.proposalStartDateFromPicker).data('date') === "") {
+            //         vm.filterProposalStartFrom = "";
+            //     }
+            // });
+            // $(vm.$refs.proposalExpiryDateToPicker).datetimepicker(vm.datepickerOptions);
+            // $(vm.$refs.proposalExpiryDateToPicker).on('dp.change', function(e){
+            //     if ($(vm.$refs.proposalExpiryDateToPicker).data('DateTimePicker').date()) {
+            //         vm.filterProposalExpiryTo =  e.date.format('DD/MM/YYYY');
+            //     }
+            //     else if ($(vm.$refs.proposalExpiryDateToPicker).data('date') === "") {
+            //         vm.filterProposaExpiryTo = "";
+            //     }
+            //  });
+            // $(vm.$refs.proposalExpiryDateFromPicker).datetimepicker(vm.datepickerOptions);
+            // $(vm.$refs.proposalExpiryDateFromPicker).on('dp.change',function (e) {
+            //     if ($(vm.$refs.proposalExpiryDateFromPicker).data('DateTimePicker').date()) {
+            //         vm.filterProposalExpiryFrom = e.date.format('DD/MM/YYYY');
+            //         $(vm.$refs.proposalExpiryDateToPicker).data("DateTimePicker").minDate(e.date);
+            //     }
+            //     else if ($(vm.$refs.proposalExpiryDateFromPicker).data('date') === "") {
+            //         vm.filterProposalExpiryFrom = "";
+            //     }
+            // });
 
             // End Proposal Date Filters
             // Internal Reissue listener
