@@ -429,55 +429,138 @@ export default {
         	return "a " + vm.selected_application_name.toLowerCase();
 		}
 	},
-    createProposal:function () {
+    createProposal:async function () {
         console.log('createProposal');
         let vm = this;
         vm.creatingProposal = true;
-		vm.$http.post('/api/proposal.json',{
-			behalf_of: vm.behalf_of,
-			application: vm.selected_application_id,
-			region: vm.selected_region,
-			district: vm.selected_district,
-			//tenure: vm.selected_tenure,
-			activity: vm.selected_activity,
+        
+        const payload = {
+            behalf_of: vm.behalf_of,
+            application: vm.selected_application_id,
+            region: vm.selected_region,
+            district: vm.selected_district,
+            // tenure: vm.selected_tenure,
+            activity: vm.selected_activity,
             sub_activity1: vm.selected_sub_activity1,
             sub_activity2: vm.selected_sub_activity2,
             category: vm.selected_category,
             approval_level: vm.approval_level,
-            profile: this.profile.id,
+            profile: vm.profile.id,
             // Site Transfer
             originating_approval_id: vm.currentApiaryApproval,
             // Temporary Use
             approval_id: vm.currentApiaryApproval,
-		}).then(res => {
-		    vm.proposal = res.body;
-			vm.$router.push({
-			    name:"draft_proposal",
-				params:{proposal_id:vm.proposal.id}
-			});
-            vm.creatingProposal = false;
-		},
-		err => {
-			console.log(err);
-            console.log(err.bodyText);
-            if (err.bodyText.includes("null_applicant_address")) {
-                swal.fire({
-                    title: "Cannot create application",
-                    text: "Please add your address",
-                    icon: "error",
-                    confirmButtonText: 'Ok',
-                    customClass: {
-                        confirmButton: 'btn btn-primary',
-                    },
-                }).then((result) => {
-                    if(result.isConfirmed){
-                        vm.$router.push({
-                            name:"account",
-                        });
-                    }
-                });
+        };
+
+        
+        try {
+            const response = await fetch('/api/proposal.json', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                return response.json().then(err => { throw err });
             }
-		});
+            
+            const bodyText = await response.text();
+            let data;
+            try {
+                data = JSON.parse(bodyText);
+            } catch {
+                data = bodyText;
+            }
+
+            // Success
+            vm.proposal = data;
+            vm.$router.push({
+                name: 'draft_proposal',
+                params: { proposal_id: vm.proposal.id },
+            });
+        } catch (err) {
+            console.log(err);
+            const bodyText = err.bodyText || err.message || '';
+
+            console.log(bodyText);
+
+            if (typeof bodyText === 'string' && bodyText.includes('null_applicant_address')) {
+            const result = await swal.fire({
+                title: 'Cannot create application',
+                text: 'Please add your address',
+                icon: 'error',
+                confirmButtonText: 'Ok',
+                customClass: {
+                confirmButton: 'btn btn-primary',
+                },
+            });
+
+            if (result.isConfirmed) {
+                vm.$router.push({ name: 'account' });
+            }
+            } else {
+            await swal.fire({
+                title: 'Error',
+                text: 'Something went wrong creating the proposal.',
+                icon: 'error',
+                confirmButtonText: 'Ok',
+                customClass: {
+                confirmButton: 'btn btn-primary',
+                },
+            });
+            }
+        } finally {
+            vm.creatingProposal = false;
+        }
+
+
+		// vm.$http.post('/api/proposal.json',{
+		// 	behalf_of: vm.behalf_of,
+		// 	application: vm.selected_application_id,
+		// 	region: vm.selected_region,
+		// 	district: vm.selected_district,
+		// 	//tenure: vm.selected_tenure,
+		// 	activity: vm.selected_activity,
+        //     sub_activity1: vm.selected_sub_activity1,
+        //     sub_activity2: vm.selected_sub_activity2,
+        //     category: vm.selected_category,
+        //     approval_level: vm.approval_level,
+        //     profile: this.profile.id,
+        //     // Site Transfer
+        //     originating_approval_id: vm.currentApiaryApproval,
+        //     // Temporary Use
+        //     approval_id: vm.currentApiaryApproval,
+		// }).then(res => {
+		//     vm.proposal = res.body;
+		// 	vm.$router.push({
+		// 	    name:"draft_proposal",
+		// 		params:{proposal_id:vm.proposal.id}
+		// 	});
+        //     vm.creatingProposal = false;
+		// },
+		// err => {
+		// 	console.log(err);
+        //     console.log(err.bodyText);
+        //     if (err.bodyText.includes("null_applicant_address")) {
+        //         swal.fire({
+        //             title: "Cannot create application",
+        //             text: "Please add your address",
+        //             icon: "error",
+        //             confirmButtonText: 'Ok',
+        //             customClass: {
+        //                 confirmButton: 'btn btn-primary',
+        //             },
+        //         }).then((result) => {
+        //             if(result.isConfirmed){
+        //                 vm.$router.push({
+        //                     name:"account",
+        //                 });
+        //             }
+        //         });
+        //     }
+		// });
     },
     isDisabled: function() {
         let vm = this;
@@ -496,16 +579,20 @@ export default {
 	fetchRegions: function(){
 		let vm = this;
 
-		vm.$http.get(api_endpoints.regions).then((response) => {
-				vm.api_regions = response.body;
+		fetch(api_endpoints.regions).then(
+            async (response) => {
+                if (!response.ok) {
+                    return await response.json().then(err => { throw err });
+                }
+				vm.api_regions = await response.json();
 				//console.log('api_regions ' + response.body);
 
                 for (var i = 0; i < vm.api_regions.length; i++) {
                     this.regions.push( {text: vm.api_regions[i].name, value: vm.api_regions[i].id, districts: vm.api_regions[i].districts} );
                 }
-		},(error) => {
-			console.log(error);
-		})
+            }).catch((error) => {
+                console.log(error);
+            });
 	},
 
 	searchList: function(id, search_list){
@@ -531,22 +618,26 @@ export default {
     fetchApplicationTypes: function(){
 		let vm = this;
 
-		vm.$http.get(api_endpoints.application_types).then((response) => {
-				vm.api_app_types = response.body;
+		fetch(api_endpoints.application_types).then(
+            async (response) => {
+                if (!response.ok) {
+                    return await response.json().then(err => { throw err });
+                }
+				vm.api_app_types = await response.json();
 				//console.log('api_app_types ' + response.body);
 
                 for (var i = 0; i < vm.api_app_types.length; i++) {
                     this.application_types.push( {
-                        text: vm.api_app_types[i].name,
-                        value: vm.api_app_types[i].id,
+                        text: vm.api_app_types[i].name, 
+                        value: vm.api_app_types[i].id, 
                         domain_used: vm.api_app_types[i].domain_used,
                         //activities: (vm.api_app_types[i].activity_app_types.length > 0) ? vm.api_app_types[i].activity_app_types : [],
                         //tenures: (vm.api_app_types[i].tenure_app_types.length > 0) ? vm.api_app_types[i].tenure_app_types : [],
                     } );
                 }
-		},(error) => {
-			console.log(error);
-		})
+            }).catch((error) => {
+                console.log(error);
+            });
 	},
     chainedSelectAppType: function(application_id){
         /* reset */
@@ -578,18 +669,24 @@ export default {
         vm.categories = [];
         vm.approval_level = '';
 
-		vm.$http.get(api_endpoints.activity_matrix).then((response) => {
-				this.activity_matrix = response.body[0].schema[0];
-				this.keys_ordered = response.body[0].ordered;
+		fetch(api_endpoints.activity_matrix).then(
+            async (response) => {
+                if (!response.ok) {
+                    return await response.json().then(err => { throw err });
+                }
+                let matrix_res = await response.json();
+				this.activity_matrix = matrix_res[0].schema[0];
+				this.keys_ordered = matrix_res[0].ordered;
 				//console.log('this.activity_matrix ' + response.body[0].schema);
 
                 var keys = this.keys_ordered ? Object.keys(this.activity_matrix).sort() : Object.keys(this.activity_matrix)
                 for (var i = 0; i < keys.length; i++) {
                     this.activities.push( {text: keys[i], value: keys[i]} );
                 }
-		},(error) => {
-			console.log(error);
-		})
+                // vm.fetchRegions();
+            }).catch((error) => {
+                console.log(error);
+            });
 	},
     chainedSelectSubActivities1: function(activity_name){
 		let vm = this;
@@ -753,11 +850,16 @@ export default {
   },
     created: function() {
         // retrieve template group
-        this.$http.get('/template_group',{
+        fetch('/template_group',{
             emulateJSON:true
-            }).then(res=>{
+            }).then( async (res) => {
+                if (!res.ok) {
+                    return await res.json().then(err => { throw err });
+                }
+                 const respBody = await res.json();
+
                 //this.template_group = res.body.template_group;
-                if (res.body.template_group === 'apiary') {
+                if (respBody.template_group === 'apiary') {
                     this.apiaryTemplateGroup = true;
                 } else {
                     this.dasTemplateGroup = true;
