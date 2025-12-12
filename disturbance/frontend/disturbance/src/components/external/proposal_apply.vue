@@ -478,7 +478,7 @@ export default {
 
             console.log(bodyText);
 
-            if (bodyText.includes('null_applicant_address')) {
+            if (typeof bodyText === 'string' && bodyText.includes('null_applicant_address')) {
             const result = await swal.fire({
                 title: 'Cannot create application',
                 text: 'Please add your address',
@@ -674,7 +674,7 @@ export default {
                 for (var i = 0; i < keys.length; i++) {
                     this.activities.push( {text: keys[i], value: keys[i]} );
                 }
-                vm.fetchRegions();
+                // vm.fetchRegions();
             }).catch((error) => {
                 console.log(error);
             });
