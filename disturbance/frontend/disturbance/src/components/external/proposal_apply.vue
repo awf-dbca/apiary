@@ -465,9 +465,17 @@ export default {
             if (!response.ok) {
                 return response.json().then(err => { throw err });
             }
+            
+            const bodyText = await response.text();
+            let data;
+            try {
+                data = JSON.parse(bodyText);
+            } catch {
+                data = bodyText;
+            }
 
             // Success
-            vm.proposal = await response.json();
+            vm.proposal = data;
             vm.$router.push({
                 name: 'draft_proposal',
                 params: { proposal_id: vm.proposal.id },
