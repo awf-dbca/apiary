@@ -630,6 +630,7 @@ export default {
                     this.application_types.push( {
                         text: vm.api_app_types[i].name, 
                         value: vm.api_app_types[i].id, 
+                        domain_used: vm.api_app_types[i].domain_used,
                         //activities: (vm.api_app_types[i].activity_app_types.length > 0) ? vm.api_app_types[i].activity_app_types : [],
                         //tenures: (vm.api_app_types[i].tenure_app_types.length > 0) ? vm.api_app_types[i].tenure_app_types : [],
                     } );
