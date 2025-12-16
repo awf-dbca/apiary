@@ -1,26 +1,26 @@
 <template lang="html">
     <div>
-
         <template v-if="is_internal">
             <div class="form-group row mb-3">
                 <label class="col-sm-3">Do not charge annual site fee until</label>
                 <div class="col-sm-3">
-                    <div class="input-group date" ref="untilDatePicker">
+                    <!-- <div class="input-group date" ref="untilDatePicker">
                         <input type="text" class="form-control text-center" placeholder="DD/MM/YYYY" id="no_charge_until" :readonly="is_readonly"/>
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
-                    </div>
+                    </div> -->
+                    <input type="date" class="form-control" name="no_charge_until" placeholder="DD/MM/YYYY" v-model="until_date" id="no_charge_until" :readonly="is_readonly">
                 </div>
                 <div class="col-sm-6 text-right">
                     <template v-if="saving_date">
-                        <button class="btn btn-primary" type="button" disabled>
+                        <button class="btn btn-primary pull-right" type="button" disabled>
                               <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                               Saving...
                         </button>
                     </template>
                     <template v-else>
-                        <button type="button" class="btn btn-primary" @click="noChargeUntilButtonClicked">Save</button>
+                        <button type="button" class="btn btn-primary pull-right" @click="noChargeUntilButtonClicked">Save</button>
                     </template>
                 </div>
             </div>
@@ -118,13 +118,14 @@
         created: function(){
             // Copy the values from props (it is not allowd to change props' value)
             if (this.no_annual_rental_fee_until){
-                if (this.no_annual_rental_fee_until instanceof moment) {
-                    this.until_date = this.no_annual_rental_fee_until.format('DD/MM/YYYY');
-                } else {
-                    // Wrong type of object, clear it
-                    console.warn('The value passed to from_date is wrong type');
-                    this.until_date = null;
-                }
+                // if (this.no_annual_rental_fee_until instanceof moment) {
+                //     this.until_date = this.no_annual_rental_fee_until.format('DD/MM/YYYY');
+                // } else {
+                //     // Wrong type of object, clear it
+                //     console.warn('The value passed to from_date is wrong type');
+                //     this.until_date = null;
+                // }
+                this.until_date = this.no_annual_rental_fee_until
             }
 
         },
@@ -155,7 +156,8 @@
                         headers: { 'Content-Type': 'application/json' },
                         method: 'POST',
                         body: JSON.stringify({
-                            'until_date': vm.until_date,
+                            // 'until_date': vm.until_date,
+                            'until_date': vm.until_date != '' && vm.until_date != null ? moment(vm.until_date, 'YYYY-MM-DD').format('DD/MM/YYYY') : null,
                         }),
                     }).then(
                     async (response)=>{
@@ -179,45 +181,45 @@
             },
             addEventListeners: function () {
                 console.log('in addEventListener')
-                let vm = this;
-                let el_until = $(vm.$refs.untilDatePicker);
-                let options = {
-                    format: "DD/MM/YYYY",
-                    showClear: true ,
-                    useCurrent: false,
-                };
+                // let vm = this;
+                // let el_until = $(vm.$refs.untilDatePicker);
+                // let options = {
+                //     format: "DD/MM/YYYY",
+                //     showClear: true ,
+                //     useCurrent: false,
+                // };
 
-                el_until.datetimepicker(options);
+                // el_until.datetimepicker(options);
 
-                el_until.on("dp.change", function(e) {
-                    let selected_date = null;
-                    if (e.date){
-                        // Date selected
-                        selected_date = e.date.format('DD/MM/YYYY')  // e.date is moment object
-                        vm.until_date = selected_date;
-                    } else {
-                        // Date not selected
-                        vm.until_date = selected_date;
-                    }
-                });
+                // el_until.on("dp.change", function(e) {
+                //     let selected_date = null;
+                //     if (e.date){
+                //         // Date selected
+                //         selected_date = e.date.format('DD/MM/YYYY')  // e.date is moment object
+                //         vm.until_date = selected_date;
+                //     } else {
+                //         // Date not selected
+                //         vm.until_date = selected_date;
+                //     }
+                // });
 
 
                 //***
                 // Set dates in case they are passed from the parent component
                 //***
-                let searchPattern = /^[0-9]{4}/
+                // let searchPattern = /^[0-9]{4}/
 
-                let until_date = vm.no_annual_rental_fee_until
-                if (until_date) {
-                    console.log('until_date')
-                    console.log(until_date)
-                    // If date passed
-                    if (searchPattern.test(until_date)) {
-                        // Convert YYYY-MM-DD to DD/MM/YYYY
-                        until_date = moment(until_date, 'YYYY-MM-DD').format('DD/MM/YYYY');
-                    }
-                    $('#no_charge_until').val(until_date);
-                }
+                // let until_date = vm.no_annual_rental_fee_until
+                // if (until_date) {
+                //     console.log('until_date')
+                //     console.log(until_date)
+                //     // If date passed
+                //     if (searchPattern.test(until_date)) {
+                //         // Convert YYYY-MM-DD to DD/MM/YYYY
+                //         until_date = moment(until_date, 'YYYY-MM-DD').format('DD/MM/YYYY');
+                //     }
+                //     $('#no_charge_until').val(until_date);
+                // }
             },
             emitContentsChangedEvent: function () {
                 this.$emit('contents_changed', {

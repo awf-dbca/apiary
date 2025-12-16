@@ -4,6 +4,7 @@ import os
 import json
 from dateutil import parser
 import pytz
+from disturbance.settings import TIME_ZONE
 
 from django.db.models import Q
 from django.db import transaction
@@ -402,7 +403,7 @@ class OnSiteInformationViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             instance = self.get_object()
 
-            now = datetime.now(pytz.timezone(settings.TIME_ZONE))
+            now = datetime.now(pytz.timezone(TIME_ZONE))
             serializer = OnSiteInformationSerializer(instance, {'datetime_deleted': now}, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
