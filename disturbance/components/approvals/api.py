@@ -374,9 +374,10 @@ class ApprovalViewSet(viewsets.ModelViewSet):
         if until_date:
             instance.no_annual_rental_fee_until = datetime.strptime(until_date, '%d/%m/%Y').date()
         else:
-            instance.no_annual_rental_fee_until = ''
+            instance.no_annual_rental_fee_until = None
         instance.save()
-        instance.log_user_action(ApprovalUserAction.ACTION_UPDATE_NO_CHARGE_DATE_UNTIL.format(instance.no_annual_rental_fee_until.strftime('%d/%m/%Y'), instance.id), request)
+        # instance.log_user_action(ApprovalUserAction.ACTION_UPDATE_NO_CHARGE_DATE_UNTIL.format(instance.no_annual_rental_fee_until.strftime('%d/%m/%Y'), instance.id), request)
+        instance.log_user_action(ApprovalUserAction.ACTION_UPDATE_NO_CHARGE_DATE_UNTIL.format('' if instance.no_annual_rental_fee_until is None else instance.no_annual_rental_fee_until.strftime('%d/%m/%Y'), instance.id), request)
 
         return Response({})
 
