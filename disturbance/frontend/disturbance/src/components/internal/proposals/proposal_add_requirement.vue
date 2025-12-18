@@ -178,7 +178,7 @@ export default {
     },
     watch: {
         due_date: function(){
-            this.validDate = moment(this.requirement.due_date,'DD/MM/YYYY').isValid();
+            this.validDate = moment(this.requirement.due_date,'YYYY-MM-DD').isValid();
         },
     },
     methods:{
