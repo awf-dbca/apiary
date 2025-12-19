@@ -125,7 +125,8 @@ export default {
         },
     },
     mounted: function () {
-        // chevron_toggle.init();
+        // eslint-disable-next-line no-undef
+        chevron_toggle.init();
     },
     methods: {
         toggle_show_hide: function () {
