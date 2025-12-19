@@ -192,9 +192,9 @@
                     'District',
                     'Licensed site',
                     'Status',
-                    'Status<br>(at time of submit)',
-                    'Vacant<br>(current status)',  // current status of the 'is_vacant'
-                    'Vacant<br>(at time of submit)',  // status of the 'is_vacant' when the application submitted
+                    'Status (at time of submit)',
+                    'Vacant (current status)',  // current status of the 'is_vacant'
+                    'Vacant (at time of submit)',  // status of the 'is_vacant' when the application submitted
                     'Decision',
                     'Previous Site Holder<br>Applicant',
                     'Action',
