@@ -6,7 +6,7 @@
                     <button v-if="hasAssessorMode" @click.prevent="addRequirement()" style="margin-bottom:10px;" class="btn btn-primary pull-right">Add Requirement</button>
                 </div>
             </div>
-            <datatable ref="requirements_datatable" :id="'requirements-datatable-'+uuid()" :dtOptions="requirement_options" :dtHeaders="requirement_headers"/>
+            <datatable ref="requirements_datatable" :id="datatableId" :dtOptions="requirement_options" :dtHeaders="requirement_headers"/>
         </form>
     </FormSection>
     <RequirementDetail ref="requirement_detail" :proposal_id="proposal.id" :requirements="requirements"/>
@@ -30,7 +30,7 @@ export default {
     data: function() {
         let vm = this;
         return {
-            panelBody: "proposal-requirements-"+uuid(),
+            datatableId: "proposal-requirements-datatable"+uuid(),
             requirements: [],
             requirement_headers:["Requirement","Due Date","Recurrence","Action","Order"],
             requirement_options:{
