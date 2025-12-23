@@ -1,30 +1,17 @@
 <template id="proposal_requirements">
-    <div class="col-md-12">
-        <div class="row">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Requirements for {{originatingApprovalLodgementNumber}}
-                        <a class="panelClicker" :href="'#'+panelBody" data-toggle="collapse"  data-parent="#userInfo" expanded="false" :aria-controls="panelBody">
-                            <span class="glyphicon glyphicon-chevron-down pull-right "></span>
-                        </a>
-                    </h3>
-                </div>
-                <div class="panel-body panel-collapse collapse in" :id="panelBody">
-                    <form class="form-horizontal" action="index.html" method="post">
-                        <!--div class="col-sm-12">
-                            <button v-if="hasAssessorMode" @click.prevent="addRequirement()" style="margin-bottom:10px;" class="btn btn-primary pull-right">Add Requirement</button>
-                        </div-->
-                        <datatable ref="originating_requirements_datatable" :id="'originating-approval-requirements-datatable-'+uuid()" :dtOptions="requirement_options" :dtHeaders="requirement_headers"/>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <FormSection :formCollapse="false" :label="reqLabel" Index="requirements">
+         <form class="form-horizontal" action="index.html" method="post">
+            <!--div class="col-sm-12">
+                <button v-if="hasAssessorMode" @click.prevent="addRequirement()" style="margin-bottom:10px;" class="btn btn-primary pull-right">Add Requirement</button>
+            </div-->
+            <datatable ref="originating_requirements_datatable" :id="datatableId" :dtOptions="requirement_options" :dtHeaders="requirement_headers"/>
+        </form>
+    </FormSection>
         <!--RequirementDetail 
         ref="originating_requirement_detail" 
         :proposal_id="proposal.id" 
         :requirements="requirements"
         :approval_id="originatingApprovalId"/-->
-    </div>
 </template>
 <script>
 import { v4 as uuid } from 'uuid';
@@ -36,6 +23,7 @@ import {
 from '@/utils/hooks'
 import datatable from '@vue-utils/datatable.vue'
 //import RequirementDetail from './proposal_add_requirement.vue'
+import FormSection from "@/components/forms/section_toggle.vue";
 export default {
     name: 'OriginatingApprovalRequirements',
     props: {
@@ -46,7 +34,7 @@ export default {
     data: function() {
         let vm = this;
         return {
-            panelBody: "proposal-requirements-"+uuid(),
+            datatableId: "originating-approval-requirements-datatable-"+uuid(),
             //originatingApproval: {},
             requirements: [],
             requirement_headers:[
@@ -75,37 +63,34 @@ export default {
                     { responsivePriority: 2, targets: -1 }, // If the actions is the last entry in columns then this will make it 2nd top priority soo as long as the screen is a decent size it will always be shown
                 ],
                 buttons:[
-                'excel', 'csv', ], //'copy'
+                    {
+                        extend: 'excel',
+                        className: 'btn btn-primary me-2 rounded',
+                        exportOptions: {
+                            columns: ':not(.noexport)',
+                            orthogonal:'export'
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        className: 'btn btn-primary me-2 rounded',
+                        exportOptions: {
+                            columns: ':not(.noexport)',
+                            orthogonal:'export'
+                        }
+                    },
+                ],
                 columns: [
                     {
                         data: "requirement",
                         //title: originatingLicence,
                         //orderable: false,
-                        'render': function (value) {
-                            var ellipsis = '...',
-                                truncated = _.truncate(value, {
-                                    length: 25,
-                                    omission: ellipsis,
-                                    separator: ' '
-                                }),
-                                result = '<span>' + truncated + '</span>',
-                                popTemplate = _.template('<a href="#" ' +
-                                    'role="button" ' +
-                                    'data-toggle="popover" ' +
-                                    'data-trigger="click" ' +
-                                    'data-placement="top auto"' +
-                                    'data-html="true" ' +
-                                    'data-content="<%= text %>" ' +
-                                    '>more</a>');
-                            if (_.endsWith(truncated, ellipsis)) {
-                                result += popTemplate({
-                                    text: value
-                                });
-                            }
-
-                            return result;
+                         'render': function (value, type) {
+                            var result= helpers.dtPopover(value);
+                            //return result;
+                            return type=='export' ? value : result;
                         },
-                        'createdCell': helpers.dtPopoverCellFn,
+                        // 'createdCell': helpers.dtPopoverCellFn,
                         defaultContent: '',
 
                         /*'createdCell': function (cell) {
@@ -200,11 +185,15 @@ export default {
     },
     components:{
         datatable,
-        //RequirementDetail
+        //RequirementDetail,
+        FormSection
     },
     computed:{
         hasAssessorMode(){
             return this.proposal.assessor_mode.has_assessor_mode;
+        },
+        reqLabel(){
+            return `Requirements for ${this.originatingApprovalLodgementNumber}`;
         },
         /*
         originatingApprovalId: function() {
