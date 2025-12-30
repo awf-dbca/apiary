@@ -12,7 +12,7 @@ if [ $status -ne 0  ]; then
     fi
 
     # Start the second process
-    gunicorn disturbance.wsgi --bind :8080 --config /app/gunicorn.ini
+    gunicorn disturbance.wsgi --bind :8080 --config /app/gunicorn.ini.py
     status=$?
     if [ $status -ne 0  ]; then
           echo "Failed to start gunicorn: $status"
