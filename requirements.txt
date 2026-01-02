@@ -32,7 +32,7 @@ django-treebeard~=4.7.1
 django-smart-selects~=1.7.2
 django-multiselectfield~=1.0.1
 psycopg2~=2.9.10
-deepdiff~=8.5.0
+deepdiff~=8.6.1
 python-dateutil~=2.8.2
 numpy~=2.2.6
 pandas~=2.2.3
@@ -47,4 +47,6 @@ django-phonenumber-field==8.0.0
 django-vite~=3.1.0
 Babel==2.15.0
 urllib3~=2.6.2
+sqlparse~=0.5.5
+setuptools~=80.9.0
 git+https://github.com/dbca-wa/appmonitor_client.git#egg=appmonitor_client
