@@ -45,6 +45,7 @@ INSTALLED_APPS += [
     'ledger_api_client',
     'webtemplate_dbca',
     "django_vite",
+    "appmonitor_client",
 ]
 
 ADD_REVERSION_ADMIN=True
@@ -172,7 +173,9 @@ VERSION_NO="1.0.1"
 
 BASE_URL=env('BASE_URL')
 
-
+CRON_CLASSES = [
+    'appmonitor_client.cron.CronJobAppMonitorClient',
+]
 
 CKEDITOR_CONFIGS = {
     'default': {

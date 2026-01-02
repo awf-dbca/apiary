@@ -47,3 +47,4 @@ django-phonenumber-field==8.0.0
 django-vite~=3.1.0
 Babel==2.15.0
 urllib3~=2.6.2
+git+https://github.com/dbca-wa/appmonitor_client.git#egg=appmonitor_client
