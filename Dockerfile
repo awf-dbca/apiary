@@ -1,6 +1,6 @@
 # Prepare the base environment.
 # Based on the Dockerfile: https://github.com/dbca-wa/commercialoperator/blob/cols_fe_py3/Dockerfile
-FROM ghcr.io/dbca-wa/docker-apps-dev:ubuntu2404_base_latest as builder_base
+FROM ghcr.io/dbca-wa/docker-apps-dev:ubuntu_2510_base_python as builder_base
 MAINTAINER asi@dbca.wa.gov.au
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DEBUG=True
