@@ -13,7 +13,7 @@
 
                             <div v-if="!siteTransferApplication">
                                 <div class="form-group">
-                                    <div class="row">
+                                    <div class="row mb-3">
                                         <div class="col-sm-3">
                                             <label v-if="processing_status == 'With Approver'" class="control-label pull-left"  for="Name">Start Date</label>
                                             <label v-else class="control-label pull-left"  for="Name">Proposed Start Date</label>
@@ -24,21 +24,22 @@
                                             </template>
                                             <template v-else>
                                                 <div class="input-group date" ref="start_date" style="width: 70%;">
-                                                    <input type="text" class="form-control" name="start_date" placeholder="DD/MM/YYYY" v-model="approval.start_date">
-                                                    <span class="input-group-addon">
+                                                    <!-- <input type="text" class="form-control" name="start_date" placeholder="DD/MM/YYYY" v-model="approval.start_date"> -->
+                                                    <input type="date" class="form-control" name="start_date" placeholder="DD/MM/YYYY" v-model="approval.start_date" :min="today">
+                                                    <!-- <span class="input-group-addon">
                                                         <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
+                                                    </span> -->
                                                 </div>
                                             </template>
                                         </div>
                                     </div>
-                                    <div class="row" v-show="showstartDateError">
+                                    <div class="row mb-3" v-show="showstartDateError">
                                         <alert  class="col-sm-12" type="danger"><strong>{{startDateErrorString}}</strong></alert>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <div class="row">
+                                    <div class="row mb-3">
                                         <div class="col-sm-3">
                                             <label v-if="processing_status == 'With Approver'" class="control-label pull-left"  for="Name">Expiry Date</label>
                                             <label v-else class="control-label pull-left"  for="Name">Proposed Expiry Date</label>
@@ -49,56 +50,59 @@
                                             </template>
                                             <template v-else>
                                                 <div class="input-group date" ref="due_date" style="width: 70%;">
-                                                    <input type="text" class="form-control" name="due_date" placeholder="DD/MM/YYYY" v-model="approval.expiry_date" :readonly="is_amendment">
-                                                    <span class="input-group-addon">
+                                                    <!-- <input type="text" class="form-control" name="due_date" placeholder="DD/MM/YYYY" v-model="approval.expiry_date" :readonly="is_amendment"> -->
+                                                    <input type="date" class="form-control" name="due_date" placeholder="DD/MM/YYYY" v-model="approval.expiry_date" :readonly="is_amendment" :min="approval.start_date">
+                                                    <!-- <span class="input-group-addon">
                                                         <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
+                                                    </span> -->
                                                 </div>
                                             </template>
                                         </div>
                                     </div>
-                                    <div class="row" v-show="showtoDateError">
+                                    <div class="row mb-3" v-show="showtoDateError">
                                         <alert  class="col-sm-12" type="danger"><strong>{{toDateErrorString}}</strong></alert>
                                     </div>
                                 </div>
                             </div>
                             <div v-else>
                                 <div v-if="creatingSiteTransferTargetApproval" class="form-group">
-                                    <div class="row">
+                                    <div class="row mb-3">
                                         <div class="col-sm-3">
                                             <label v-if="processing_status == 'With Approver'" class="control-label pull-left"  for="Name">Start Date</label>
                                             <label v-else class="control-label pull-left"  for="Name">Proposed Start Date</label>
                                         </div>
                                         <div class="col-sm-9">
                                             <div class="input-group date" ref="start_date" style="width: 70%;">
-                                                <input type="text" class="form-control" name="start_date" placeholder="DD/MM/YYYY" v-model="approval.start_date">
-                                                <span class="input-group-addon">
+                                                <!-- <input type="text" class="form-control" name="start_date" placeholder="DD/MM/YYYY" v-model="approval.start_date"> -->
+                                                <input type="date" class="form-control" name="start_date" placeholder="DD/MM/YYYY" v-model="approval.start_date" :min="today">
+                                                <!-- <span class="input-group-addon">
                                                     <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
+                                                </span> -->
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row" v-show="showstartDateError">
+                                    <div class="row mb-3" v-show="showstartDateError">
                                         <alert  class="col-sm-12" type="danger"><strong>{{startDateErrorString}}</strong></alert>
                                     </div>
                                 </div>
 
                                 <div v-if="creatingSiteTransferTargetApproval" class="form-group">
-                                    <div class="row">
+                                    <div class="row mb-3">
                                         <div class="col-sm-3">
                                             <label v-if="processing_status == 'With Approver'" class="control-label pull-left"  for="Name">Expiry Date</label>
                                             <label v-else class="control-label pull-left"  for="Name">Proposed Expiry Date</label>
                                         </div>
                                         <div class="col-sm-9">
                                             <div class="input-group date" ref="due_date" style="width: 70%;">
-                                                <input type="text" class="form-control" name="due_date" placeholder="DD/MM/YYYY" v-model="approval.expiry_date">
-                                                <span class="input-group-addon">
+                                                <!-- <input type="text" class="form-control" name="due_date" placeholder="DD/MM/YYYY" v-model="approval.expiry_date"> -->
+                                                <input type="date" class="form-control" name="due_date" placeholder="DD/MM/YYYY" v-model="approval.expiry_date" :readonly="is_amendment" :min="approval.start_date">
+                                                <!-- <span class="input-group-addon">
                                                     <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
+                                                </span> -->
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row" v-show="showtoDateError">
+                                    <div class="row mb-3" v-show="showtoDateError">
                                         <alert  class="col-sm-12" type="danger"><strong>{{toDateErrorString}}</strong></alert>
                                     </div>
 
@@ -106,7 +110,7 @@
                             </div>
 
                             <div class="form-group">
-                                <div class="row">
+                                <div class="row mb-3">
                                     <div class="col-sm-3">
                                         <label v-if="processing_status == 'With Approver'" class="control-label pull-left"  for="Name">Details</label>
                                         <label v-else class="control-label pull-left"  for="Name">Proposed Details</label>
@@ -117,7 +121,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <div class="row">
+                                <div class="row mb-3">
                                     <div class="col-sm-3">
                                         <label v-if="processing_status == 'With Approver'" class="control-label pull-left"  for="Name">BCC email</label>
                                         <label v-else class="control-label pull-left"  for="Name">Proposed BCC email</label>
@@ -135,112 +139,100 @@
 -->
                             <div v-for="(site) in apiary_sites_updated_ordered" :key="site">
                                 <div v-if="!site.properties.licensed_site">
-				    <div class="col-md-12">
-					<div class="row">
-					    <div class="panel panel-default">
-						<div class="panel-heading">
-						    <h2 class="panel-title">Permit details for site {{ site.id }}
-							<a class="panelClicker" :href="'#details-info-'+site.id" data-toggle="collapse"  :data-parent="'#userInfo-'+site.id" expanded="false" :aria-controls="'details-info-'+site.id">
-							    <span class="glyphicon glyphicon-chevron-down pull-right "></span>
-							</a>
-						    </h2>
-						</div>
+				                    <div class="col-md-12">
+                                        <div class="row mb-3">
+                                            <FormSection :formCollapse="true" :label="`Permit details for site ${site.id}`" :Index="`permit_details-`+site.id" >
+                                                <!-- <div class="row">
+                                                    <div class="col-sm-12"> -->
+                                                    <div class="row mb-3">
+                                                        <div class="col-sm-4">
+                                                            <label class="control-label pull-left"  for="name">Batch Number</label><br>
+                                                            <input type="text" class="form-control" name="site_batch_no" style="width:100%;" ref="batch_no"
+                                                                                            v-model="site.properties.batch_no"
+                                                                                        >
+                                                        </div>
+                <!--
+                                                                                        v-model="issuance_details[index].batch_no"
+                                                                                        v-model="site.properties.issuance_details.batch_no"
+                                                    <pre>{{ site.properties.issuance_details }}</pre>
+                                                <div class="col-sm-4">
+                                                    <label class="control-label pull-left"  for="name">Batch Number</label><br>
+                                                    <input type="text" class="form-control" name="approval_batch_no" style="width:100%;" ref="batch_no"
+                                                                                        v-model="issuance_details.batch_no"
+                                                                                    >
+                                                </div>
+                -->
 
-						<div class="panel-body panel-collapse collapse" :id="'details-info-'+site.id">
-						    <div class="row">
-						        <div class="col-sm-12">
-							    <div class="form-group">
-								<div class="col-sm-4">
-								    <label class="control-label pull-left"  for="name">Batch Number</label><br>
-								    <input type="text" class="form-control" name="site_batch_no" style="width:100%;" ref="batch_no"
-                                                                        v-model="site.properties.batch_no"
-                                                                    >
-								</div>
-<!--
-                                                                        v-model="issuance_details[index].batch_no"
-                                                                        v-model="site.properties.issuance_details.batch_no"
-                                    <pre>{{ site.properties.issuance_details }}</pre>
-								<div class="col-sm-4">
-								    <label class="control-label pull-left"  for="name">Batch Number</label><br>
-								    <input type="text" class="form-control" name="approval_batch_no" style="width:100%;" ref="batch_no"
-                                                                        v-model="issuance_details.batch_no"
-                                                                    >
-								</div>
--->
+                <!--
+                                                <div class="col-sm-4">
+                                                <label class="control-label pull-left" style="text-align:left" for="name">Conservation and Parks Commission</label>
+                                                <div class="input-group date" ref="site_cpc_date" style="width: 70%;">
+                                                    <input type="text" class="form-control" name="site_cpc_date" placeholder="DD/MM/YYYY" v-model="site.properties.approval_cpc_date">
+                                                    <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>
+                                                </div>
+                -->
 
-<!--
-								<div class="col-sm-4">
-								  <label class="control-label pull-left" style="text-align:left" for="name">Conservation and Parks Commission</label>
-								  <div class="input-group date" ref="site_cpc_date" style="width: 70%;">
-								    <input type="text" class="form-control" name="site_cpc_date" placeholder="DD/MM/YYYY" v-model="site.properties.approval_cpc_date">
-								    <span class="input-group-addon">
-									<span class="glyphicon glyphicon-calendar"></span>
-								    </span>
-								  </div>
-								</div>
--->
+                                                        <div class="col-sm-4">
+                                                            <label class="control-label pull-left" style="text-align:left" for="name">Conservation and Parks Commission</label>
+                                                            <!-- <input type="text" class="form-control" name="site_cpc_date" placeholder="YYYY-MM-DD" style="width:100%;" ref="cpc_date" 
+                                                                                                v-model="site.properties.approval_cpc_date"> -->
+                                                            <input type="date" class="form-control" name="site_cpc_date" placeholder="DD/MM/YYYY" style="width:100%;" ref="cpc_date" v-model="site.properties.approval_cpc_date">
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="control-label pull-left" style="text-align:left" for="name">Minister for Environment or Delegate</label>
+                                                            <!-- <input type="text" class="form-control" name="site_minister_date" placeholder="YYYY-MM-DD" style="width:100%;" ref="minister_date" 
+                                                                                                v-model="site.properties.approval_minister_date" > -->
+                                                            <input type="date" class="form-control" name="site_minister_date" placeholder="DD/MM/YYYY" style="width:100%;" ref="minister_date"  v-model="site.properties.approval_minister_date">
+                                                        </div>
+                                                    </div>
 
-								<div class="col-sm-4">
-								    <label class="control-label pull-left" style="text-align:left" for="name">Conservation and Parks Commission</label>
-								    <input type="text" class="form-control" name="site_cpc_date" placeholder="YYYY-MM-DD" style="width:100%;" ref="cpc_date" 
-                                                                        v-model="site.properties.approval_cpc_date"
-                                                                    >
-								</div>
-								<div class="col-sm-4">
-								    <label class="control-label pull-left" style="text-align:left" for="name">Minister for Environment or Delegate</label>
-								    <input type="text" class="form-control" name="site_minister_date" placeholder="YYYY-MM-DD" style="width:100%;" ref="minister_date" 
-                                                                        v-model="site.properties.approval_minister_date"
-                                                                    >
-								</div>
-							    </div>
+                <!--
+                -->
+                                                    <div class="row mb-3">
+                                                        <div class="col-sm-4">
+                                                            <label class="control-label pull-left"  for="name">Map Reference</label><br>
+                                                            <input type="text" class="form-control" name="site_map_ref" style="width:100%;" ref="map_ref" v-model="site.properties.map_ref">
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="control-label pull-left" style="text-align:left" for="name">Forest Block</label>
+                                                            <input type="text" class="form-control" name="site_forest_block" style="width:100%;" ref="forest_block" v-model="site.properties.forest_block">
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="control-label pull-left" style="text-align:left" for="name">COG</label>
+                                                            <input type="text" class="form-control" name="site_cog" style="width:100%;" ref="cog" v-model="site.properties.cog">
+                                                        </div>
+                                                    </div>
 
-<!--
--->
-							    <div class="form-group">
-								<div class="col-sm-4">
-								    <label class="control-label pull-left"  for="name">Map Reference</label><br>
-								    <input type="text" class="form-control" name="site_map_ref" style="width:100%;" ref="map_ref" v-model="site.properties.map_ref">
-								</div>
-								<div class="col-sm-4">
-								    <label class="control-label pull-left" style="text-align:left" for="name">Forest Block</label>
-								    <input type="text" class="form-control" name="site_forest_block" style="width:100%;" ref="forest_block" v-model="site.properties.forest_block">
-								</div>
-								<div class="col-sm-4">
-								    <label class="control-label pull-left" style="text-align:left" for="name">COG</label>
-								    <input type="text" class="form-control" name="site_cog" style="width:100%;" ref="cog" v-model="site.properties.cog">
-								</div>
-							    </div>
+                                                    <div class="row mb-3">
+                                                        <div class="col-sm-4">
+                                                            <label class="control-label pull-left"  for="name">Apiary Zone</label><br>
+                                                            <input type="text" class="form-control" name="site_zone" style="width:100%;" ref="zone" v-model="site.properties.zone">
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="control-label pull-left" style="text-align:left" for="name">Water Catchment Area</label>
+                                                            <input type="text" class="form-control" name="site_catchment" style="width:100%;" ref="catchment" v-model="site.properties.catchment">
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label class="control-label pull-left" style="text-align:left" for="name">Nearest Road/Track</label>
+                                                            <input type="text" class="form-control" name="site_roadtrack" style="width:100%;" ref="roadtrack" v-model="site.properties.roadtrack">
+                                                        </div>
+                                                    </div>
 
-							    <div class="form-group">
-								<div class="col-sm-4">
-								    <label class="control-label pull-left"  for="name">Apiary Zone</label><br>
-								    <input type="text" class="form-control" name="site_zone" style="width:100%;" ref="zone" v-model="site.properties.zone">
-								</div>
-								<div class="col-sm-4">
-								    <label class="control-label pull-left" style="text-align:left" for="name">Water Catchment Area</label>
-								    <input type="text" class="form-control" name="site_catchment" style="width:100%;" ref="catchment" v-model="site.properties.catchment">
-								</div>
-								<div class="col-sm-4">
-								    <label class="control-label pull-left" style="text-align:left" for="name">Nearest Road/Track</label>
-								    <input type="text" class="form-control" name="site_roadtrack" style="width:100%;" ref="roadtrack" v-model="site.properties.roadtrack">
-								</div>
-							    </div>
+                                                    <div class="row mb-3">
+                                                        <div class="col-sm-3">
+                                                            <label class="control-label pull-left"  for="Name">DRA Permit Required</label>
+                                                        </div>
+                                                        <div class="col-sm-1">
+                                                            <input type="checkbox" class="form-check-input" name="site_dra_permit" ref="dra_permit" v-model="site.properties.dra_permit">
+                                                        </div>
+                                                    </div>
 
-							    <div class="form-group">
-								<div class="col-sm-3">
-								    <label class="control-label pull-left"  for="Name">DRA Permit Required</label>
-								</div>
-								<div class="col-sm-1">
-								    <input type="checkbox" class="form-control" name="site_dra_permit" style="width:50%;" ref="dra_permit" v-model="site.properties.dra_permit">
-								</div>
-							    </div>
-
-						        </div>
-					            </div>
-				  	        </div>
-
-					    </div>
-
+                                                    <!-- </div>
+                                                </div> -->
+                                            </FormSection>
                                         </div>
                                     </div>
                                 </div>
@@ -258,7 +250,7 @@
 
 
                             <div class="form-group">
-                                <div class="row">
+                                <div class="row mb-3">
                                     <div class="col-sm-12">
                                         <div v-if="!siteTransferApplication">
                                             <label v-if="submitter_email && applicant_email" class="control-label pull-left"  for="Name">After approving this application, the apiary authority will be emailed to {{proposalNotificationList}}.</label>
@@ -322,12 +314,12 @@
 -->
 
             <template #footer>
-                <button type="button" v-if="issuingApproval" disabled class="btn btn-default" @click="ok"><i class="fa fa-spinner fa-spin"></i> Processing</button>
+                <button type="button" v-if="issuingApproval" disabled class="btn btn-primary" @click="ok"><i class="fa fa-spinner fa-spin"></i> Processing</button>
                 <span v-else-if="ok_button_disabled" class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Please select at least one site to issue">
-                    <button type="button" style="pointer-events: none;" class="btn btn-default" @click="ok" disabled>Ok</button>
+                    <button type="button" style="pointer-events: none;" class="btn btn-primary" @click="ok" disabled>Ok</button>
                 </span>
-                <button v-else type="button" class="btn btn-default" @click="ok" >Ok</button>
-                <button type="button" class="btn btn-default" @click="cancel">Cancel</button>
+                <button v-else type="button" class="btn btn-primary" @click="ok" >Ok</button>
+                <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>
             </template>
         </modal>
     </div>
@@ -339,12 +331,14 @@ import modal from '@vue-utils/bootstrap-modal.vue'
 import alert from '@vue-utils/alert.vue'
 import {helpers,api_endpoints} from "@/utils/hooks.js"
 import ComponentSiteSelection from '@/components/common/apiary/component_site_selection.vue'
+import FormSection from "@/components/forms/section_toggle.vue"
 export default {
     name:'ProposedApiaryIssuance',
     components:{
         modal,
         alert,
         ComponentSiteSelection,
+        FormSection,
     },
     props:{
         proposal_apiary_id: {
@@ -399,13 +393,6 @@ export default {
             success:false,
             apiary_sites_updated: null,
             apiary_licensed_sites_updated: null,
-            datepickerOptions:{
-                format: 'DD/MM/YYYY',
-                showClear:true,
-                useCurrent:false,
-                keepInvalid:true,
-                allowInputToggle:true
-            },
             warningString: 'Please attach Level of Approval document before issuing Approval',
             component_site_selection_key: '',
             num_of_sites_selected: 0,
@@ -556,6 +543,9 @@ export default {
             // to allow for PDF ordered output of permits and licences (ApprovalSerializerForLicenceDoc)
             return _.orderBy(this.apiary_sites_updated, 'id')
         },
+        today() {
+            return moment().format('YYYY-MM-DD'); // Format for <input type="date">
+        }
 
     },
     methods:{
@@ -699,12 +689,12 @@ export default {
             this.toDateError = false;
             this.startDateError = false;
             $('.has-error').removeClass('has-error');
-            if (this.$refs.due_date) {
-                $(this.$refs.due_date).data('DateTimePicker').clear();
-            }
-            if (this.$refs.start_date) {
-                $(this.$refs.start_date).data('DateTimePicker').clear();
-            }
+            // if (this.$refs.due_date) {
+            //     $(this.$refs.due_date).data('DateTimePicker').clear();
+            // }
+            // if (this.$refs.start_date) {
+            //     $(this.$refs.start_date).data('DateTimePicker').clear();
+            // }
             this.validation_form.resetForm();
         },
         fetchContact: function(id){
@@ -955,65 +945,7 @@ export default {
             });
        },
        eventListeners:function () {
-            let vm = this;
-            // Initialise Date Picker
-            $(vm.$refs.site_cpc_date).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.site_cpc_date).on('dp.change', function(e){
-                console.log('e: ' + e)
-            });
-
-            $(vm.$refs.due_date).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.due_date).on('dp.change', function(e){
-                if ($(vm.$refs.due_date).data('DateTimePicker').date()) {
-                    //let proposalApprovalStartDate = moment(vm.proposal.approval.start_date, 'YYYY-MM-DD').format('DD/MM/YYYY')
-                    let proposalApprovalStartDate = vm.proposal.approval && vm.proposal.approval.start_date ?
-                        moment(vm.proposal.approval.start_date, 'YYYY-MM-DD') :
-                        null;
-                    let startDate = Object.keys($(vm.$refs.start_date)).length ?
-                        $(vm.$refs.start_date).data('DateTimePicker').date() :
-                        proposalApprovalStartDate;
-                    if ($(vm.$refs.due_date).data('DateTimePicker').date() < startDate) {
-                            vm.toDateError = true;
-                            vm.toDateErrorString = 'Please select Expiry date that is after Start date';
-                            vm.approval.expiry_date = ""
-                    }
-                    else{
-                        vm.toDateError = false;
-                        vm.toDateErrorString = '';
-                        vm.approval.expiry_date =  e.date.format('DD/MM/YYYY');
-                    }
-                    //vm.approval.expiry_date =  e.date.format('DD/MM/YYYY');
-                }
-                else if ($(vm.$refs.due_date).data('date') === "") {
-                    vm.approval.expiry_date = "";
-                }
-             });
-            $(vm.$refs.start_date).datetimepicker(vm.datepickerOptions);
-            $(vm.$refs.start_date).on('dp.change', function(e){
-                if ($(vm.$refs.start_date).data('DateTimePicker').date()) {
-
-                    if (($(vm.$refs.due_date).data('DateTimePicker').date()!= null)&& ($(vm.$refs.due_date).data('DateTimePicker').date() < $(vm.$refs.start_date).data('DateTimePicker').date())){
-                        vm.startDateError = true;
-                        vm.startDateErrorString = 'Please select Start date that is before Expiry date';
-                        vm.approval.start_date = ""
-                    }
-                    else{
-                        vm.startDateError = false;
-                        vm.startDateErrorString = '';
-                        vm.approval.start_date =  e.date.format('DD/MM/YYYY');
-                    }
-
-                    //vm.approval.start_date =  e.date.format('DD/MM/YYYY');
-                }
-                else if ($(vm.$refs.start_date).data('date') === "") {
-                    vm.approval.start_date = "";
-                }
-             });
-             /*
-             $(document).ready(function() {
-                 $('[data-toggle="tooltip"]').tooltip();
-             });
-             */
+           
        }
    },
     mounted:function () {
