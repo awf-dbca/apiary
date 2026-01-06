@@ -29,6 +29,7 @@ from disturbance.components.organisations.emails import (
             )
 
 from django.conf import settings
+from rest_framework import status
 from django.core.files.storage import FileSystemStorage
 private_storage = FileSystemStorage(location=settings.BASE_DIR+"/private-media/", base_url='/private-media/')
 

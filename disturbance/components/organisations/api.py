@@ -843,7 +843,7 @@ class OrganisationRequestsViewSet(viewsets.ModelViewSet):
             serializer.validated_data['requester'] = request.user
             if request.data['role'] == 'consultant':
                 # Check if consultant can be relinked to org.
-                data = Organisation.existance(request.data['abn'])
+                data = Organisation.existence(request.data['abn'])
                 data.update([('user', request.user.id)])
                 data.update([('abn', request.data['abn'])])
                 existing_org = OrganisationCheckExistSerializer(data=data)

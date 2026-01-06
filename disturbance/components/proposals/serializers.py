@@ -686,8 +686,8 @@ class ProposalStandardRequirementSerializer(serializers.ModelSerializer):
 
 
 class ProposedApprovalSerializer(serializers.Serializer):
-    expiry_date = serializers.DateField(input_formats=['%d/%m/%Y'], required=False)
-    start_date = serializers.DateField(input_formats=['%d/%m/%Y'], required=False)
+    expiry_date = serializers.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], required=False)
+    start_date = serializers.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'], required=False)
     details = serializers.CharField()
     cc_email = serializers.CharField(required=False,allow_null=True, allow_blank=True)
 
