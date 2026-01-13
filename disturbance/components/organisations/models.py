@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, transaction
+from rest_framework import serializers
 from django.contrib.sites.models import Site
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
@@ -688,9 +689,9 @@ class OrganisationRequest(models.Model):
 
     def __accept(self, request):
         from disturbance.helpers import is_internal
-        if is_internal(request):
-            from disturbance.components.organisations.models import ApiaryOrganisationAccessGroup
+        from disturbance.components.organisations.models import ApiaryOrganisationAccessGroup
 
+        if is_internal(request): #TODO check if request user in ApiaryOrganisationAccessGroup (for site? investigate/modify as needed)
             # Check if orgsanisation exists in ledger
             ledger_org = None
 
@@ -734,18 +735,20 @@ class OrganisationRequest(models.Model):
                 role = OrganisationContact.ORG_CONTACT_ROLE_ADMIN
 
             # Create contact person
-            OrganisationContact.objects.get_or_create(
+            org_contact = OrganisationContact.objects.get_or_create(
                 organisation=org,
-                first_name=get_first_name(self.requester),
-                last_name=get_last_name(self.requester),
-                mobile_number=self.requester.mobile_number,
-                phone_number=self.requester.phone_number,
-                fax_number=self.requester.fax_number,
                 email=self.requester.email,
-                user_role=role,
-                user_status=OrganisationContact.ORG_CONTACT_STATUS_ACTIVE,
-                is_admin=True
             )
+
+            org_contact.first_name = get_first_name(self.requester)
+            org_contact.last_name = get_last_name(self.requester)
+            org_contact.mobile_number = self.requester.mobile_number
+            org_contact.phone_number = self.requester.phone_number
+            org_contact.fax_number = self.requester.fax_number
+            org_contact.user_role = role
+            org_contact.user_status = OrganisationContact.ORG_CONTACT_STATUS_ACTIVE
+            org_contact.is_admin = True
+            org_contact.save()
 
             # send email to requester
             send_organisation_request_accept_email_notification(self, org, request)
@@ -761,6 +764,8 @@ class OrganisationRequest(models.Model):
             #    if recipients:
             #        send_organisation_request_accept_admin_email_notification(
             #            self, request, recipients)
+        else:
+            raise serializers.ValidationError("User not authorised to approve organisation request")
 
     def send_org_access_group_request_notification(self,request):
         # user submits a new organisation request
