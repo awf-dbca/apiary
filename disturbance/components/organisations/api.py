@@ -505,11 +505,11 @@ class OrganisationViewSet(viewsets.ModelViewSet):
     
 
     @action(detail=False,methods=['POST',])
-    def existance(self, request, *args, **kwargs):
+    def existence(self, request, *args, **kwargs):
         try:
             serializer = OrganisationCheckSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            data = Organisation.existance(serializer.validated_data['abn']) 
+            data = Organisation.existence(serializer.validated_data['abn']) 
             data.update([('user', request.user.id)])
             data.update([('abn', request.data['abn'])])
             serializer = OrganisationCheckExistSerializer(data=data)

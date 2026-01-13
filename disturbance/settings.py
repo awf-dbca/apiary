@@ -208,8 +208,8 @@ SITE_STATUS_SUSPENDED = 'suspended'
 SITE_STATUS_TRANSFERRED = 'transferred'  # This status 'transferred' is assigned to the old relationship (ApiarySiteOnApproval object)
 SITE_STATUS_VACANT = 'vacant'
 SITE_STATUS_DISCARDED = 'discarded'
-BASE_EMAIL_TEXT = ''
-BASE_EMAIL_HTML = ''
+BASE_EMAIL_TEXT = 'disturbance/emails/base_email.txt'
+BASE_EMAIL_HTML = 'disturbance/emails/base_email.html'
 ORGANISATION_PERMISSION_MODULE = 'disturbance.permission'
 
 HTTP_HOST_FOR_TEST = 'localhost:9061'
