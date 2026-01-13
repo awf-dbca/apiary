@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, transaction
+from rest_framework import serializers
 from django.contrib.sites.models import Site
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
@@ -32,6 +33,11 @@ from django.conf import settings
 from rest_framework import status
 from django.core.files.storage import FileSystemStorage
 private_storage = FileSystemStorage(location=settings.BASE_DIR+"/private-media/", base_url='/private-media/')
+
+from disturbance.components.main.utils import (
+    get_first_name,
+    get_last_name,
+)
 
 @python_2_unicode_compatible
 class Organisation(models.Model):
@@ -507,17 +513,28 @@ class Organisation(models.Model):
 
 @python_2_unicode_compatible
 class OrganisationContact(models.Model):
-    USER_STATUS_CHOICES = (('draft', 'Draft'),
-        ('pending', 'Pending'),
-        ('active', 'Active'),
-        ('declined', 'Declined'),
-        ('unlinked', 'Unlinked'),
-        ('suspended', 'Suspended'),
+    ORG_CONTACT_STATUS_DRAFT = 'draft'
+    ORG_CONTACT_STATUS_PENDING = 'pending'
+    ORG_CONTACT_STATUS_ACTIVE = 'active'
+    ORG_CONTACT_STATUS_DECLINED = 'declined'
+    ORG_CONTACT_STATUS_UNLINKED = 'unlinked'
+    ORG_CONTACT_STATUS_SUSPENDED = 'suspended'
+    USER_STATUS_CHOICES = (
+        (ORG_CONTACT_STATUS_DRAFT, 'Draft'),
+        (ORG_CONTACT_STATUS_PENDING, 'Pending'),
+        (ORG_CONTACT_STATUS_ACTIVE, 'Active'),
+        (ORG_CONTACT_STATUS_DECLINED, 'Declined'),
+        (ORG_CONTACT_STATUS_UNLINKED, 'Unlinked'),
+        (ORG_CONTACT_STATUS_SUSPENDED, 'Suspended'),
         ('contact_form','ContactForm'), # status 'contact_form' if org contact was added via 'Contact Details' section in manage.vue (allows Org Contact to be distinguished from Org Delegate)
     )
-    USER_ROLE_CHOICES = (('organisation_admin', 'Organisation Admin'),
-        ('organisation_user', 'Organisation User'),
-        ('consultant','Consultant')
+    ORG_CONTACT_ROLE_ADMIN = 'organisation_admin'
+    ORG_CONTACT_ROLE_USER = 'organisation_user'
+    ORG_CONTACT_ROLE_CONSULTANT = 'consultant'
+    USER_ROLE_CHOICES = (
+        (ORG_CONTACT_ROLE_ADMIN, 'Organisation Admin'),
+        (ORG_CONTACT_ROLE_USER, 'Organisation User'),
+        (ORG_CONTACT_ROLE_CONSULTANT, 'Consultant')
     )
     user_status = models.CharField('Status', max_length=40, choices=USER_STATUS_CHOICES,default=USER_STATUS_CHOICES[0][0])
     user_role = models.CharField('Role', max_length=40, choices=USER_ROLE_CHOICES,default='organisation_user')
@@ -639,9 +656,11 @@ class OrganisationRequest(models.Model):
         ('approved','Approved'),
         ('declined','Declined')
     )
+    ORG_REQUEST_ROLE_EMPLOYEE = 'employee'
+    ORG_REQUEST_ROLE_CONSULTANT = 'consultant'
     ROLE_CHOICES = (
-        ('employee','Employee'),
-        ('consultant','Consultant')
+        (ORG_REQUEST_ROLE_EMPLOYEE, 'Employee'),
+        (ORG_REQUEST_ROLE_CONSULTANT, 'Consultant')
     )
     TEMPLATE_GROUP_CHOICES = (
         ('apiary','Apiary'),
@@ -669,11 +688,10 @@ class OrganisationRequest(models.Model):
             self.__accept(request)
 
     def __accept(self, request):
-        #TODO fix for segregation
-        return
-        if is_internal(request):
-            from apiary.components.applications.models import ActivityPermissionGroup
+        from disturbance.helpers import is_internal
+        from disturbance.components.organisations.models import ApiaryOrganisationAccessGroup
 
+        if is_internal(request): #TODO check if request user in ApiaryOrganisationAccessGroup (for site? investigate/modify as needed)
             # Check if orgsanisation exists in ledger
             ledger_org = None
 
@@ -715,33 +733,39 @@ class OrganisationRequest(models.Model):
                 role = OrganisationContact.ORG_CONTACT_ROLE_CONSULTANT
             else:
                 role = OrganisationContact.ORG_CONTACT_ROLE_ADMIN
-            # Create contact person
 
-            OrganisationContact.objects.get_or_create(
+            # Create contact person
+            org_contact, _ = OrganisationContact.objects.get_or_create(
                 organisation=org,
-                first_name=get_first_name(self.requester),
-                last_name=get_last_name(self.requester),
-                mobile_number=self.requester.mobile_number,
-                phone_number=self.requester.phone_number,
-                fax_number=self.requester.fax_number,
                 email=self.requester.email,
-                user_role=role,
-                user_status=OrganisationContact.ORG_CONTACT_STATUS_ACTIVE,
-                is_admin=True
             )
+
+            org_contact.first_name = get_first_name(self.requester)
+            org_contact.last_name = get_last_name(self.requester)
+            org_contact.mobile_number = self.requester.mobile_number
+            org_contact.phone_number = self.requester.phone_number
+            org_contact.fax_number = self.requester.fax_number
+            org_contact.user_role = role
+            org_contact.user_status = OrganisationContact.ORG_CONTACT_STATUS_ACTIVE
+            org_contact.is_admin = True
+            org_contact.save()
 
             # send email to requester
             send_organisation_request_accept_email_notification(self, org, request)
             # Notify other Organisation Access Group members of acceptance.
-            groups = ActivityPermissionGroup.objects.filter(
-                permissions__codename='organisation_access_request'
-            )
-            for group in groups:
-                recipients = [member.email for member in group.members.exclude(
-                            email=request.user.email)]
-                if recipients:
-                    send_organisation_request_accept_admin_email_notification(
-                        self, request, recipients)
+
+            #TODO change below to send email to all members of ApiaryOrganisationAccessGroup
+            #groups = ActivityPermissionGroup.objects.filter(
+            #    permissions__codename='organisation_access_request'
+            #)
+            #for group in groups:
+            #    recipients = [member.email for member in group.members.exclude(
+            #                email=request.user.email)]
+            #    if recipients:
+            #        send_organisation_request_accept_admin_email_notification(
+            #            self, request, recipients)
+        else:
+            raise serializers.ValidationError("User not authorised to approve organisation request")
 
     def send_org_access_group_request_notification(self,request):
         # user submits a new organisation request

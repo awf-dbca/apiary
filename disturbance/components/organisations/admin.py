@@ -16,34 +16,38 @@ class OrganisationAdmin(admin.ModelAdmin):
 
 @admin.register(models.OrganisationRequest)
 class OrganisationRequestAdmin(admin.ModelAdmin):
-    list_display = ['name','requester', 'abn', 'status']
+    raw_id_fields = ('requester', 'assigned_officer')
+    list_display = ['id', 'name', 'lodgement_date']
+    search_fields = ['id', 'name', 'lodgement_date']
 
-class OrganisationAccessGroupMembershipInline(admin.TabularInline):
-    model = models.OrganisationAccessGroupMember
-    extra = 1
+#class OrganisationAccessGroupMembershipInline(admin.TabularInline):
+#    model = models.OrganisationAccessGroupMember
+#    extra = 1
+#    raw_id_fields = ('emailuser',)
 
-@admin.register(models.OrganisationAccessGroup)
-class OrganisationAccessGroupAdmin(admin.ModelAdmin):
-    # filter_horizontal = ('members',)
-    exclude = ('site',)
-    actions = None
-    inlines = [OrganisationAccessGroupMembershipInline,]
-
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "members":
-            #kwargs["queryset"] = EmailUser.objects.filter(email__icontains='@dbca.wa.gov.au')
-            kwargs["queryset"] = EmailUser.objects.filter(is_staff=True)
-        return super(OrganisationAccessGroupAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
-
-    def has_add_permission(self, request):
-        return True if models.OrganisationAccessGroup.objects.count() == 0 else False
-
-    def has_delete_permission(self, request, obj=None):
-        return False 
+#@admin.register(models.OrganisationAccessGroup)
+#class OrganisationAccessGroupAdmin(admin.ModelAdmin):
+#    # filter_horizontal = ('members',)
+#    exclude = ('site',)
+#    actions = None
+#    inlines = [OrganisationAccessGroupMembershipInline,]
+#
+#    def formfield_for_manytomany(self, db_field, request, **kwargs):
+#        if db_field.name == "members":
+#            #kwargs["queryset"] = EmailUser.objects.filter(email__icontains='@dbca.wa.gov.au')
+#            kwargs["queryset"] = EmailUser.objects.filter(is_staff=True)
+#        return super(OrganisationAccessGroupAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+#
+#    def has_add_permission(self, request):
+#        return True if models.OrganisationAccessGroup.objects.count() == 0 else False
+#
+#    def has_delete_permission(self, request, obj=None):
+#        return False 
 
 class ApiaryOrganisationAccessGroupMembershipInline(admin.TabularInline):
     model = models.ApiaryOrganisationAccessGroupMember
     extra = 1
+    raw_id_fields = ('emailuser',)
 
 @admin.register(models.ApiaryOrganisationAccessGroup)
 class ApiaryOrganisationAccessGroupAdmin(admin.ModelAdmin):

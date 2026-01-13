@@ -818,3 +818,33 @@ def overwrite_regions_polygons(path_to_geojson_file):
                     logger.info("Created Region: {}".format(region['properties']['DRG_REGION_NAME']))
     except Exception as e:
         logger.error('Error overwriting regions polygons: {}'.format(e))
+
+def get_first_name(obj):
+
+    if hasattr(obj,"legal_first_name") and obj.legal_first_name:
+        return obj.legal_first_name
+    elif hasattr(obj,"first_name") and obj.first_name:
+        return obj.first_name
+
+    return ""
+
+def get_last_name(obj):
+
+    if hasattr(obj,"legal_last_name") and obj.legal_last_name:
+        return obj.legal_last_name
+    elif hasattr(obj,"last_name") and obj.last_name:
+        return obj.last_name
+
+    return ""
+
+def get_full_name(obj):
+    return get_first_name(obj)+" "+get_last_name(obj)
+
+def get_dob(obj):
+
+    if hasattr(obj,"legal_dob") and obj.legal_dob:
+        return obj.legal_dob
+    if hasattr(obj,"dob") and obj.dob:
+        return obj.dob
+
+    return ""
