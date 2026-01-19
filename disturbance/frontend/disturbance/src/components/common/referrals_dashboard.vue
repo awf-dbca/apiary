@@ -435,28 +435,6 @@ export default {
 
         addEventListeners: function(){
             let vm = this;
-            // Initialise Proposal Date Filters
-            // $(vm.$refs.proposalDateToPicker).datetimepicker(vm.datepickerOptions);
-            // $(vm.$refs.proposalDateToPicker).on('dp.change', function(e){
-            //     if ($(vm.$refs.proposalDateToPicker).data('DateTimePicker').date()) {
-            //         vm.filterProposalLodgedTo =  e.date.format('DD/MM/YYYY');
-            //     }
-            //     else if ($(vm.$refs.proposalDateToPicker).data('date') === "") {
-            //         vm.filterProposaLodgedTo = "";
-            //     }
-            //  });
-            // $(vm.$refs.proposalDateFromPicker).datetimepicker(vm.datepickerOptions);
-            // $(vm.$refs.proposalDateFromPicker).on('dp.change',function (e) {
-            //     if ($(vm.$refs.proposalDateFromPicker).data('DateTimePicker').date()) {
-            //         vm.filterProposalLodgedFrom = e.date.format('DD/MM/YYYY');
-            //         $(vm.$refs.proposalDateToPicker).data("DateTimePicker").minDate(e.date);
-            //     }
-            //     else if ($(vm.$refs.proposalDateFromPicker).data('date') === "") {
-            //         vm.filterProposalLodgedFrom = "";
-            //     }
-            // });
-            // End Proposal Date Filters
-            // External Discard listener
             vm.$refs.proposal_datatable.vmDataTable.on('click', 'a[data-discard-proposal]', function(e) {
                 e.preventDefault();
                 var id = $(this).attr('data-discard-proposal');
