@@ -15,7 +15,7 @@ from rest_framework.renderers import JSONRenderer
 from disturbance.components.main.decorators import timeit
 from disturbance.components.main.serializers import WaCoastSerializer, WaCoastOptimisedSerializer
 from disturbance.components.main.utils import get_feature_in_wa_coastline_smoothed, get_feature_in_wa_coastline_original
-from disturbance.helpers import is_internal, is_disturbance_admin, is_apiary_admin, is_das_apiary_admin, get_proxy_cache
+from disturbance.helpers import is_internal, is_apiary_admin, get_proxy_cache
 from disturbance.components.proposals.models import Referral, Proposal, HelpPage
 from disturbance.components.compliances.models import Compliance
 from disturbance.components.proposals.mixins import ReferralOwnerMixin
@@ -106,36 +106,6 @@ class InternalProposalView(DetailView):
                 #return redirect('internal-proposal-detail')
                 return super(InternalProposalView, self).get(*args, **kwargs)
             return redirect('external-proposal-detail')
-
-#TODO replace and then remove
-@login_required(login_url='home')
-def first_time(request):
-    context = {}
-    if request.method == 'POST':
-        form = FirstTimeForm(request.POST)
-        redirect_url = form.data['redirect_url']
-        if not redirect_url:
-            redirect_url = '/'
-        if form.is_valid():
-            # set user attributes
-            request.user.first_name = form.cleaned_data['first_name']
-            request.user.last_name = form.cleaned_data['last_name']
-            request.user.dob = form.cleaned_data['dob']
-            request.user.save()
-            return redirect(redirect_url)
-        context['form'] = form
-        context['redirect_url'] = redirect_url
-        return render(request, 'disturbance/user_profile.html', context)
-    # GET default
-    if 'next' in request.GET:
-        context['redirect_url'] = request.GET['next']
-    else:
-        context['redirect_url'] = '/'
-    # context['dev'] = settings.DEV_STATIC
-    # context['dev_url'] = settings.DEV_STATIC_URL
-    #return render(request, 'disturbance/user_profile.html', context)
-    return render(request, 'disturbance/dash/index.html', context)
-
 
 #TODO potentially remove
 class HelpView(LoginRequiredMixin, TemplateView):

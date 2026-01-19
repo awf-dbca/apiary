@@ -117,7 +117,6 @@ urlpatterns = [
     re_path(r'^internal/proposal/(?P<proposal_pk>\d+)/referral/(?P<referral_pk>\d+)/$', views.ReferralView.as_view(), name='internal-referral-detail'),
     re_path(r'^external/proposal/(?P<proposal_pk>\d+)/submit_temp_use_success/$', ExternalProposalTemporaryUseSubmitSuccessView.as_view(),),
     re_path(r'^external/', views.ExternalView.as_view(), name='external'),
-    re_path(r'^firsttime/$', views.first_time, name='first_time'),
     re_path(r'^gisdata/$', views.gisdata, name='gisdata'),
     re_path(r'^account/$', views.ExternalView.as_view(), name='manage-account'),
     re_path(r'^help/(?P<application_type>[^/]+)/(?P<help_type>[^/]+)/$', views.HelpView.as_view(), name='help'),

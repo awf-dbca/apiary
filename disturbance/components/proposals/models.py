@@ -1124,13 +1124,11 @@ class Proposal(DirtyFieldsMixin, RevisionedMixin):
 
         return differences_list
         
-    #TODO remove/replace - not needed
     def __assessor_group(self):
         group = ApiaryAssessorGroup.objects.first()
         if group:
             return group
 
-    #TODO remove/replace - not needed
     def __approver_group(self):
         group = ApiaryApproverGroup.objects.first()
         if group:

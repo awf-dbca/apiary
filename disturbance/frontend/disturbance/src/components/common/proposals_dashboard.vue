@@ -111,10 +111,7 @@ export default {
             //datatable_id: 'proposal-datatable-'+vm.uuid,
             //Profile to check if user has access to process Proposal
             profile: {},
-            templateGroupDetermined: false,
-            is_das_admin: false,
             is_apiary_admin: false,
-            is_das_apiary_admin: false,
             // Filters for Proposals
             filterProposalRegion: [],
             filterProposalActivity: 'All',
@@ -167,12 +164,6 @@ export default {
         datatable
     },
     watch:{
-        templateGroupDetermined: function(){
-            console.log('in templateGroupDetermined')
-            //this.showHideColumns()
-            
-
-        },
         filterProposalRegion: function(){
             this.$refs.proposal_datatable.vmDataTable.draw();
             //let vm = this;

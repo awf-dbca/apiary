@@ -9,7 +9,7 @@ from reversion.admin import VersionAdmin
 from django.urls import re_path
 from django.http import HttpResponseRedirect
 from disturbance.utils import create_helppage_object
-from disturbance.helpers import is_apiary_admin, is_disturbance_admin, is_das_apiary_admin
+from disturbance.helpers import is_apiary_admin
 
 
 @admin.register(models.ProposalType)
@@ -204,20 +204,16 @@ class ProposalStandardRequirementAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super(ProposalStandardRequirementAdmin, self).get_queryset(request)
-        if request.user.is_superuser or is_das_apiary_admin(request):
+        if request.user.is_superuser:
             return qs
         group_list = []
         if is_apiary_admin(request):
             group_list.append('apiary')
-        if is_disturbance_admin(request):
-            group_list.append('disturbance')
         return qs.filter(system__in=group_list)
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):
         if db_field.name == 'system':
-            if (request.user.is_superuser or is_das_apiary_admin(request) or 
-                    (is_apiary_admin(request) and is_disturbance_admin(request))
-                    ):
+            if (request.user.is_superuser or is_apiary_admin(request)):
                 # user will see both choices
                 kwargs["choices"] = (
                         ('apiary', 'Apiary'),
@@ -225,44 +221,7 @@ class ProposalStandardRequirementAdmin(admin.ModelAdmin):
                         )
             elif is_apiary_admin(request):
                 kwargs["choices"] = (('apiary', 'Apiary'),)
-            elif is_disturbance_admin(request):
-                kwargs["choices"] = (('disturbance', 'Disturbance'),)
         return super(ProposalStandardRequirementAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
-
-#TODO is this needed?
-@admin.register(models.HelpPage)
-class HelpPageAdmin(admin.ModelAdmin):
-    list_display = ['application_type','help_type', 'description', 'version']
-    form = forms.DisturbanceHelpPageAdminForm
-    change_list_template = "disturbance/help_page_changelist.html"
-    ordering = ('application_type', 'help_type', '-version')
-    list_filter = ('application_type', 'help_type')
-
-    def get_urls(self):
-        urls = super(HelpPageAdmin, self).get_urls()
-        my_urls = [
-            re_path('create_disturbance_help/', self.admin_site.admin_view(self.create_disturbance_help)),
-            re_path('create_apiary_help/', self.admin_site.admin_view(self.create_apiary_help)),
-            re_path('create_disturbance_help_assessor/', self.admin_site.admin_view(self.create_disturbance_help_assessor)),
-            re_path('create_apiary_help_assessor/', self.admin_site.admin_view(self.create_apiary_help_assessor)),
-        ]
-        return my_urls + urls
-
-    def create_disturbance_help(self, request):
-        create_helppage_object(application_type='Disturbance', help_type=models.HelpPage.HELP_TEXT_EXTERNAL)
-        return HttpResponseRedirect("../")
-
-    def create_apiary_help(self, request):
-        create_helppage_object(application_type='Apiary', help_type=models.HelpPage.HELP_TEXT_EXTERNAL)
-        return HttpResponseRedirect("../")
-
-    def create_disturbance_help_assessor(self, request):
-        create_helppage_object(application_type='Disturbance', help_type=models.HelpPage.HELP_TEXT_INTERNAL)
-        return HttpResponseRedirect("../")
-
-    def create_apiary_help_assessor(self, request):
-        create_helppage_object(application_type='Apiary', help_type=models.HelpPage.HELP_TEXT_INTERNAL)
-        return HttpResponseRedirect("../")
 
 
 @admin.register(SystemMaintenance)
