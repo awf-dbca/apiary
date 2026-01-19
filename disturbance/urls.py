@@ -119,7 +119,6 @@ urlpatterns = [
     re_path(r'^external/', views.ExternalView.as_view(), name='external'),
     re_path(r'^gisdata/$', views.gisdata, name='gisdata'),
     re_path(r'^account/$', views.ExternalView.as_view(), name='manage-account'),
-    re_path(r'^help/(?P<application_type>[^/]+)/(?P<help_type>[^/]+)/$', views.HelpView.as_view(), name='help'),
     re_path(r'^mgt-commands/$', views.ManagementCommandsView.as_view(), name='mgt-commands'),
 
     #following url is used to include url path when sending Proposal amendment request to user.

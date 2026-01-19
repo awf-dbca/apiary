@@ -107,24 +107,6 @@ class InternalProposalView(DetailView):
                 return super(InternalProposalView, self).get(*args, **kwargs)
             return redirect('external-proposal-detail')
 
-#TODO potentially remove
-class HelpView(LoginRequiredMixin, TemplateView):
-    template_name = 'disturbance/help.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(HelpView, self).get_context_data(**kwargs)
-
-        if self.request.user.is_authenticated:
-            application_type = kwargs.get('application_type', None) 
-            if kwargs.get('help_type', None)=='assessor':
-                if is_internal(self.request):
-                    qs = HelpPage.objects.filter(application_type__name__icontains=application_type, help_type=HelpPage.HELP_TEXT_INTERNAL).order_by('-version')
-                    context['help'] = qs.first()
-            else:
-                qs = HelpPage.objects.filter(application_type__name__icontains=application_type, help_type=HelpPage.HELP_TEXT_EXTERNAL).order_by('-version')
-                context['help'] = qs.first()
-        return context
-
 
 class ManagementCommandsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'disturbance/mgt-commands.html'
