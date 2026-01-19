@@ -173,17 +173,6 @@ class ManagementCommandsView(LoginRequiredMixin, UserPassesTestMixin, TemplateVi
         return render(request, self.template_name, data)
 
 
-class TemplateGroupView(views.APIView):
-
-    def get(self, request, format=None):
-        return Response({
-            'template_group': 'apiary',
-            'is_das_admin': True if is_disturbance_admin(request) else False,
-            'is_apiary_admin': True if is_apiary_admin(request) else False,
-            'is_das_apiary_admin': True if is_das_apiary_admin(request) else False,
-        })
-
-
 @timeit
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))

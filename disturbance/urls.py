@@ -158,7 +158,6 @@ urlpatterns = [
     re_path(r'^history/proposaltype/(?P<pk>\d+)/$', proposal_views.ProposalTypeHistoryCompareView.as_view(), name='proposaltype_history'),
     re_path(r'^history/helppage/(?P<pk>\d+)/$', proposal_views.HelpPageHistoryCompareView.as_view(), name='helppage_history'),
     re_path(r'^history/organisation/(?P<pk>\d+)/$', organisation_views.OrganisationHistoryCompareView.as_view(), name='organisation_history'),
-    re_path(r'^template_group$', views.TemplateGroupView.as_view(), name='template-group'),
     re_path(r'^private-media/', views.getPrivateFile, name='view_private_file'),
     re_path(r'^organisation/$', views.ExternalView.as_view(), name='organisation'),
 
