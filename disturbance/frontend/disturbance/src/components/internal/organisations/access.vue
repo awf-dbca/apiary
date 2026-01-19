@@ -134,8 +134,6 @@ export default {
   data() {
     let vm = this;
     return {
-        dasTemplateGroup: false,
-        apiaryTemplateGroup: false,
         loading: [],
         profile:{},
         access: {
@@ -331,12 +329,8 @@ export default {
         return s.replace(/[,;]/g, '\n');
     },
     fetchAccessGroupMembers: async function(){
-        //let vm = this;
         this.loading.push('Loading Access Group Members');
-        let url = api_endpoints.organisation_access_group_members;
-        if (this.apiaryTemplateGroup) {
-            url = api_endpoints.apiary_organisation_access_group_members;
-        }
+        let url = api_endpoints.apiary_organisation_access_group_members;
         const response = await fetch(url)
         if (!response.ok) { return response.json().then(err => { throw err }); }
         this.members = await response.json();
@@ -462,27 +456,8 @@ export default {
                 else
                     return false;
      },
-  },
-/*
-  mounted: function () {
-    let vm = this;
-    this.fetchAccessGroupMembers();
-    this.fetchProfile();
-    
-  },
-  */
+    },
     created: async function() {
-        // retrieve template group
-        const res = await fetch('/template_group',{
-            emulateJSON:true
-            })
-        if (!res.ok) { return res.json().then(err => { throw err }); }
-        const data = await res.json(); 
-        if (data.template_group === 'apiary') {
-            this.apiaryTemplateGroup = true;
-        } else {
-            this.dasTemplateGroup = true;
-        }
         await this.fetchAccessGroupMembers();
         await this.fetchProfile();
     },

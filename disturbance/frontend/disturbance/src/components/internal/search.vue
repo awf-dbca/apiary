@@ -1,6 +1,7 @@
 <template>
 <div class="container" id="internalSearch">
-    <div class="row">
+    <!--TODO Exclude until fixed -->
+    <!--<div class="row">
         <div class="col-sm-12">
             <FormSection :form-collapse="false" label="Search Organisations">
                 <div class="row">
@@ -27,7 +28,7 @@
                 </div>
             </FormSection>
         </div>
-    </div>
+    </div>-->
 
     <!--TODO There is no user details dashboard and no working search functionality below - commenting this block out until both are available -->
     <!--<div class="row">
@@ -246,6 +247,7 @@ export default {
         FormSection,
     },
     beforeRouteEnter:function(to,from,next){
+        /* TODO fix this or completely replace, takes near 30 seconds to load!
         utils.fetchOrganisations().then((response)=>{
             next(vm => {
                 vm.organisations = response;
@@ -254,6 +256,7 @@ export default {
         (error) =>{
             console.log(error);
         });
+        */
     },
     computed: {
         showError: function() {

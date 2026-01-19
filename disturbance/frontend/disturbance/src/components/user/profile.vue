@@ -319,8 +319,6 @@ export default {
             errorListContact:[],
             showContactError: false,
             role: null,
-            apiaryTemplateGroup: false,
-            dasTemplateGroup: false,
         }
     },
     watch: {
@@ -358,18 +356,10 @@ export default {
     },
     computed: {
         organisationSectionTitleText: function() {
-            let titleText = 'Link to the organisations you are an employee of and for which you are managing approvals';
-            if (this.apiaryTemplateGroup) {
-                titleText = 'Link to the organisations you are an employee of and for which you are managing an apiary authority';
-            }
-            return titleText;
+            return 'Link to the organisations you are an employee of and for which you are managing an apiary authority';
         },
         organisationSectionDetailText: function() {
-            let detailText = 'Are you responsible for preparing proposals on behalf of an organisation?';
-            if (this.apiaryTemplateGroup) {
-                detailText = 'Do you manage an apiary authority on behalf of an organisation?';
-            }
-            return detailText;
+            return 'Do you manage an apiary authority on behalf of an organisation?';
         },
         hasOrgs: function() {
             return this.profile.disturbance_organisations && this.profile.disturbance_organisations.length > 0 ? true: false;
@@ -950,22 +940,6 @@ export default {
             window.setTimeout(function () {
                 $(chev).toggleClass("glyphicon-chevron-down glyphicon-chevron-up");
             },100);
-        });
-    },
-    created: function() {
-        // retrieve template group
-        fetch('/template_group',{ emulateJSON:true })
-        .then(async (res)=>{
-            if (!res.ok) { return res.json().then(err => { throw err }); }
-            //this.template_group = res.body.template_group;
-            const data = await res.json();
-            if (data.template_group === 'apiary') {
-                this.apiaryTemplateGroup = true;
-            } else {
-                this.dasTemplateGroup = true;
-            }
-        }).catch(err=>{
-            console.log(err);
         });
     },
 }

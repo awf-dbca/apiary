@@ -209,12 +209,7 @@ class ProposalFilterBackend(DatatablesFilterBackend):
                 queryset = queryset.filter(proposal__processing_status=proposal_status)
             else:
                 queryset = queryset.filter(processing_status=proposal_status)
-        submitter = request.GET.get('submitter')
-        if submitter and not submitter.lower() == 'all':
-            if queryset.model is Referral or queryset.model is Compliance:
-                queryset = queryset.filter(proposal__submitter__email=submitter)
-            else:
-                queryset = queryset.filter(submitter__email=submitter)
+
         date_from = request.GET.get('date_from')
         date_to = request.GET.get('date_to')
         if queryset.model is Proposal:

@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LedgerPay from '@/components/ledgerpay.vue'
-import Profile from '@/components/user/profile.vue'
+import Profile from '@/components/user/profile.vue' //TODO no longer in use, remove this and all related functions
 import external_routes from '@/components/external/routes'
 import internal_routes from '@/components/internal/routes'
 import ManageOrganisation from '@/components/external/organisations/manage.vue'
