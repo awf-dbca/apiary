@@ -2605,7 +2605,6 @@ def delete_documents(sender, instance, *args, **kwargs):
     for document in instance.documents.all():
         document.delete()
 
-#TODO remove if not needed for apiary
 def clone_proposal_with_status_reset(proposal):
         with transaction.atomic():
             try:

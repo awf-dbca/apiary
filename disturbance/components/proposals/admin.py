@@ -6,9 +6,6 @@ from disturbance.components.main.utils import custom_strftime
 from disturbance.components.proposals import models, forms
 from disturbance.components.main.models import SystemMaintenance, ApplicationType, ApiaryGlobalSettings
 from reversion.admin import VersionAdmin
-from django.urls import re_path
-from django.http import HttpResponseRedirect
-from disturbance.utils import create_helppage_object
 from disturbance.helpers import is_apiary_admin
 
 
