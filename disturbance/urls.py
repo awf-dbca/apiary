@@ -77,7 +77,6 @@ api_patterns = [
     re_path(r'^api/profile$', users_api.GetProfile.as_view(), name='get-profile'),
     re_path(r'^api/my_user_details/$',users_api.GetMyUserDetails.as_view(), name='get-my-user-details'),
     re_path(r'^api/countries$', users_api.GetCountries.as_view(), name='get-countries'),
-    re_path(r'^api/proposal_type$', proposal_api.GetProposalType.as_view(), name='get-proposal-type'),
     re_path(r'^api/organisation_access_group_members',org_api.OrganisationAccessGroupMembers.as_view(),name='organisation-access-group-members'),
     re_path(r'^api/apiary_organisation_access_group_members',org_api.ApiaryOrganisationAccessGroupMembers.as_view(),name='apiary-organisation-access-group-members'),
     re_path(r'^api/get_organisation_id/$',org_api.GetOrganisationId.as_view(),name='get-organisation-id'),
@@ -137,7 +136,7 @@ urlpatterns = [
     re_path(r'^success/annual_rental_fee/$', payment_views.AnnualRentalFeeSuccessView.as_view(), name='annual_rental_fee_success'),
     re_path(r'^success/invoice_payment/$', payment_views.InvoicePaymentSuccessView.as_view(), name='invoice_payment_success'),
     re_path(r'payments/invoice-pdf/(?P<reference>\d+)', payment_views.InvoicePDFView.as_view(), name='invoice-pdf'),
-    re_path(r'payments/awaiting-payment-pdf/(?P<annual_rental_fee_id>\d+)', payment_views.AwaitingPaymentPDFView.as_view(), name='awaiting-payment-pdf'), #TODO is this used?
+    re_path(r'payments/awaiting-payment-pdf/(?P<annual_rental_fee_id>\d+)', payment_views.AwaitingPaymentPDFView.as_view(), name='awaiting-payment-pdf'), #TODO on cleanup: is this used/needed?
     re_path(r'payments/confirmation-pdf/(?P<reference>\d+)', payment_views.ConfirmationPDFView.as_view(), name='confirmation-pdf'),
 
     # following url is defined so that to include url path when sending Proposal amendment request to user.

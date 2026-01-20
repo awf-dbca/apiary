@@ -337,7 +337,7 @@ export default {
                     if (full.fee_invoice_references){
                         for (let item of full.fee_invoice_references){
                             links += '<div>'
-                            //TODO this link does not work (?), the other one does - investigate and adjust as needed (they both do the same thing, why is one only internal? should it be doing something else (ledger payment link)?)
+                            //TODO fix for segregation - this link does not work (?), the other one does - investigate and adjust as needed (they both do the same thing, why is one only internal? should it be doing something else (ledger payment link)?)
                             links +=  `<a href='/payments/invoice-pdf/${item}.pdf' target='_blank'><i style='color:red;' class='fa fa-file-pdf-o'></i> #${item}</a>`;
                             if (!vm.is_external){
                                 links +=  `&nbsp;&nbsp;&nbsp;<a href='/ledger-toolkit-api/invoice-pdf/${item}' target='_blank'>View Payment</a><br/>`;

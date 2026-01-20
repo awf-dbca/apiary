@@ -71,7 +71,7 @@ from disturbance.components.main.utils import get_template_group, handle_validat
 class OrganisationViewSet(viewsets.ModelViewSet):
     queryset = Organisation.objects.none()
     serializer_class = OrganisationSerializer
-    allow_external = False #TODO: review this - workaround for allowing organisations to be accessed when validating pins
+    allow_external = False #TODO for segregation review this - workaround for allowing organisations to be accessed when validating pins
 
     def get_queryset(self):
         user = self.request.user

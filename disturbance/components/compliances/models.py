@@ -37,9 +37,7 @@ from disturbance.components.compliances.email import (
                         send_apiary_submit_email_notification,
                         )
 
-from django.conf import settings
-from django.core.files.storage import FileSystemStorage
-private_storage = FileSystemStorage(location=settings.BASE_DIR+"/private-media/", base_url='/private-media/')
+from disturbance.components.main.models import private_storage
 
 import logging
 logger = logging.getLogger(__name__)

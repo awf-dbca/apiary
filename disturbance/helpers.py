@@ -41,16 +41,16 @@ def is_approved_external_user(request):
     return False
 
 def is_apiary_approver(request):
-    return request and request.user and ApiaryApproverGroupMember.objects.filter(emailuser_id=request.user.id).exists()
+    return request and request.user and (ApiaryApproverGroupMember.objects.filter(emailuser_id=request.user.id).exists() or request.user.is_superuser)
 
 def is_apiary_assessor(request):
-    return request and request.user and ApiaryAssessorGroupMember.objects.filter(emailuser_id=request.user.id).exists()
+    return request and request.user and (ApiaryAssessorGroupMember.objects.filter(emailuser_id=request.user.id).exists() or request.user.is_superuser)
 
 def is_apiary_referrer(request):
-    return request and request.user and ApiaryReferralGroupMember.objects.filter(emailuser_id=request.user.id).exists()
+    return request and request.user and (ApiaryReferralGroupMember.objects.filter(emailuser_id=request.user.id).exists() or request.user.is_superuser)
 
 def is_apiary_org_request_assessor(request):
-    return request and request.user and ApiaryOrganisationAccessGroupMember.objects.filter(emailuser_id=request.user.id).exists()
+    return request and request.user and (ApiaryOrganisationAccessGroupMember.objects.filter(emailuser_id=request.user.id).exists() or request.user.is_superuser)
 
 def is_internal(request):
     return(

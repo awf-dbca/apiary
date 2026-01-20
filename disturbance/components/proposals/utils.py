@@ -92,12 +92,11 @@ def _create_data_from_item(item, post_data, file_data, repetition, suffix):
 
     if 'children' not in item:
         if item['type'] in ['checkbox' 'declaration']:
-            #item_data[item['name']] = post_data[item['name']]
             item_data[item['name']] = extended_item_name in post_data
         elif item['type'] == 'file':
             if extended_item_name in file_data:
                 item_data[item['name']] = str(file_data.get(extended_item_name))
-                # TODO save the file here
+                #TODO on cleanup: remove/review (old comment) save the file here
             elif extended_item_name + '-existing' in post_data and len(post_data[extended_item_name + '-existing']) > 0:
                 item_data[item['name']] = post_data.get(extended_item_name + '-existing')
             else:
@@ -561,17 +560,10 @@ def save_proponent_data_apiary(proposal_obj, request, viewset):
                             site_ids_received.append(site_already_saved.id)
                         except:
                             pass
-                # site_ids_existing = [site.id for site in ApiarySite.objects.filter(proposal_apiary_id=proposal_apiary_data['id'])]
-                site_ids_existing = [site.id for site in proposal_obj.proposal_apiary.apiary_sites.all()]
-                # site_ids_existing_vacant = [site.id for site in proposal_obj.proposal_apiary.vacant_apiary_sites.all()]
-                site_ids_existing_vacant = []  # TODO implement
-                site_ids_delete = [id for id in site_ids_existing if id not in site_ids_received]
-                # site_ids_delete_vacant = [id for id in site_ids_existing_vacant if id not in site_ids_received] # TODO implement
-                site_ids_delete_vacant = []
 
-                # Handle ApiarySites here
-                # for index, feature in enumerate(site_locations_received):
-                #     feature['proposal_apiary_id'] = proposal_obj.proposal_apiary.id
+                site_ids_existing = [site.id for site in proposal_obj.proposal_apiary.apiary_sites.all()]
+                site_ids_delete = [id for id in site_ids_existing if id not in site_ids_received]
+
                 # only internal users can add/update apiary sites on renewal applications
                 renewal = proposal_obj.proposal_type == "renewal"
                 if is_internal(request) or not renewal:

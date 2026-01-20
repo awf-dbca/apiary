@@ -139,19 +139,7 @@ from disturbance.components.main.process_document import process_generic_documen
 import logging
 logger = logging.getLogger(__name__)
 
-#TODO remove if not needed for apiary
-class GetProposalType(views.APIView):
-    renderer_classes = [JSONRenderer, ]
-
-    def get(self, request, format=None):
-        _type = ProposalType.objects.first()
-        if _type:
-            serializer = ProposalTypeSerializer(_type)
-            return Response(serializer.data)
-        else:
-            return Response({'error': 'There is currently no proposal type.'}, status=status.HTTP_404_NOT_FOUND)
-
-#TODO fix search (check other filter backends too)
+#TODO fix for segregation fix search (check other filter backends too)
 class ProposalFilterBackend(DatatablesFilterBackend):
     """
     Custom filters
@@ -219,13 +207,13 @@ class ProposalFilterBackend(DatatablesFilterBackend):
 
             if date_to:
                 queryset = queryset.filter(lodgement_date__lte=date_to)
-        elif queryset.model is Approval: #TODO check if this is ever used
+        elif queryset.model is Approval: #TODO fix for segregation check if this is ever used
             if date_from:
                 queryset = queryset.filter(expiry_date__gte=date_from)
 
             if date_to:
                 queryset = queryset.filter(expiry_date__lte=date_to)
-        elif queryset.model is Compliance: #TODO check if this is ever used
+        elif queryset.model is Compliance: #TODO fix for segregation check if this is ever used
             if date_from:
                 queryset = queryset.filter(due_date__gte=date_from)
 
@@ -736,7 +724,7 @@ class ProposalApiaryViewSet(viewsets.ModelViewSet):
     queryset = ProposalApiary.objects.none()
     serializer_class = ProposalApiarySerializer
 
-    #TODO solve the performance issue
+    #TODO fix for segregation solve the performance issue
     @action(detail=True,methods=['GET',])
     @basic_exception_handler
     def apiary_sites(self, request, *args, **kwargs):
@@ -1138,7 +1126,8 @@ class ApiaryReferralViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-#TODO determine why this is still used for apiary (internal only?)
+#TODO fix for segregation - determine why this is still used for apiary (internal only?)
+#If this is used it needs to be made secure
 class ProposalViewSet(viewsets.ModelViewSet):
     queryset = Proposal.objects.none()
     serializer_class = ProposalSerializer
@@ -2072,7 +2061,6 @@ class ProposalViewSet(viewsets.ModelViewSet):
                 serializer.is_valid(raise_exception=True)
                 proposal_obj = serializer.save()
 
-                # TODO any APIARY specific settings go here - eg renewal, amendment
                 if proposal_obj.apiary_group_application_type:
                     proposal_obj.activity = proposal_obj.application_type.name
                     proposal_obj.save()
@@ -2155,6 +2143,7 @@ class ProposalViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
+    #TODO fix for segregation - review/remove
     def update(self, request, *args, **kwargs):
         """
         This function might not be used anymore
@@ -2173,7 +2162,6 @@ class ProposalViewSet(viewsets.ModelViewSet):
 
             if application_type.name == ApplicationType.APIARY:
                 pass
-                # TODO Update new apiary application
 
             elif application_type.name == ApplicationType.TEMPORARY_USE:
                 # Proposal obj should not be changed
@@ -2188,7 +2176,6 @@ class ProposalViewSet(viewsets.ModelViewSet):
 
             elif application_type.name == ApplicationType.SITE_TRANSFER:
                 pass
-                # TODO update Site Transfer Application
 
             instance = self.get_object()
             serializer = SaveProposalSerializer(instance, data=request.data)
@@ -2624,7 +2611,7 @@ class ApiarySiteFeeViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(return_list, many=True)
         return Response(serializer.data)
 
-#TODO below this line - determine if needed for apiary, remove if not
+#TODO fix for segregation below this line - determine if needed for apiary, remove if not
 class ProposalTypeSectionViewSet(viewsets.ReadOnlyModelViewSet):
     latest_proposal_types=[p.id for p in ProposalType.objects.all() if p.latest ]
     queryset = ProposalTypeSection.objects.filter(proposal_type_id__in=latest_proposal_types).order_by('id')

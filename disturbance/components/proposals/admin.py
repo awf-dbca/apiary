@@ -57,7 +57,7 @@ class ProposalApiaryAdmin(VersionAdmin):
     list_display = ['id', 'proposal']
 
 
-#TODO show apiary only (?)
+#TODO for segregation show apiary only (?)
 @admin.register(models.Proposal)
 class ProposalAdmin(VersionAdmin):
     inlines =[ProposalDocumentInline,]
@@ -113,7 +113,7 @@ class ProposalApproverGroupMembershipInline(admin.TabularInline):
     extra = 1
     raw_id_fields = ('emailuser',)
 
-#TODO check if need for apiary
+#TODO for segregation check if need for apiary
 @admin.register(models.ProposalApproverGroup)
 class ProposalApproverGroupAdmin(admin.ModelAdmin):
     list_display = ['name','default']
@@ -194,7 +194,7 @@ class ApiaryApproverGroupAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False 
 
-#TODO show apiary only
+#TODO for segregation show apiary only
 @admin.register(models.ProposalStandardRequirement)
 class ProposalStandardRequirementAdmin(admin.ModelAdmin):
     list_display = ['code','text','system','obsolete']
@@ -228,7 +228,7 @@ class SystemMaintenanceAdmin(admin.ModelAdmin):
     readonly_fields = ('duration',)
     form = forms.SystemMaintenanceAdminForm
 
-#TODO show apiary only
+#TODO for segregation show apiary only
 @admin.register(ApplicationType)
 class ApplicationTypeAdmin(admin.ModelAdmin):
     list_display = ['name', 'order', 'visible', 'domain_used',]
@@ -267,12 +267,12 @@ class ApiaryGlobalSettingsAdmin(admin.ModelAdmin):
     list_display = ['key', 'value', '_file',]
     ordering = ('key',)
 
-#TODO determine where this is used
+#TODO on cleanup: review, remove/adjust
 @admin.register(models.ApiaryAnnualRentalFee)
 class ApiaryAnnualRentalFeeAdmin(admin.ModelAdmin):
     list_display = ['id', 'amount_south_west', 'amount_remote', 'date_from',]
 
-#TODO determine where this is used
+#TODO on cleanup: review, remove/adjust
 @admin.register(models.ApiaryAnnualRentalFeeRunDate)
 class ApiaryAnnualRentalFeeRunDateAdmin(admin.ModelAdmin):
     list_display = ['name', 'run_month_date', 'enabled', 'enabled_for_new_site', 'period_to_be_charged_for']
@@ -327,13 +327,13 @@ class ApiaryChecklistQuestionAdmin(admin.ModelAdmin):
     list_display = ['text', 'checklist_type', 'checklist_role',]
     ordering = ('order',)
 
-#TODO is this needed for apiary?
+#TODO fix for segregation is this needed for apiary?
 @admin.register(models.QuestionOption)
 class QuestionOptionAdmin(admin.ModelAdmin):
     list_display = ['label',]
     fields = ('label',)
 
-#TODO is this needed for apiary?
+#TODO fix for segregation is this needed for apiary?
 @admin.register(models.MasterlistQuestion)
 class MasterlistQuestionAdmin(admin.ModelAdmin):
     list_display = ['question',]

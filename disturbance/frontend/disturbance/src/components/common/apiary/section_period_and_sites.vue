@@ -47,7 +47,7 @@
                 type: Object, // Expect moment obj
                 default: null,
             },
-            // array of intermediate table, TemporaryUseApiarySite TODO replace this
+            // array of intermediate table, TemporaryUseApiarySite TODO fix for segregatin replace this for api call
             temporary_use_apiary_sites: {
                 type: Array,
                 default: function(){
@@ -114,7 +114,7 @@
                     this.period_to = null;
                 }
             }
-            //TODO rework temporary_use_apiary_sites - do not load from proposal load separetly
+            //TODO fix for segregation - rework temporary_use_apiary_sites - do not load from proposal load separetly
             //ideally with as few details as necessary
             //and if possible, not necessarily all at once
             //and post-draft, only load selected
