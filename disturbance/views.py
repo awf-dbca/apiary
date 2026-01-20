@@ -96,7 +96,6 @@ class DisturbanceFurtherInformationView(TemplateView):
     template_name = 'disturbance/further_info.html'
 
 class InternalProposalView(DetailView):
-    #template_name = 'disturbance/index.html'
     model = Proposal
     template_name = 'disturbance/dash/index.html'
 

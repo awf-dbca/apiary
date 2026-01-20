@@ -120,15 +120,16 @@ def is_authorised_to_modify_draft(request, instance):
         # Get Organisation if in Apiary
         applicant = instance.relevant_applicant
     else:
-        # Get Organisation if in DAS
-        # There can only ever be one Organisation associated with an application so it is
-        # ok to just pull the first element from organisation_set.
-        applicant = instance.applicant.organisation.organisation_set.all()[0]
+        applicant = instance.applicant.organisation
+
     applicantIsIndividual = isinstance(applicant, EmailUser)
     if instance.processing_status=='draft':
-        if request.user.is_authenticated:
+        if request.user and request.user.is_authenticated:
             # the status of the application must be DRAFT for customer to modify
-            if applicantIsIndividual:
+            #NOTE: internal users that are apiary assessors can also edit if in draft
+            if is_internal(request):   
+                authorised &= ((is_apiary_assessor(request) or request.user.is_superuser))
+            elif applicantIsIndividual:
                 # it is an individual so the applicant and submitter must be the same
                 authorised &= str(request.user.email) == str(instance.relevant_applicant)
             else:

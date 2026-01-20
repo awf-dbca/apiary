@@ -151,6 +151,7 @@ class GetProposalType(views.APIView):
         else:
             return Response({'error': 'There is currently no proposal type.'}, status=status.HTTP_404_NOT_FOUND)
 
+#TODO fix search (check other filter backends too)
 class ProposalFilterBackend(DatatablesFilterBackend):
     """
     Custom filters

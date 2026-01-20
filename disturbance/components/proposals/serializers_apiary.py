@@ -1354,7 +1354,10 @@ class ProposalApiaryTemporaryUseSerializer(serializers.ModelSerializer):
     proposal_id = serializers.IntegerField(required=False)
     # loaning_approval_id = serializers.IntegerField(write_only=True, required=False)
     loaning_approval_id = serializers.IntegerField(required=False)
+
+    #TODO do not do this
     temporary_use_apiary_sites = TemporaryUseApiarySiteSerializer(read_only=True, many=True)
+
     deed_poll_documents = serializers.SerializerMethodField()
     lodgement_number = serializers.CharField(source='proposal.lodgement_number', required=False, read_only=True)
     # customer_status = serializers.CharField(source='proposal.customer_status', required=False, read_only=True)
@@ -1671,8 +1674,7 @@ class ApiaryInternalProposalSerializer(BaseProposalSerializer):
 
     proposal_apiary = ProposalApiarySerializer()
     
-    #TODO do this somewhere else
-    # apiary_temporary_use = ProposalApiaryTemporaryUseSerializer(many=False, read_only=True)
+    apiary_temporary_use = ProposalApiaryTemporaryUseSerializer(many=False, read_only=True)
     
     #apiary_site_transfer = ProposalApiarySiteTransferSerializer()
 
@@ -1741,7 +1743,7 @@ class ApiaryInternalProposalSerializer(BaseProposalSerializer):
                 'applicant',
                 'applicant_type',
                 'proposal_apiary',
-                #'apiary_temporary_use',
+                'apiary_temporary_use',
                 #'apiary_site_transfer',
                 'applicant_address',
 

@@ -137,7 +137,7 @@ urlpatterns = [
     re_path(r'^success/annual_rental_fee/$', payment_views.AnnualRentalFeeSuccessView.as_view(), name='annual_rental_fee_success'),
     re_path(r'^success/invoice_payment/$', payment_views.InvoicePaymentSuccessView.as_view(), name='invoice_payment_success'),
     re_path(r'payments/invoice-pdf/(?P<reference>\d+)', payment_views.InvoicePDFView.as_view(), name='invoice-pdf'),
-    re_path(r'payments/awaiting-payment-pdf/(?P<annual_rental_fee_id>\d+)', payment_views.AwaitingPaymentPDFView.as_view(), name='awaiting-payment-pdf'),
+    re_path(r'payments/awaiting-payment-pdf/(?P<annual_rental_fee_id>\d+)', payment_views.AwaitingPaymentPDFView.as_view(), name='awaiting-payment-pdf'), #TODO is this used?
     re_path(r'payments/confirmation-pdf/(?P<reference>\d+)', payment_views.ConfirmationPDFView.as_view(), name='confirmation-pdf'),
 
     # following url is defined so that to include url path when sending Proposal amendment request to user.

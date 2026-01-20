@@ -1,6 +1,6 @@
 <template id="proposal_requirements">
     <div>
-        <template v-if="isFinalised">
+        <template v-if="isFinalised && proposal.proposal_apiary">
             <div class="col-md-12 alert alert-success" v-if="proposal.processing_status == 'Approved'">
                 <p>The licence has been issued and has been emailed to {{originatingApprovalName}}</p>
                 <p>Licence (originating): <a target="_blank" :href="proposal.proposal_apiary.originating_approval_licence_document">licence.pdf</a></p>
