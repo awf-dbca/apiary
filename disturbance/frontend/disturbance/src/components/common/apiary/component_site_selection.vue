@@ -175,7 +175,7 @@
             let vm = this;
             return{
                 selectAllCheckboxes: false,
-                apiary_sites_local: JSON.parse(JSON.stringify(this.apiary_sites)),  // Deep copy the array
+                apiary_sites_local: [],//JSON.parse(JSON.stringify(this.apiary_sites)),  // Deep copy the array
                 component_map_key: '',
                 table_id: uuid(),
                 apiary_site_geojson_array: [],  // This is passed to the ComponentMap as props
@@ -461,10 +461,10 @@
                         if (!response.ok) {
                             return response.json().then(err => { throw err });
                         }
-                        vm.apiary_sites = await response.json()
-                        vm.apiary_sites_local = JSON.parse(JSON.stringify(vm.apiary_sites)),  // Deep copy the array
-                        vm.constructApiarySitesTable(vm.apiary_sites);
-                        vm.addApiarySitesToMap(vm.apiary_sites)
+                        let apiary_sites_req = await response.json()
+                        vm.apiary_sites_local = JSON.parse(JSON.stringify(apiary_sites_req)),  // Deep copy the array
+                        vm.constructApiarySitesTable(vm.apiary_sites_local);
+                        vm.addApiarySitesToMap(vm.apiary_sites_local)
                         vm.ensureCheckedStatus();
                         vm.loading_sites = false
                     }).catch((error) => {
@@ -481,10 +481,10 @@
                             return response.json().then(err => { throw err });
                         }
                         const res = await response.json()
-                        vm.apiary_sites = res.features
-                        vm.apiary_sites_local = JSON.parse(JSON.stringify(vm.apiary_sites)),  // Deep copy the array
-                        vm.constructApiarySitesTable(vm.apiary_sites);
-                        vm.addApiarySitesToMap(vm.apiary_sites)
+                        let apiary_sites_req = res.features
+                        vm.apiary_sites_local = JSON.parse(JSON.stringify(apiary_sites_req)),  // Deep copy the array
+                        vm.constructApiarySitesTable(vm.apiary_sites_local);
+                        vm.addApiarySitesToMap(vm.apiary_sites_local)
                         vm.ensureCheckedStatus();
                         vm.loading_sites = false
                     }).catch((error) => {
@@ -492,6 +492,7 @@
                         vm.loading_sites = false
                     })
             }
+            
         },
         mounted: function(){
             let vm = this;
@@ -499,6 +500,7 @@
                 vm.addEventListeners();
                 if (!vm.apiary_approval_id && !vm.apiary_proposal_id){
                     // apiary_approval_id and apiary_proposal_id are not provided, which means apiary_sites have been already provided
+                    vm.apiary_sites_local = JSON.parse(JSON.stringify(vm.apiary_sites)),
                     vm.constructApiarySitesTable(vm.apiary_sites);
                     vm.addApiarySitesToMap(vm.apiary_sites)
                     vm.ensureCheckedStatus();
