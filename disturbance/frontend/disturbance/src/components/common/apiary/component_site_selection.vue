@@ -111,10 +111,6 @@
                 type: Boolean,
                 default: false,
             },
-            show_col_previous_site_holder: {
-                type: Boolean,
-                default: false,
-            },
             show_col_action: {
                 type: Boolean,
                 default: true,
@@ -196,7 +192,6 @@
                     'Vacant (current status)',  // current status of the 'is_vacant'
                     'Vacant (at time of submit)',  // status of the 'is_vacant' when the application submitted
                     'Decision',
-                    'Previous Site Holder<br>Applicant',
                     'Action',
                 ],
                 dtOptions: {
@@ -392,14 +387,6 @@
                                 } else {
                                     return ''
                                 }
-                            },
-                            defaultContent: '',
-                        },
-                        {
-                            // Previous Site Holder/Applicant
-                            visible: vm.show_col_previous_site_holder,
-                            mRender: function (data, type, apiary_site){
-                                return apiary_site.properties.previous_site_holder_or_applicant
                             },
                             defaultContent: '',
                         },

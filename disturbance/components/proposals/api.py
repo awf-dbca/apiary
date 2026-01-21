@@ -33,7 +33,12 @@ from disturbance.components.proposals.utils import (
     save_proponent_data,
     save_assessor_data,
     save_apiary_assessor_data, update_proposal_apiary_temporary_use,
+    annotate_apiary_site_on_proposal_processed_geometry,
+    annotate_apiary_site_on_proposal_draft_geometry,
 )
+
+from disturbance.components.approvals.utils import annotate_apiary_site_on_approval_processed_geometry
+
 from disturbance.components.proposals.models import ProposalDocument, searchKeyWords, search_reference, \
     OnSiteInformation, ApiarySite, ApiaryChecklistQuestion, ApiaryChecklistAnswer, \
     ProposalApiaryTemporaryUse, ApiarySiteOnProposal, PublicLiabilityInsuranceDocument, DeedPollDocument, \
@@ -674,19 +679,22 @@ class ApiarySiteViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+    #TODO cleanup: this may not be needed any more
     @action(detail=False,methods=['GET',])
     @basic_exception_handler
     def transitable_sites(self, request):
         qs_on_proposal = self._denied_sites_qs()
-        serializer_proposal = ApiarySiteOnProposalProcessedGeometrySerializer(qs_on_proposal, many=True)
-
         qs_on_approval = self._not_to_be_reissued_sites_qs()
-        serializer_approval = ApiarySiteOnApprovalGeometrySerializer(qs_on_approval, many=True)
 
-        serializer_proposal.data['features'].extend(serializer_approval.data['features'])
-        return Response(serializer_proposal.data)
+        proposal_data = annotate_apiary_site_on_proposal_processed_geometry(qs_on_proposal)
+        approval_data = annotate_apiary_site_on_approval_processed_geometry(qs_on_approval)
+
+        data = {"features":list(proposal_data)+list(approval_data)}
+
+        return Response(data)
 
     @basic_exception_handler
+    #TODO fix for segregation - investigate/modify, make sure the serializer is not being used for a bulk qs
     def partial_update(self, request, *args, **kwargs):
         with transaction.atomic():
             apiary_site = self.get_object()
@@ -724,20 +732,22 @@ class ProposalApiaryViewSet(viewsets.ModelViewSet):
     queryset = ProposalApiary.objects.none()
     serializer_class = ProposalApiarySerializer
 
-    #TODO fix for segregation solve the performance issue
     @action(detail=True,methods=['GET',])
     @basic_exception_handler
     def apiary_sites(self, request, *args, **kwargs):
         proposal_apiary = self.get_object()
-        ret = []
-        for apiary_site in proposal_apiary.apiary_sites.all():
-            inter_obj = ApiarySiteOnProposal.objects.get(apiary_site=apiary_site, proposal_apiary=proposal_apiary)
-            if inter_obj.site_status == SITE_STATUS_DRAFT:
-                serializer = ApiarySiteOnProposalDraftGeometrySerializer
-            else:
-                serializer = ApiarySiteOnProposalProcessedGeometrySerializer
-            ret.append(serializer(inter_obj).data)
-        return Response(ret)
+
+        apiary_site_on_proposals = ApiarySiteOnProposal.objects.filter(apiary_site__in=proposal_apiary.apiary_sites.all())
+
+        draft_apiary_sites = apiary_site_on_proposals.filter(site_status=SITE_STATUS_DRAFT)
+        non_draft_apiary_sites = apiary_site_on_proposals.exclude(site_status=SITE_STATUS_DRAFT)
+
+        draft_apiary_sites = list(annotate_apiary_site_on_proposal_draft_geometry(draft_apiary_sites))
+        non_draft_apiary_sites = list(annotate_apiary_site_on_proposal_processed_geometry(non_draft_apiary_sites))
+
+        data = {"features":draft_apiary_sites+non_draft_apiary_sites}
+
+        return Response(data)
 
     @action(detail=True,methods=['GET', ])
     def on_site_information_list(self, request, *args, **kwargs):

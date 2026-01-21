@@ -148,11 +148,9 @@
                 </div>
             </FormSection>
 
-            <!--TODO fix for segregation - fix this to load the apiary sites after request resolved-->
             <FormSection :formCollapse="false" label="Site(s)" Index="site_avaiability">
                 <template v-if="approval && approval.id">
                     <ComponentSiteSelection
-                        :apiary_sites="approval.apiary_sites"
                         :show_col_checkbox="false"
                         :show_col_status="true"
                         :apiary_approval_id="approval.id"

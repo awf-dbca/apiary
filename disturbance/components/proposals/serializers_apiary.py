@@ -1614,7 +1614,8 @@ class ApiaryReferralGroupSerializer(serializers.ModelSerializer):
 
 
 class ApiaryProposalReferralSerializer(serializers.ModelSerializer):
-    referral = serializers.CharField(source='referral.get_full_name')
+    #TODO fix for segregation - referral name 
+    #referral = serializers.CharField(source='referral.get_full_name')
     processing_status = serializers.CharField(source='get_processing_status_display')
     apiary_referral = serializers.SerializerMethodField()
     class Meta:
