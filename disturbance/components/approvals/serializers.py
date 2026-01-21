@@ -402,7 +402,7 @@ class ApprovalSerializer(serializers.ModelSerializer):
             'template_group',
         )
 
-    #TODO for segregation was this ever needed? check and remove/adjust
+    #TODO fix for segregation was this ever needed? check and remove/adjust
     #def get_current_proposal(self, approval):
     #    return ProposalSerializer(approval.current_proposal, context=self.context).data
 
@@ -490,12 +490,12 @@ class ApprovalSerializer(serializers.ModelSerializer):
         except:
             return None
 
-    #TODO for segregation everytime we touch applicant we have to make a request to ledger - fix to use one object
+    #TODO fix for segregation everytime we touch applicant we have to make a request to ledger - fix to use one object
     def get_organisation_name(self,obj):
         if obj.applicant:
             return obj.applicant.name
 
-    #TODO for segregation everytime we touch applicant we have to make a request to ledger - fix to use one object
+    #TODO fix for segregation everytime we touch applicant we have to make a request to ledger - fix to use one object
     def get_organisation_abn(self,obj):
         if obj.applicant:
             return obj.applicant.abn

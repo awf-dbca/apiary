@@ -380,7 +380,7 @@ class ApprovalViewSet(viewsets.ModelViewSet):
 
         return Response({})
 
-    #TODO for segregation this still has performance issues, replace the serializer with something lighter
+    #TODO fix for segregation this still has performance issues, replace the serializer with something lighter
     # To solve the performance issue
     @action(detail=True,methods=['GET',])
     @basic_exception_handler

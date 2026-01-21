@@ -200,7 +200,7 @@ def _get_vacant_apiary_site(search_text=''):
     qs_vacant_site = ApiarySite.objects.filter(queries).distinct()
     return qs_vacant_site
 
-#TODO for segregation fix this (does not support non int search)
+#TODO fix for segregation fix this (does not support non int search)
 def get_qs_vacant_site(search_text=''):
     from disturbance.components.proposals.models import ApiarySiteOnProposal
     from disturbance.components.approvals.models import ApiarySiteOnApproval
@@ -233,7 +233,7 @@ def get_qs_vacant_site(search_text=''):
             'apiary_site__latest_approval_link', 
             'apiary_site__approval_link_for_vacant',
             'approval__applicant',
-            #'approval__proxy_applicant', TODO for segregation fix (?)
+            #'approval__proxy_applicant', TODO fix for segregation fix (?)
             ).filter(id__in=apiary_site_approval_ids)
 
     return qs_vacant_site_proposal, qs_vacant_site_approval

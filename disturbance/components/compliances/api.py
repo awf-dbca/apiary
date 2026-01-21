@@ -157,7 +157,7 @@ class ComplianceViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         return ComplianceSerializer
 
-    #TODO for segregation remove (check if used and replace first)
+    #TODO fix for segregation remove (check if used and replace first)
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         # Filter by org
@@ -167,7 +167,7 @@ class ComplianceViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    #TODO for segregation relocate to paginated viewset class (?)
+    #TODO fix for segregation relocate to paginated viewset class (?)
     @action(detail=False,methods=['GET',])
     def filter_list(self, request, *args, **kwargs):
         """ Used by the external dashboard filters """
@@ -396,7 +396,7 @@ class ComplianceViewSet(viewsets.ModelViewSet):
 class ComplianceAmendmentRequestViewSet(viewsets.GenericViewSet):
     serializer_class = ComplianceAmendmentRequestSerializer
 
-    #TODO for segregation review permissions
+    #TODO fix for segregation review permissions
     def create(self, request, *args, **kwargs):
         try:
             with transaction.atomic():

@@ -86,7 +86,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
     #delegates = DelegateSerializer(many=True,read_only=True)
     delegates = serializers.SerializerMethodField(read_only=True)
 
-    #TODO for segregation name, abn come with organisation field - remove extra, use from organisation on frontend
+    #TODO fix for segregation name, abn come with organisation field - remove extra, use from organisation on frontend
     class Meta:
         model = Organisation
         fields = (
