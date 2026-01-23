@@ -526,10 +526,10 @@
                 this.constructApiarySitesTable(apiary_sites_filtered)
             },
             ensureCheckedStatus: function() {
-                if (this.apiary_sites.length > 0){
-                    for(let i=0; i<this.apiary_sites.length; i++){
-                        if (!Object.prototype.hasOwnProperty.call(this.apiary_sites[i], 'checked')) {
-                            this.apiary_sites[i].checked = this.default_checkbox_checked
+                if (this.apiary_sites_local.length > 0){
+                    for(let i=0; i<this.apiary_sites_local.length; i++){
+                        if (!Object.prototype.hasOwnProperty.call(this.apiary_sites_local[i], 'checked')) {
+                            this.apiary_sites_local[i].checked = this.default_checkbox_checked
                         }
                     }
                 }
