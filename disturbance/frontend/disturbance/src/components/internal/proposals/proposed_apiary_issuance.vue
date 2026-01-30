@@ -265,7 +265,7 @@
                     </form>
                 </div>
 
-                <template v-if="proposal && proposal.proposal_apiary.apiary_sites">
+                <template v-if="proposal && !loading_sites">
                     <ComponentSiteSelection
                         :apiary_sites="apiary_sites_prop"
                         :is_internal="true"
@@ -374,6 +374,7 @@ export default {
     data:function () {
         return {
             //furtherInfo: "further-info-"+uuid(),
+            loading_sites: true,
             isModalOpen:false,
             form:null,
             approval: {},
@@ -393,6 +394,7 @@ export default {
             warningString: 'Please attach Level of Approval document before issuing Approval',
             component_site_selection_key: '',
             num_of_sites_selected: 0,
+            apiary_sites_prop: {},
             issuance_details: [
 		        {
                     batch_no: null,
@@ -475,23 +477,6 @@ export default {
         },
         preview_licence_url: function() {
           return (this.proposal_id) ? `/preview/licence-pdf/${this.proposal_id}` : '';
-        },
-        //TODO fix for segregation do not get apiary sites from proposal, get them from their own endpoint
-        apiary_sites_prop: function() {
-            let apiary_sites = [];
-            if (this.proposal.application_type === 'Site Transfer') {
-                for (let site of this.proposal.proposal_apiary.transfer_apiary_sites) {
-                    /*
-                    if (site.selected) {
-                        apiary_sites.push(site.apiary_site);
-                    }
-                    */
-                    apiary_sites.push(site.apiary_site);
-                }
-            } else {
-                apiary_sites = this.proposal.proposal_apiary.apiary_sites;
-            }
-            return apiary_sites;
         },
         /*
         showColCheckbox: function() {
@@ -944,7 +929,7 @@ export default {
        eventListeners:function () {
            
        }
-   },
+    },
     mounted:function () {
         let vm =this;
         vm.form = document.forms.approvalForm;
@@ -958,6 +943,35 @@ export default {
             this.setApiarySiteCheckedStatuses();
         }
         this.component_site_selection_key = uuid()
+    },
+    created: function() {
+        //TODO fix for segregation do not get apiary sites from proposal, get them from their own endpoint
+        if (this.proposal.application_type === 'Site Transfer') {
+            //TODO fix for segregation (site transfer sites endpoint)
+            //for (let site of this.proposal.proposal_apiary.transfer_apiary_sites) {
+            //    /*
+            //    if (site.selected) {
+            //        apiary_sites.push(site.apiary_site);
+            //    }
+            //    */
+            //    apiary_sites.push(site.apiary_site);
+            //}
+        } else {
+            //NOTE: this is how we should be loading sites from now on (not bundled with proposal, loaded separetely with a loading_sites boolean)
+            let url_sites = '/api/proposal_apiary/' + this.proposal.proposal_apiary.id + '/apiary_sites/'
+            fetch(url_sites).then(
+                async (response) => {
+                    if (response.ok) {
+                        let apiary_sites_req = await response.json();
+                        this.apiary_sites_prop = JSON.parse(JSON.stringify(apiary_sites_req)).features
+                    }
+                    this.loading_sites = false;
+                }
+            ).catch((error) => {
+                console.log(error);
+                this.loading_sites = false;
+            })
+        }
     }
 }
 </script>
@@ -967,114 +981,3 @@ export default {
   border: 1px solid black ;
 }
 </style>
-
-<!--
-						<div class="col-sm-12">
-						    <div class="form-group">
-							<div class="row">
-							    <div class="col-sm-4">
-								<label class="control-label pull-left"  for="Name">Batch Number</label>
-							    </div>
-							    <div class="col-sm-8">
-								    <input type="text" class="form-control" name="approval_batch_no" style="width:70%;" ref="batch_no" v-model="approval.batch_no">
-							    </div>
-							</div>
-						    </div>
-
-						    <div class="form-group">
-							<div class="row">
-							    <div class="col-sm-4">
-								<label class="control-label pull-left" style="text-align:left" for="Name">Conservation and Parks Commission</label>
-							    </div>
-							    <div class="col-sm-8">
-								    <input type="text" class="form-control" name="approval_cpc_date" style="width:70%;" ref="cpc_date" v-model="approval.cpc_date">
-							    </div>
-							</div>
-						    </div>
-
-						    <div class="form-group">
-							<div class="row">
-							    <div class="col-sm-4">
-								<label class="control-label pull-left" style="text-align:left" for="Name">Minister for Environment or Delegate</label>
-							    </div>
-							    <div class="col-sm-8">
-								    <input type="text" class="form-control" name="approval_minister_date" style="width:70%;" ref="minister_date" v-model="approval.minister_date">
-							    </div>
-							</div>
-						    </div>
-
-
-						    <div class="form-group">
-							<div class="row">
-							    <div class="col-sm-4">
-								<label class="control-label pull-left"  for="Name">Map Reference</label>
-							    </div>
-							    <div class="col-sm-8">
-								    <input type="text" class="form-control" name="approval_map_ref" style="width:70%;" ref="map_ref" v-model="approval.map_ref">
-							    </div>
-							</div>
-						    </div>
-
-						    <div class="form-group">
-							<div class="row">
-							    <div class="col-sm-4">
-								<label class="control-label pull-left"  for="Name">Forest Block</label>
-							    </div>
-							    <div class="col-sm-8">
-								    <input type="text" class="form-control" name="approval_forest_block" style="width:70%;" ref="forest_block" v-model="approval.forest_block">
-							    </div>
-							</div>
-						    </div>
-
-						    <div class="form-group">
-							<div class="row">
-							    <div class="col-sm-4">
-								<label class="control-label pull-left"  for="Name">COG Map Reference</label>
-							    </div>
-							    <div class="col-sm-8">
-								    <input type="text" class="form-control" name="approval_cog" style="width:70%;" ref="cog" v-model="approval.cog">
-							    </div>
-							</div>
-						    </div>
-						    <div class="form-group">
-							<div class="row">
-							    <div class="col-sm-4">
-								<label class="control-label pull-left"  for="Name">Nearest Road/Track</label>
-							    </div>
-							    <div class="col-sm-8">
-								    <input type="text" class="form-control" name="approval_roadtrack" style="width:70%;" ref="roadtrack" v-model="approval.roadtrack">
-							    </div>
-							</div>
-						    </div>
-						    <div class="form-group">
-							<div class="row">
-							    <div class="col-sm-4">
-								<label class="control-label pull-left"  for="Name">Apiary Zone</label>
-							    </div>
-							    <div class="col-sm-8">
-								    <input type="text" class="form-control" name="approval_zone" style="width:70%;" ref="zone" v-model="approval.zone">
-							    </div>
-							</div>
-						    </div>
-						    <div class="form-group">
-							<div class="row">
-							    <div class="col-sm-4">
-								<label class="control-label pull-left"  for="Name">Water Catchment Area</label>
-							    </div>
-							    <div class="col-sm-8">
-								    <input type="text" class="form-control" name="approval_catchment" style="width:70%;" ref="catchment" v-model="approval.catchment">
-							    </div>
-							</div>
-						    </div>
-						    <div class="form-group">
-							<div class="row">
-							    <div class="col-sm-4">
-								<label class="control-label pull-left"  for="Name">DRA Permit Required</label>
-							    </div>
-							    <div class="col-sm-1">
-								    <input type="checkbox" class="form-control" name="approval_dra_permit" style="width:70%;" ref="dra_permit" v-model="approval.dra_permit">
-							    </div>
-							</div>
-						    </div>
--->
-
