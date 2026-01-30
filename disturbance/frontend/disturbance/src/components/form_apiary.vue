@@ -1,8 +1,5 @@
 <template lang="html">
     <div>
-        <template v-if="is_local">
-            form_apiary.vue
-        </template>
         <div v-if="is_external" class="col-md-3">
             <div>
                 <h3>Application: {{ proposal.lodgement_number }}</h3>
@@ -269,7 +266,6 @@
                 component_site_selection_key: '',
                 expiry_date_local: '',
                 deed_poll_url: '',
-                is_local: helpers.is_local(),
             }
         },
         components: {

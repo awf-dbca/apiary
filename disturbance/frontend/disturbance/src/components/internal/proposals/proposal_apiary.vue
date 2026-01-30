@@ -1,7 +1,5 @@
 <template lang="html">
     <div v-if="proposal" id="internalProposal">
-        <template v-if="is_local">
-        </template>
       <div class="row">
         <h3>Application: {{ proposal.lodgement_number }}</h3>
         <h4>Application Type: {{proposal.activity }}</h4>
@@ -427,6 +425,7 @@
         :is_apiary_proposal="isApiaryProposal"
         @refreshFromResponse="refreshFromResponse"
         />
+        <!--TODO fix for segregation - modal does not appear to work properly-->
         <ProposedApiaryIssuance
             ref="proposed_approval"
             :processing_status="proposal.processing_status"
@@ -538,7 +537,6 @@ export default {
             logs_url: helpers.add_endpoint_json(api_endpoints.proposals,vm.$route.params.proposal_id+'/action_log'),
             panelClickersInitialised: false,
             sendingReferral: false,
-            is_local: helpers.is_local(),
         }
     },
     components: {

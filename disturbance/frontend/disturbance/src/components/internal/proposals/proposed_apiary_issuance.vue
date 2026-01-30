@@ -1,9 +1,6 @@
 <template lang="html">
     <div id="proposedIssuanceApproval">
         <modal transition="modal fade" @ok="ok()" @cancel="cancel()" :title="title" large>
-            <template v-if="is_local">
-                proposed_apiary_issuance.vue
-            </template>
             <div class="container-fluid">
                 <div class="row">
                     <form class="form-horizontal" name="approvalForm">
@@ -396,12 +393,11 @@ export default {
             warningString: 'Please attach Level of Approval document before issuing Approval',
             component_site_selection_key: '',
             num_of_sites_selected: 0,
-            is_local: helpers.is_local(),
             issuance_details: [
-		{
+		        {
                     batch_no: null,
                 }
-	    ],
+	        ],
         }
     },
     computed: {
@@ -675,9 +671,9 @@ export default {
         },
         ok:function () {
             let vm =this;
+            //TODO fix for segregation - better handling
             if($(vm.form).valid()){
                 vm.sendData();
-                //vm.$router.push({ path: '/internal' });
             }
         },
         cancel:function () {
