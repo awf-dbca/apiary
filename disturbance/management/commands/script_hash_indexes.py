@@ -4,6 +4,7 @@ import os
 from django.conf import settings
 import hashlib
 import base64
+import json
 
 STATIC_APP_NAME = env("STATIC_APP_NAME", "disturbance")
 STATIC_DIRECTORY = env("STATIC_DIRECTORY", os.path.join(os.path.join(settings.BASE_DIR, STATIC_APP_NAME, 'static')))
@@ -63,8 +64,9 @@ class Command(BaseCommand):
 
         #create hash tuple list
         file_hash_tuple_list = list(map(lambda file_location: (file_location, self.file_sha256(file_location)), file_location_list))
+        
+        data = dict(file_hash_tuple_list)
 
-        for i in file_hash_tuple_list:
-            print(i)
-
-        print(len(file_hash_tuple_list))
+        #NOTE storage method may change - using a json file for now
+        with open("sri-manifest.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)

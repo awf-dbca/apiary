@@ -9,6 +9,8 @@ mooring/cache/*
 tmp/
 disturbance/utils/csv
 
+sri-manifest.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
