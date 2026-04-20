@@ -10,6 +10,7 @@ tmp/
 disturbance/utils/csv
 
 sri-manifest.json
+sri-files/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
