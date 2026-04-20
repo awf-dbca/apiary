@@ -18,14 +18,14 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = 'Generate and store hash indexes for all static files'
 
-    def file_sha256(self, file_location):
-        h = hashlib.sha256()
+    def file_sha384(self, file_location):
+        h = hashlib.sha384()
         with open(file_location, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 h.update(chunk)
         digest = h.digest()
         b64 = base64.b64encode(digest).decode("utf-8")
-        return f"sha256-{b64}"
+        return f"sha384-{b64}"
 
 
     def get_files(self, directory):
@@ -63,7 +63,7 @@ class Command(BaseCommand):
         file_location_list += self.get_files(STATIC_FILES_DIRECTORY)
 
         #create hash tuple list
-        file_hash_tuple_list = list(map(lambda file_location: (file_location, self.file_sha256(file_location)), file_location_list))
+        file_hash_tuple_list = list(map(lambda file_location: (file_location, self.file_sha384(file_location)), file_location_list))
         
         data = dict(file_hash_tuple_list)
 
