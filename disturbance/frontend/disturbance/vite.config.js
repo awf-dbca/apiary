@@ -7,6 +7,7 @@ import svgLoader from 'vite-svg-loader';
 import { visualizer } from 'rollup-plugin-visualizer';
 // import vueJsx from '@vitejs/plugin-vue-jsx';
 
+import sriFromManifest from "./sri-plugin.js";
 
 const applicationNameShort = 'disturbance';
 const port = process.env.PORT ? parseInt(process.env.PORT) : 5173;
@@ -33,6 +34,15 @@ export default defineConfig(() => {
             },
         },
         plugins: [
+            
+            sriFromManifest({
+                manifestPath: "/data/data/projects/apiary/sri-manifest.json",
+                distDir: "/data/data/projects/apiary/disturbance/"
+            }),
+            sriFromManifest({
+                manifestPath: "/data/data/projects/apiary/sri-manifest.json",
+                distDir: "/data/data/projects/apiary/staticfiles_ds/"
+            }),
             vue(),
             eslint(),
             // vueJsx(),
