@@ -11,6 +11,7 @@ STATIC_DIRECTORY = env("STATIC_DIRECTORY", os.path.join(os.path.join(settings.BA
 STATIC_FILES_DIRECTORY_NAME = env("STATIC_FILES_DIRECTORY_NAME", "staticfiles_ds")
 STATIC_FILES_DIRECTORY = env("STATIC_FILES_DIRECTORY", os.path.join(os.path.join(settings.BASE_DIR, STATIC_FILES_DIRECTORY_NAME)))
 FILE_TYPES_TO_HASH = env("FILE_TYPES_TO_HASH", [".js",".css", ".png", ".jpg", ".jpeg", ".svg", ".webp", ".woff", ".woff2", ".ttf"])
+SRI_FILE_STRUCTURE_DIR = os.path.join(settings.BASE_DIR, "sri-files")
 
 import logging
 logger = logging.getLogger(__name__)
@@ -67,6 +68,29 @@ class Command(BaseCommand):
         
         data = dict(file_hash_tuple_list)
 
-        #NOTE storage method may change - using a json file for now
         with open("sri-manifest.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+
+        #TODO determine if filenames should be based on real location or static url
+
+        #clear out existing files        
+        for root, _, files in os.walk(SRI_FILE_STRUCTURE_DIR):
+            for file in files:
+                os.remove(os.path.join(root, file))
+
+        #replace file location in list with hash of name
+        file_name_file_hash_tuple_list = list(map(lambda file_hash_tuple: (hashlib.sha256(file_hash_tuple[0].encode()).hexdigest(),file_hash_tuple[1]), file_hash_tuple_list))
+        #iterate through lists, create dir based on first two chars of each file name hash
+        file_structure_directories = list(set(list(map(lambda file_name_file_hash_tuple: file_name_file_hash_tuple[0][:2], file_name_file_hash_tuple_list))))
+        print(len(file_structure_directories))
+
+        #create directories
+        for dir in file_structure_directories:
+            os.makedirs(os.path.join(SRI_FILE_STRUCTURE_DIR, dir), exist_ok=True)
+
+        #create files at locations 
+        for file_name_file_hash_tuple in file_name_file_hash_tuple_list:
+            location = os.path.join(SRI_FILE_STRUCTURE_DIR, file_name_file_hash_tuple[0][:2], file_name_file_hash_tuple[0])
+            data = file_name_file_hash_tuple[1]
+            with open(location, "w") as f:
+                f.write(data)
