@@ -82,7 +82,6 @@ class Command(BaseCommand):
         file_name_file_hash_tuple_list = list(map(lambda file_hash_tuple: (hashlib.sha256(file_hash_tuple[0].encode()).hexdigest(),file_hash_tuple[1]), file_hash_tuple_list))
         #iterate through lists, create dir based on first two chars of each file name hash
         file_structure_directories = list(set(list(map(lambda file_name_file_hash_tuple: file_name_file_hash_tuple[0][:2], file_name_file_hash_tuple_list))))
-        print(len(file_structure_directories))
 
         #create directories
         for dir in file_structure_directories:
