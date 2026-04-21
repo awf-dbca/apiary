@@ -7,9 +7,9 @@ import base64
 import json
 
 STATIC_APP_NAME = env("STATIC_APP_NAME", "disturbance")
-STATIC_DIRECTORY = env("STATIC_DIRECTORY", os.path.join(os.path.join(settings.BASE_DIR, STATIC_APP_NAME, 'static')))
+STATIC_DIRECTORY = env("STATIC_DIRECTORY", os.path.join(settings.BASE_DIR, STATIC_APP_NAME, 'static'))
 STATIC_FILES_DIRECTORY_NAME = env("STATIC_FILES_DIRECTORY_NAME", "staticfiles_ds")
-STATIC_FILES_DIRECTORY = env("STATIC_FILES_DIRECTORY", os.path.join(os.path.join(settings.BASE_DIR, STATIC_FILES_DIRECTORY_NAME)))
+STATIC_FILES_DIRECTORY = env("STATIC_FILES_DIRECTORY", os.path.join(settings.BASE_DIR, STATIC_FILES_DIRECTORY_NAME))
 FILE_TYPES_TO_HASH = env("FILE_TYPES_TO_HASH", [".js",".css", ".png", ".jpg", ".jpeg", ".svg", ".webp", ".woff", ".woff2", ".ttf"])
 SRI_FILE_STRUCTURE_DIR = os.path.join(settings.BASE_DIR, "sri-files")
 
@@ -59,12 +59,18 @@ class Command(BaseCommand):
         if not (os.path.isdir(STATIC_FILES_DIRECTORY)):
             logger.error("Provided STATIC_FILES_DIRECTORY not valid.")
 
-        file_location_list = []
-        file_location_list += self.get_files(STATIC_DIRECTORY)
-        file_location_list += self.get_files(STATIC_FILES_DIRECTORY)
+        static_dir_list = self.get_files(STATIC_DIRECTORY)
+        #convert to actual static location
+        static_dir_list = list(map(lambda file_location: (file_location, file_location.replace(STATIC_DIRECTORY,'/static')), static_dir_list))
+        
+        static_files_dir_list = self.get_files(STATIC_FILES_DIRECTORY)
+        #convert to actual static location
+        static_files_dir_list = list(map(lambda file_location: (file_location, file_location.replace(STATIC_FILES_DIRECTORY,'/static')), static_files_dir_list))
+
+        file_location_list = static_dir_list + static_files_dir_list
 
         #create hash tuple list
-        file_hash_tuple_list = list(map(lambda file_location: (file_location, self.file_sha384(file_location)), file_location_list))
+        file_hash_tuple_list = list(map(lambda file_location: (file_location[1], self.file_sha384(file_location[0])), file_location_list))
         
         data = dict(file_hash_tuple_list)
 
