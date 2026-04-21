@@ -1,6 +1,8 @@
 from django.template import Library
 from disturbance import settings
 
+from disturbance.sri_utils import lookup_hash
+
 register = Library()
 
 
@@ -11,3 +13,7 @@ def get_instance_type():
 @register.simple_tag()
 def RAND_HASH():
     return settings.RAND_HASH
+
+@register.simple_tag()
+def SRI_HASH(file):
+    return lookup_hash(file)
