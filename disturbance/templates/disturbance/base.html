@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load django_vite %}
+{% load tagutils %}
 
 {% load users %}
 {% load utils %}
@@ -33,7 +34,11 @@
             "kb_server_url": "{{ KB_SERVER_URL }}",
         }
     </script>
+    {% if DJANGO_VITE_DEV_MOD %}
     {% vite_asset vue3_entry_script app='default' %}
+    {% else %}
+    {% vite_asset_sri "src/main.js" %}
+    {% endif %}
 {% endblock custom_js %}
 
 {% block menu_items_left_brand %}

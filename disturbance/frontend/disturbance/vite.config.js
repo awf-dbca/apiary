@@ -6,7 +6,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 import svgLoader from 'vite-svg-loader';
 import { visualizer } from 'rollup-plugin-visualizer';
 // import vueJsx from '@vitejs/plugin-vue-jsx';
-
+import manifestSri from 'vite-plugin-manifest-sri'
 
 const applicationNameShort = 'disturbance';
 const port = process.env.PORT ? parseInt(process.env.PORT) : 5173;
@@ -34,6 +34,9 @@ export default defineConfig(() => {
         },
         plugins: [
             vue(),
+            manifestSri({
+                algorithm: 'sha384',
+            }),
             eslint(),
             // vueJsx(),
             svgLoader({
