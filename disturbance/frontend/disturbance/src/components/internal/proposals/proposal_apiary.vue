@@ -87,49 +87,47 @@
                       </span>
                     </template>
                   </div>
-                  <table class="table small-table table-hover table-referrals">
-                    <thead>
-                      <tr>
-                        <th>Referral</th>
-                        <th>Status/Action</th>
-                      </tr>
-                    </thead>
-                    <tr v-for="r in proposal.latest_referrals" :key="r.id">
-                      <td>
-                        <small
-                          ><strong>{{
-                            r.apiary_referral.referral_group.name
-                          }}</strong></small
-                        ><br />
-                        <small
-                          ><strong>{{ formatDate(r.lodged_on) }}</strong></small
-                        >
-                      </td>
-                      <td>
-                        <small
-                          ><strong>{{ r.processing_status }}</strong></small
-                        ><br />
-                        <template v-if="r.processing_status == 'Awaiting'">
-                          <small v-if="canLimitedAction"
-                            ><a @click.prevent="remindReferral(r)" href="#"
-                              >Remind</a
-                            >
-                            /
-                            <a @click.prevent="recallReferral(r)" href="#"
-                              >Recall</a
-                            ></small
-                          >
-                        </template>
-                        <template v-else>
-                          <small v-if="canLimitedAction"
-                            ><a @click.prevent="resendReferral(r)" href="#"
-                              >Resend</a
-                            ></small
-                          >
-                        </template>
-                      </td>
-                    </tr>
-                  </table>
+                    <table class="table table-sm table-hover border">
+                      <thead class="table-light">
+                        <tr>
+                          <th scope="col">Referral</th>
+                          <th scope="col">Status/Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="r in proposal.latest_referrals" :key="r.id">
+                          <td>
+                            <small>{{
+                              r.apiary_referral.referral_group.name
+                            }}</small
+                            ><br />
+                            <small>{{ formatDate(r.lodged_on) }}</small>
+                          </td>
+                          <td>
+                            <small>{{ r.processing_status }}</small
+                            ><br />
+                            <template v-if="r.processing_status == 'Awaiting'">
+                              <small v-if="canLimitedAction"
+                                ><a @click.prevent="remindReferral(r)" href="#"
+                                  >Remind</a
+                                >
+                                /
+                                <a @click.prevent="recallReferral(r)" href="#"
+                                  >Recall</a
+                                ></small
+                              >
+                            </template>
+                            <template v-else>
+                              <small v-if="canLimitedAction"
+                                ><a @click.prevent="resendReferral(r)" href="#"
+                                  >Resend</a
+                                ></small
+                              >
+                            </template>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   <ApiaryReferralsForProposal
                     @refreshFromResponse="refreshFromResponse"
                     :proposal="proposal"
@@ -759,6 +757,7 @@ import ApprovalScreenSiteTransferTemporaryUse from "./proposal_approval_site_tra
 import CommsLogs from "@common-utils/comms_logs.vue";
 import ApiaryReferralsForProposal from "@common-utils/apiary/apiary_referrals_for_proposal.vue";
 import { api_endpoints, helpers, constants } from "@/utils/hooks";
+import { parseFetchError } from "@/utils/helpers";
 import ApiarySiteTransfer from "@/components/form_apiary_site_transfer.vue";
 import FormSection from "@/components/forms/section_toggle.vue";
 import $ from "jquery";
@@ -1399,19 +1398,11 @@ export default {
       let vm = this;
       let unassign;
       let data = {};
-      if (vm.processing_status == "With Approver") {
-        unassign =
-          vm.proposal.assigned_approver != null &&
-          vm.proposal.assigned_approver != "undefined"
-            ? false
-            : true;
+      if (vm.proposal.processing_status == "With Approver") {
+        unassign = vm.proposal.assigned_approver == null;
         data = { assessor_id: vm.proposal.assigned_approver };
       } else {
-        unassign =
-          vm.proposal.assigned_officer != null &&
-          vm.proposal.assigned_officer != "undefined"
-            ? false
-            : true;
+        unassign = vm.proposal.assigned_officer == null;
         data = { assessor_id: vm.proposal.assigned_officer };
       }
       if (!unassign) {
@@ -1559,7 +1550,6 @@ export default {
                     : {};
                 swal.fire({
                   title: "Proposal Error",
-                  //text: helpers.apiVueResourceError(error),
                   text: error,
                   icon: "error",
                   customClass: {
@@ -1618,7 +1608,6 @@ export default {
                 : {};
             swal.fire({
               title: "Proposal Error",
-              //text: helpers.apiVueResourceError(error),
               text: error,
               icon: "error",
               customClass: {
@@ -1664,7 +1653,6 @@ export default {
                 : {};
             swal.fire({
               title: "Proposal Error",
-              //text: helpers.apiVueResourceError(error),
               text: error,
               icon: "error",
               customClass: {
@@ -1735,21 +1723,23 @@ export default {
     },
     initialiseSelects: function () {
       let vm = this;
-      if (!vm.initialisedSelects && vm.$refs.apiary_referral_groups) {
-        $(vm.$refs.apiary_referral_groups)
-          .select2({
-            theme: "bootstrap-5",
-            allowClear: true,
-            placeholder: "Select Referral",
-          })
-          .on("select2:select", function (e) {
-            var selected = $(e.currentTarget);
-            vm.selected_referral = selected.val();
-          })
-          .on("select2:unselect", function () {
-            // var selected = $(e.currentTarget);
-            vm.selected_referral = "";
-          });
+      if (!vm.initialisedSelects) {
+        if (vm.$refs.apiary_referral_groups) {
+          $(vm.$refs.apiary_referral_groups)
+            .select2({
+              theme: "bootstrap-5",
+              allowClear: true,
+              placeholder: "Select Referral",
+            })
+            .on("select2:select", function (e) {
+              var selected = $(e.currentTarget);
+              vm.selected_referral = selected.val();
+            })
+            .on("select2:unselect", function () {
+              // var selected = $(e.currentTarget);
+              vm.selected_referral = "";
+            });
+        }
         vm.initialiseAssignedOfficerSelect();
         vm.initialisedSelects = true;
       }
@@ -1784,12 +1774,20 @@ export default {
             },
             body: new URLSearchParams(data),
           })
-            .then((response) => response.json())
+            .then(async (response) => {
+              // 1. Check if the response status is NOT in the 200-299 range
+              if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText);
+              }
+
+              // 2. Return the parsed JSON if response.ok is true
+              return response.json();
+            })
             .then((response) => {
               vm.sendingReferral = false;
               vm.original_proposal = helpers.copyObject(response);
               vm.proposal = response;
-              //vm.proposal.applicant.address = vm.proposal.applicant.address != null ? vm.proposal.applicant.address : {};
               vm.proposal.relevant_applicant_address =
                 vm.proposal.relevant_applicant_address != null
                   ? vm.proposal.relevant_applicant_address
@@ -1810,12 +1808,12 @@ export default {
               vm.selected_referral = "";
               vm.referral_text = "";
             })
-            .catch((error) => {
+            .catch(async (error) => {
               console.log(error);
+              const errorMessage = await parseFetchError(error);
               swal.fire({
                 title: "Referral Error",
-                //text: helpers.apiVueResourceError(error),
-                text: error,
+                text: errorMessage,
                 icon: "error",
                 customClass: {
                   confirmButton: "btn btn-primary",
@@ -1978,6 +1976,7 @@ export default {
       if (this.organisationApplicant) {
         await this.initialiseOrgContactTable();
       }
+      vm.initialisedSelects = false;
       vm.initialiseSelects();
       vm.form = markRaw(document.forms.new_proposal);
       if (vm.hasAmendmentRequest) {

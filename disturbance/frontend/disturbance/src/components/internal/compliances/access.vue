@@ -1,7 +1,7 @@
 <template>
 <div class="container" id="internalCompliance">
     <div class="row">
-        <h3>Compliance with Requirements {{ compliance.reference }}</h3>
+        <h3>Compliance with Requirements: {{ compliance.lodgement_number }}</h3>
         <div class="col-md-3">
         <CommsLogs :comms_url="comms_url" :logs_url="logs_url" :comms_add_url="comms_add_url" :disable_add_entry="false"/>
             <div class="mb-3">
@@ -33,11 +33,11 @@
                             <div class="col-sm-12">
                                 <strong>Currently assigned to</strong><br/>
                                 <div class="mb-3">
-                                    <select v-show="isLoading" class="form-select">
+                                    <select v-if="isLoading" class="form-select">
                                         <option value="">Loading...</option>
                                     </select>
-                                    <select @change="assignTo" :disabled="canViewonly || !check_assessor()" v-if="!isLoading" class="form-select" v-model="compliance.assigned_to">
-                                        <option value="null">Unassigned</option>
+                                    <select v-else @change="assignTo" :disabled="canViewonly || !check_assessor()" class="form-select" v-model="compliance.assigned_to_id">
+                                        <option :value="null">Unassigned</option>
                                         <option v-for="member in compliance.allowed_assessors" :value="member.id" :key="member.id">{{member.first_name}} {{member.last_name}}</option>
                                     </select>
                                     <a v-if="!canViewonly && check_assessor()" @click.prevent="assignMyself()" class="actionBtn float-end">Assign to me</a>
@@ -168,7 +168,7 @@ export default {
     assignTo: function(){
         let vm = this;
         if ( vm.compliance.assigned_to != 'null'){
-            let data = {'user_id': vm.compliance.assigned_to};
+            let data = {'user_id': vm.compliance.assigned_to_id};
             fetch(helpers.add_endpoint_json(api_endpoints.compliances,(vm.compliance.id+'/assign_to')),{
                 method: 'POST',
                 headers: {

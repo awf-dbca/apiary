@@ -25,6 +25,7 @@ MEDIA_APIARY_DIR = env("MEDIA_APIARY_DIR", "apiary")
 SPATIAL_DATA_DIR = env("SPATIAL_DATA_DIR", "spatial_data")
 ANNUAL_RENTAL_FEE_GST_EXEMPT = True
 FILE_UPLOAD_MAX_MEMORY_SIZE = env("FILE_UPLOAD_MAX_MEMORY_SIZE", 15728640)
+DATA_UPLOAD_MAX_MEMORY_SIZE = env("DATA_UPLOAD_MAX_MEMORY_SIZE", 10 * 1024 * 1024)  # 10MB
 APIARY_MIGRATED_LICENCES_APPROVER = env("APIARY_MIGRATED_LICENCES_APPROVER", "jacinta.overman@dbca.wa.gov.au")
 SHOW_API_ROOT = env("SHOW_API_ROOT", False)
 SSO_SETTING_URL = env("SSO_SETTING_URL", "")
@@ -64,7 +65,12 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 }
-
+GDAL_LIBRARY_PATH = os.environ.get(
+    "GDAL_LIBRARY_PATH",
+)
+GEOS_LIBRARY_PATH = os.environ.get(
+    "GEOS_LIBRARY_PATH",
+)
 USE_DJANGO_JQUERY = True
 
 MIDDLEWARE_CLASSES += [
@@ -77,6 +83,7 @@ MIDDLEWARE_CLASSES += [
 
 # add the gzip middleware as the first entry in the list of middleware classes
 MIDDLEWARE_CLASSES.insert(0, "django.middleware.gzip.GZipMiddleware")
+MIDDLEWARE_CLASSES.insert(1, "disturbance.middleware.PerRequestCacheMiddleware")
 
 TEMPLATES[0]["DIRS"].append(os.path.join(BASE_DIR, "disturbance", "templates"))
 TEMPLATES[0]["DIRS"].append(os.path.join(BASE_DIR, "disturbance", "components", "ap_payments", "templates"))
@@ -110,13 +117,11 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 STATIC_URL = "/static/"
 
 # Department details
-SYSTEM_NAME = env("SYSTEM_NAME", "Disturbance Approval System")
-APIARY_SYSTEM_NAME = env("APIARY_SYSTEM_NAME", "Apiary System")
+SYSTEM_NAME = env("SYSTEM_NAME", "Apiary System")
 SYSTEM_NAME_SHORT = env("SYSTEM_NAME_SHORT", "Apiary")
 SITE_PREFIX = env("SITE_PREFIX")
 SITE_DOMAIN = env("SITE_DOMAIN")
 SUPPORT_EMAIL = env("SUPPORT_EMAIL", SYSTEM_NAME_SHORT.lower() + "@" + SITE_DOMAIN).lower()
-APIARY_SUPPORT_EMAIL = env("APIARY_SUPPORT_EMAIL", SUPPORT_EMAIL).lower()
 DEP_URL = env("DEP_URL", "www." + SITE_DOMAIN)
 DEP_PHONE = env("DEP_PHONE", "(08) 9219 9000")
 DEP_PHONE_SUPPORT = env("DEP_PHONE_SUPPORT", "(08) 9219 9000")
@@ -151,7 +156,10 @@ CRON_CLASSES = [
     "appmonitor_client.cron.CronJobAppMonitorClient",
     "disturbance.cron.CronJobProcessReportQueue",
     "disturbance.cron.CronJobCronTasks",
+    "disturbance.cron.CronJobPopulateOrganisationProperties",
 ]
+
+POPULATE_ORGANISATION_PROPERTIES_RUN_AT_TIMES = env("POPULATE_ORGANISATION_PROPERTIES_RUN_AT_TIMES", ["03:30"])
 
 CKEDITOR_CONFIGS = {
     "default": {
@@ -203,39 +211,58 @@ SITE_STATUS_TRANSFERRED = (
 )
 SITE_STATUS_VACANT = "vacant"
 SITE_STATUS_DISCARDED = "discarded"
-BASE_EMAIL_TEXT = "disturbance/emails/base_email.txt"
-BASE_EMAIL_HTML = "disturbance/emails/base_email.html"
+BASE_EMAIL_TEXT = "disturbance/emails/apiary_base_email.txt"
+BASE_EMAIL_HTML = "disturbance/emails/apiary_base_email.html"
 ORGANISATION_PERMISSION_MODULE = "disturbance.permission"
 
 HTTP_HOST_FOR_TEST = "localhost:9061"
 
-LOGGERS_TO_REMOVE = [
-    "wildlifecompliance",
-    "wildlifelicensing",
-    "log",
-    "disturbance",
-]
-for logger_name in LOGGERS_TO_REMOVE:
-    if logger_name in LOGGING["loggers"]:
-        del LOGGING["loggers"][logger_name]
+# 1. Determine dynamic levels based on the DEBUG setting
+default_log_level = "DEBUG" if DEBUG else "INFO"
 
-# Prevent dictConfig from disabling existing (module) loggers that aren't
-# present in the LOGGING['loggers'] mapping. Some packages predefine
-# loggers (eg. 'disturbance.*') and removing their entry above would
-# otherwise leave them disabled when dictConfig runs. Ensure existing
-# loggers remain active and propagate to the root handlers.
+# 2. Ensure the log directory exists so RotatingFileHandler doesn't crash
+file_path = LOGGING.get("handlers", {}).get("file", {}).get("filename")
+if file_path:
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+# 3. Clean out unwanted base loggers
+LOGGERS_TO_REMOVE = {"wildlifecompliance", "wildlifelicensing", "log", "disturbance"}
+LOGGING["loggers"] = {k: v for k, v in LOGGING.get("loggers", {}).items() if k not in LOGGERS_TO_REMOVE}
+
+# 4. Apply formatters and general settings
 LOGGING["disable_existing_loggers"] = False
-LOGGING["formatters"]["verbose2"] = {
-    "format": "%(levelname)s %(asctime)s %(name)s [Line:%(lineno)s][%(funcName)s] %(message)s"
+
+LOGGING.setdefault("formatters", {})["verbose2"] = {
+    "format": "%(levelname)s %(asctime)s %(name)s [Line:%(lineno)s][%(funcName)s] %(message)s",
+    "datefmt": "%Y-%m-%d %H:%M:%S",
 }
-LOGGING["loggers"][""]["level"] = "DEBUG"
-LOGGING["handlers"]["console"]["formatter"] = "verbose2"
-LOGGING["handlers"]["console"]["level"] = "DEBUG"
-LOGGING["handlers"]["file"]["formatter"] = "verbose2"
-LOGGING["handlers"]["file"]["level"] = "INFO"
 
-LOGGING["loggers"]["asyncio"] = {"level": "INFO", "propagate": False}
+# 5. Handlers configuration
+if "console" in LOGGING.get("handlers", {}):
+    LOGGING["handlers"]["console"]["formatter"] = "verbose2"
+    LOGGING["handlers"]["console"]["level"] = default_log_level
 
+if "file" in LOGGING.get("handlers", {}):
+    LOGGING["handlers"]["file"]["formatter"] = "verbose2"
+    LOGGING["handlers"]["file"]["level"] = "INFO"
+    LOGGING["handlers"]["file"]["backupCount"] = 5
+    LOGGING["handlers"]["file"]["encoding"] = "utf-8"
+
+# 6. Root & Django Logger configuration
+LOGGING["loggers"][""]["level"] = default_log_level
+
+if "django" in LOGGING["loggers"]:
+    LOGGING["loggers"]["django"]["handlers"] = ["file", "console"]
+    LOGGING["loggers"]["django"]["level"] = "INFO"
+
+# 7. Conditionally suppress noisy libraries only during DEBUG mode
+CHATTY_LOGGERS = ["asyncio", "urllib3", "boto3", "botocore", "paramiko"]
+
+for logger_name in CHATTY_LOGGERS:
+    LOGGING["loggers"][logger_name] = {
+        "level": "WARNING" if DEBUG else "INFO",
+        "propagate": True,
+    }
 
 TEMPLATE_TITLE = "Apiary System"
 TEMPLATE_HEADER_LOGO = "/static/disturbance/img/logo-park-stay-trunc.gif"
@@ -284,7 +311,7 @@ LEDGER_UI_ACCOUNTS_MANAGEMENT_KEYS = []
 for am in LEDGER_UI_ACCOUNTS_MANAGEMENT:
     LEDGER_UI_ACCOUNTS_MANAGEMENT_KEYS.append(list(am.keys())[0])
 
-LEDGER_UI_CARDS_MANAGEMENT = env('LEDGER_UI_CARDS_MANAGEMENT', True)
+LEDGER_UI_CARDS_MANAGEMENT = env("LEDGER_UI_CARDS_MANAGEMENT", True)
 
 MIDDLEWARE = MIDDLEWARE_CLASSES
 
@@ -333,12 +360,21 @@ LEDGER_SYSTEM_ID = env(
 )
 LEDGER_USER = env("LEDGER_USER", "")
 LEDGER_PASS = env("LEDGER_PASS", "")
+
 KB_USER = env("KB_USER", LEDGER_USER)
 KB_PASSWORD = env("KB_PASSWORD", LEDGER_PASS)
 KB_SERVER_URL = env("KB_SERVER_URL", "https://kb.dbca.wa.gov.au/")
 KB_BASEMAP_STREET_LAYER = env("KB_BASEMAP_STREET_LAYER", "kaartdijin-boodja-public:mapbox-streets-public")
 KB_BASEMAP_SATELLITE_LAYER = env("KB_BASEMAP_SATELLITE_LAYER", "kaartdijin-boodja-public:mapbox-satellite-public")
+KB_TENURE_GEOSERVER_URL = env("KB_TENURE_GEOSERVER_URL", "https://kb.dbca.wa.gov.au/geoserver/ows")
+KB_DBCA_LEGISLATED_TENURE_LAYER = env(
+    "KB_DBCA_LEGISLATED_TENURE_LAYER", "kaartdijin-boodja-public:CPT_DBCA_LEGISLATED_TENURE"
+)
+KB_TENURE_PROPERY_NAME = env("KB_TENURE_PROPERY_NAME", "LEG_TENURE")
 
 CSRF_TRUSTED_ORIGINS_STRING = decouple.config("CSRF_TRUSTED_ORIGINS", default="[]")
 CSRF_TRUSTED_ORIGINS = json.loads(str(CSRF_TRUSTED_ORIGINS_STRING))
 FILE_UPLOAD_PERMISSIONS = None
+
+UNOSERVER_HOST = env("UNOSERVER_HOST", "127.0.0.1")
+UNOSERVER_PORT = env("UNOSERVER_PORT", 2003)

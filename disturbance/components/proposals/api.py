@@ -324,7 +324,7 @@ class ProposalPaginatedViewSet(viewsets.ReadOnlyModelViewSet):
         http://localhost:8499/api/proposal_paginated/referrals_internal/?format=datatables&draw=1&length=2
         """
         template_group = get_template_group(request)
-        
+
         qs = (
             Referral.objects.filter(apiary_referral__referral_group__members=request.user)
             if is_internal(self.request)
@@ -631,12 +631,14 @@ class ApiarySiteViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
     @basic_exception_handler
     def make_vacant(self, request, pk=None):
         instance = self.get_object()
-        try:
-            apiary_site_on_approval = instance.latest_approval_link
-            apiary_site_on_approval.site_status = "vacant"
-            apiary_site_on_approval.save()
-        except Exception as e:
-            raise serializers.ValidationError("Invalid Request" + str(e))
+
+        if not hasattr(instance, "latest_approval_link") or instance.latest_approval_link is None:
+            raise serializers.ValidationError("This site can not be made vacant as it has no latest approval")
+
+        apiary_site_on_approval = instance.latest_approval_link
+        apiary_site_on_approval.site_status = "vacant"
+        apiary_site_on_approval.save()
+
         instance.save()
         data = annotate_apiary_site_on_approval_geometry(ApiarySiteOnApproval.objects.filter(id=instance.id))
         return Response(data[0] if len(data) > 0 else {})
@@ -972,7 +974,7 @@ class ProposalApiaryViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
 
         apiary_site_on_proposals = ApiarySiteOnProposal.objects.filter(
             apiary_site__in=proposal_apiary.apiary_sites.all()
-        )
+        ).distinct("apiary_site")
 
         draft_apiary_sites = apiary_site_on_proposals.filter(site_status=SITE_STATUS_DRAFT)
         non_draft_apiary_sites = apiary_site_on_proposals.exclude(site_status=SITE_STATUS_DRAFT)
@@ -1122,7 +1124,7 @@ class ProposalApiaryViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
             serializer = serializer_class(instance.proposal, context={"request": request})
             return Response(serializer.data)
         else:
-            raise serializer.ValidationError("Can only send reference when proposal is With Assessor.")
+            raise serializers.ValidationError("Can only send reference when proposal is With Assessor.")
 
     @action(detail=True, methods=["post"], permission_classes=[ProposalAssessorPermission])
     @renderer_classes((JSONRenderer,))
@@ -1168,21 +1170,12 @@ class ProposalApiaryViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
     def final_approval(self, request, *args, **kwargs):
         with transaction.atomic():
             instance = self.get_object()
+            serializer = ProposedApprovalSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
 
-            if instance.proposal.application_type.name == ApplicationType.SITE_TRANSFER:
-                serializer = ProposedApprovalSerializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
-            else:
-                serializer = ProposedApprovalSerializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
-
-            preview = None
+            preview = request.data.get("preview")
             if instance.proposal and instance.proposal.processing_status == Proposal.PROCESSING_STATUS_WITH_APPROVER:
-                preview = request.data.get("preview")
                 instance = instance.final_approval(request, serializer.validated_data, preview=preview)
-
-            serializer_class = self.internal_apiary_serializer_class()
-            serializer = serializer_class(instance.proposal, context={"request": request})
 
             if preview:
                 site_transfer_preview = False
@@ -1190,21 +1183,28 @@ class ProposalApiaryViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
                     site_transfer_preview = True
                     originating_target = request.data.get("originating_target")
                     if originating_target == "originating":
-                        preview_approval_id = serializer.data.get("proposal_apiary", {}).get("originating_approval_id")
+                        preview_approval = instance.originating_approval or instance.proposal.approval
                     else:
-                        preview_approval_id = instance.target_approval_id
+                        preview_approval = instance.target_approval or Approval.objects.get(
+                            id=instance.target_approval_id
+                        )
                 else:
-                    preview_approval_id = serializer.data.get("approval", {}).get("id")
-                licence_response = HttpResponse(content_type="application/pdf")
-                preview_approval = Approval.objects.get(id=preview_approval_id)
+                    preview_approval = instance.proposal.approval or instance.retrieve_approval
+
                 preview_approval.approver_id = request.user.id
+                licence_response = HttpResponse(content_type="application/pdf")
 
                 licence_response.content = preview_approval.generate_doc(
                     preview=True, site_transfer_preview=site_transfer_preview
                 )
+
                 transaction.set_rollback(True)
+
                 return licence_response
 
+            # Non-preview fallback
+            serializer_class = self.internal_apiary_serializer_class()
+            serializer = serializer_class(instance.proposal, context={"request": request})
             return Response(serializer.data)
 
     # TODO on-cleanup - why it is a POST?
@@ -1356,12 +1356,11 @@ class ApiaryReferralViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
         instance = self.get_object()
         user_id = request.data.get("assigned_officer_id", None)
         user = None
-        if not user_id:
-            raise serializers.ValidationError("An assigned officer id is required")
-        try:
-            user = EmailUser.objects.get(id=user_id)
-        except EmailUser.DoesNotExist:
-            raise serializers.ValidationError("A user with the id passed in does not exist")
+        if user_id is not None:
+            try:
+                user = EmailUser.objects.get(id=user_id)
+            except EmailUser.DoesNotExist:
+                raise serializers.ValidationError("A user with the id passed in does not exist")
         instance.assign_officer(request, user)
         serializer = FullApiaryReferralSerializer(instance.referral, context={"request": request})
         return Response(serializer.data)
@@ -1915,7 +1914,7 @@ class ProposalViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
             serializer = serializer_class(instance, context={"request": request})
             return Response(serializer.data)
         else:
-            raise serializer.ValidationError("Can only send reference when proposal is With Assessor.")
+            raise serializers.ValidationError("Can only send reference when proposal is With Assessor.")
 
     @action(detail=True, methods=["post"])
     @basic_exception_handler

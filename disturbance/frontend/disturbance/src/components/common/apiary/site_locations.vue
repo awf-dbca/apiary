@@ -109,11 +109,13 @@
         </div>
         <div id="basemap-button">
           <img
+            v-show="currentBasemap === 'osm'"
             id="basemap_sat"
             :src="satelliteIconUrl"
             @click="setBaseLayer('sat')"
           />
           <img
+            v-show="currentBasemap === 'sat'"
             id="basemap_osm"
             :src="mapIconUrl"
             @click="setBaseLayer('osm')"
@@ -146,18 +148,25 @@
                 class="layer_options"
                 v-show="hover"
                 @mouseleave="hover = false"
+                style="height: 350px"
               >
-                <div v-for="layer in optionalLayers" :key="layer.ol_uid">
+                <div
+                  v-for="layer in optionalLayers"
+                  :key="layer.ol_uid"
+                  class="form-check"
+                >
                   <input
                     type="checkbox"
                     :id="layer.ol_uid"
                     :checked="layer.values_.visible"
                     @change="changeLayerVisibility(layer)"
-                    class="layer_option"
+                    class="form-check-input layer_option"
                   />
-                  <label :for="layer.ol_uid" class="layer_option">{{
-                    layer.get("title")
-                  }}</label>
+                  <label
+                    :for="layer.ol_uid"
+                    class="form-check-label fw-normal"
+                    >{{ layer.get("title") }}</label
+                  >
                 </div>
               </div>
             </transition>
@@ -504,6 +513,7 @@ export default {
         ],
       },
 
+      currentBasemap: "osm",
       tileLayerOsm: null,
       tileLayerSat: null,
       optionalLayers: [],
@@ -1190,13 +1200,11 @@ export default {
       if (selected_layer_name == "sat") {
         vm.tileLayerOsm.setVisible(false);
         vm.tileLayerSat.setVisible(true);
-        $("#basemap_sat").hide();
-        $("#basemap_osm").show();
+        vm.currentBasemap = "sat";
       } else {
         vm.tileLayerOsm.setVisible(true);
         vm.tileLayerSat.setVisible(false);
-        $("#basemap_osm").hide();
-        $("#basemap_sat").show();
+        vm.currentBasemap = "osm";
       }
     },
     datatable_mounted: function () {
@@ -1316,12 +1324,10 @@ export default {
       // let geometry = feature.getGeometry()
       // let coord = geometry.getCoordinates()
       // let view = this.map.getView()
-      this.map
-        .getView()
-        .animate({
-          zoom: 16,
-          center: feature["values_"]["geometry"]["flatCoordinates"],
-        });
+      this.map.getView().animate({
+        zoom: 16,
+        center: feature["values_"]["geometry"]["flatCoordinates"],
+      });
       //this.showPopup(feature)
     },
     uuidv4: function () {
@@ -2115,6 +2121,8 @@ export default {
           vm.vacant_site_being_selected = null;
         }
       });
+      console.log("Setting base layer");
+
       vm.setBaseLayer("osm");
       vm.addOptionalLayers();
 
@@ -2390,16 +2398,13 @@ canvas {
 }
 #basemap-button {
   position: absolute;
-  bottom: 25px;
-  right: 10px;
+  bottom: 20px;
+  right: 30px;
   z-index: 400;
-  -moz-box-shadow: 3px 3px 3px #777;
-  -webkit-box-shadow: 3px 3px 3px #777;
-  box-shadow: 3px 3px 3px #777;
   -moz-filter: brightness(1);
   -webkit-filter: brightness(1);
   filter: brightness(1);
-  border: 2px white solid;
+  border: 1px white solid;
 }
 /* #basemap_sat,#basemap_osm {
      border-radius: 5px; 
@@ -2412,11 +2417,8 @@ canvas {
   filter: brightness(0.9);
 }
 #basemap-button:active {
-  bottom: 24px;
-  right: 9px;
-  -moz-box-shadow: 2px 2px 2px #555;
-  -webkit-box-shadow: 2px 2px 2px #555;
-  box-shadow: 2px 2px 2px #555;
+  bottom: 20px;
+  right: 30px;
   -moz-filter: brightness(0.8);
   -webkit-filter: brightness(0.8);
   filter: brightness(0.8);
@@ -2424,7 +2426,7 @@ canvas {
 .optional-layers-wrapper {
   position: absolute;
   top: 70px;
-  left: 10px;
+  left: 21px;
 }
 .optional-layers-button {
   padding: 4px;
@@ -2453,6 +2455,7 @@ canvas {
         */
   padding: 0.5em;
   border: 3px solid rgba(5, 5, 5, 0.1);
+  margin-left: 38px;
 }
 .custom-mouse-position {
   position: absolute;
@@ -2476,8 +2479,6 @@ canvas {
   position: absolute;
   min-width: 95px;
   background-color: white;
-  -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
-  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
   padding: 2px;
   border-radius: 4px;
   border: 1px solid #ccc;
@@ -2519,7 +2520,6 @@ canvas {
   position: absolute;
   left: 1px;
   top: -11px;
-  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
 }
 .popup-wrapper {
   padding: 0.25em;

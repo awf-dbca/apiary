@@ -103,8 +103,8 @@ def send_apiary_amendment_email_notification(amendment_request, request, complia
     }
 
     all_ccs = []
-    if compliance.approval.applicant and compliance.approval.applicant.email:
-        cc_list = compliance.approval.applicant.email
+    if compliance.approval.applicant and compliance.approval.relevant_applicant.email:
+        cc_list = compliance.approval.relevant_applicant.email
         if cc_list:
             all_ccs = [cc_list]
 
@@ -274,7 +274,7 @@ def send_compliance_accept_email_notification(compliance,request):
     }    
     all_ccs = []
     if compliance.proposal.relevant_applicant.email:
-        cc_list = compliance.proposal.applicant.email
+        cc_list = compliance.proposal.relevant_applicant.email
         if cc_list:
             all_ccs = [cc_list]
     msg = email.send(compliance.submitter.email, cc=all_ccs, context=context)
@@ -290,8 +290,8 @@ def send_apiary_compliance_accept_email_notification(compliance,request):
         'compliance': compliance
     }    
     all_ccs = []
-    if compliance.approval.applicant and compliance.approval.applicant.email:
-        cc_list = compliance.approval.applicant.email
+    if compliance.approval.applicant and compliance.approval.relevant_applicant.email:
+        cc_list = compliance.approval.relevant_applicant.email
         if cc_list:
             all_ccs = [cc_list]
     msg = email.send(compliance.submitter.email, cc=all_ccs, context=context)
@@ -312,7 +312,7 @@ def send_external_submit_email_notification(request, compliance):
     }
     all_ccs = []
     if compliance.proposal.relevant_applicant.email:
-        cc_list = compliance.proposal.applicant.email
+        cc_list = compliance.proposal.relevant_applicant.email
         if cc_list:
             all_ccs = [cc_list]
 
@@ -332,8 +332,8 @@ def send_apiary_external_submit_email_notification(request, compliance):
         'url': url
     }
     all_ccs = []
-    if compliance.approval.applicant and compliance.approval.applicant.email:
-        cc_list = compliance.approval.applicant.email
+    if compliance.approval.applicant and compliance.approval.relevant_applicant.email:
+        cc_list = compliance.approval.relevant_applicant.email
         if cc_list:
             all_ccs = [cc_list]
 
