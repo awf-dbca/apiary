@@ -36,7 +36,11 @@ export default {
                 language: {
                     processing: constants.DATATABLE_PROCESSING_HTML,
                 },
-                responsive: true,
+                responsive: false, // false as applying scrollX instead to manage responsiveness and column visibility
+                scrollX: true,
+                fixedColumns: {
+                    leftColumns: 1,
+                },
                 deferRender: true,
                 autowidth: true,
                 order: [[3, 'desc']], // order the non-formatted date as a hidden column
