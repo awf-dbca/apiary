@@ -70,14 +70,14 @@
                         />
                         <label>&nbsp;On behalf of an external user or organisation</label>
                   </div>
-                  <div v-show="behalf_of == 'external'">
-                      <select 
-                        id="person_lookup"  
-                        name="person_lookup"  
-                        ref="person_lookup" 
-                        class="form-control" 
-                      ></select>
-                  </div>
+                </div>
+                <div v-show="behalf_of == 'external'">
+                  <select 
+                    id="person_lookup"  
+                    name="person_lookup"  
+                    ref="person_lookup" 
+                    class="form-control" 
+                  ></select>
                 </div>
               </div>
             </div>
@@ -483,7 +483,8 @@ export default {
       if (
         vm.behalf_of === "" ||
         vm.behalf_of === "other" ||
-        vm.behalf_of === "individual"
+        vm.behalf_of === "individual" ||
+        vm.behalf_of === "external"
       ) {
         // pass
       } else {
