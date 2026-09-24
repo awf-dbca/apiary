@@ -17,6 +17,15 @@ from disturbance.components.organisations.models import (
     Organisation,
 )
 
+from disturbance.components.approvals.models import (
+    Approval
+)
+
+from disturbance.components.proposals.models import (
+    Proposal,
+    ApplicationType
+)
+
 from disturbance.components.main.utils import (
     get_first_name,
     get_last_name,
@@ -159,12 +168,27 @@ class GetPersonOrg(views.APIView):
                     Q(email__iendswith=search_term)
                 )[:40]
 
+            open_proposals = Proposal.objects.filter(application_type__name__in=[
+                ApplicationType.APIARY,
+                ApplicationType.TEMPORARY_USE,
+                ApplicationType.SITE_TRANSFER,
+                ]
+            ).filter(processing_status__in=[
+                Proposal.PROCESSING_STATUS_APPROVED, 
+                Proposal.PROCESSING_STATUS_DECLINED, 
+                Proposal.PROCESSING_STATUS_DISCARDED
+                ]
+            )
+
             for email_user in user_data:
                 text = '{} {}'.format(get_first_name(email_user), get_last_name(email_user))
                 email_user_data = {}
                 email_user_data['text'] = text
                 email_user_data['entity_type'] = 'user'
                 email_user_data['id'] = email_user.id
+                user_approval = email_user.disturbance_proxy_approvals.filter(status__in=[Approval.STATUS_CURRENT, Approval.STATUS_SUSPENDED], apiary_approval=True).first()
+                email_user_data['current_apiary_approval'] = user_approval.id if user_approval else None
+                email_user_data['open_proposal'] = open_proposals.filter(proxy_applicant=email_user).exists()
                 data_transform.append(email_user_data)
 
             #Search based on Organisation Requests that been approved
@@ -178,6 +202,9 @@ class GetPersonOrg(views.APIView):
                 data['text'] = text
                 data['entity_type'] = 'org'
                 data['id'] = org.id
+                org_approval = org.disturbance_approvals.filter(status__in=[Approval.STATUS_CURRENT, Approval.STATUS_SUSPENDED], apiary_approval=True).first()
+                data['current_apiary_approval'] = org_approval.id if org_approval else None
+                data['open_proposal'] = open_proposals.filter(applicant=org).exists()
                 data_transform.append(data)
             ### order results
             data_transform.sort(key=lambda item: item.get("id"))

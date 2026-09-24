@@ -406,7 +406,10 @@ export default {
     },
     currentApiaryApproval: function () {
       let currentApproval = null;
-      if (
+
+      if (this.behalf_of === "external" && this.external_applicant !== "") {
+        currentApproval = this.external_applicant.current_apiary_approval;
+      } else if (
         this.behalf_of === "individual" &&
         this.profile.current_apiary_approval
       ) {
@@ -425,7 +428,9 @@ export default {
     },
     currentApiaryButtonDisabled: function () {
       let currentDisabled = null;
-      if (
+      if (this.behalf_of === "external" && this.external_applicant !== "") {
+        this.external_applicant.open_proposal
+      } else if (
         this.behalf_of === "individual" &&
         this.profile.existing_record_text.disable_radio_button
       ) {
@@ -443,6 +448,7 @@ export default {
 
     applicationTypesList: function () {
       let returnList = [];
+      //TODO update list for external user behalf
       for (let applicationType of this.application_types) {
         if (applicationType.domain_used.toLowerCase() === "apiary") {
           if (
@@ -585,6 +591,13 @@ export default {
           this.alertText() +
           " proposal on behalf of " +
           this.profile.full_name +
+          " ?";
+      } else if (this.behalf_of === "external") {
+        text =
+          "Are you sure you want to create " +
+          this.alertText() +
+          " proposal on behalf of " +
+          this.external_applicant.text +
           " ?";
       } else {
         text =
