@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Prefetch, Q, Value
 from django.db.models.functions import Concat
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from ledger_api_client.ledger_models import EmailUserRO as EmailUser
@@ -203,9 +203,7 @@ class ProposalFilterBackend(DatatablesFilterBackend):
                     | Q(applicant_id__in=organisation_ids)
                 )
                 queryset = queryset.filter(
-                    Q(id__in=super_ids)
-                    | Q(assigned_to_id__in=email_user_ids)
-                    | Q(proposal_id__in=search_text_app_ids)
+                    Q(id__in=super_ids) | Q(assigned_to_id__in=email_user_ids) | Q(proposal_id__in=search_text_app_ids)
                 ).distinct()
 
             else:
@@ -215,10 +213,7 @@ class ProposalFilterBackend(DatatablesFilterBackend):
                     | Q(assigned_officer_id__in=email_user_ids)
                     | Q(applicant_id__in=organisation_ids)
                 )
-                queryset = queryset.filter(
-                    Q(id__in=super_ids)
-                    | Q(id__in=search_text_app_ids)
-                ).distinct()
+                queryset = queryset.filter(Q(id__in=super_ids) | Q(id__in=search_text_app_ids)).distinct()
 
         application_type = request.GET.get("application_type")
         if application_type and not application_type.lower() == "all":
