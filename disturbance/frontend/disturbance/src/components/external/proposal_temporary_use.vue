@@ -1,321 +1,329 @@
 <template>
-  <div class="row">
-    <div class="col-md-3">
-      <h3 v-if="proposal">Application: {{ proposal.lodgement_number }}</h3>
-      <h4>Temporary Use</h4>
-    </div>
-
-    <div class="col-md-9 sections-proposal-temporary-use">
-      <div v-if="proposal">
-        <SectionsProposalTemporaryUse
-          ref="section_proposal_temporary_use"
-          :is_internal="false"
-          :is_external="true"
-          :proposal="proposal"
-        />
-      </div>
-    </div>
-
-    <div style="margin-bottom: 50px">
-      <div class="navbar fixed-bottom" style="background-color: #f5f5f5">
-        <div class="navbar-inner">
-          <div class="container">
-            <div class="row w-100 py-2">
-              <div class="col d-flex justify-content-end">
-                <template
-                  v-if="proposal && proposal.customer_status == 'Draft'"
-                >
-                  <input
-                    type="button"
-                    @click.prevent="save_exit"
-                    class="btn btn-primary"
-                    value="Save and Exit"
-                  />
-                  <input
-                    type="button"
-                    @click.prevent="save"
-                    class="btn btn-primary"
-                    value="Save and Continue"
-                  />
-                  <input
-                    v-if="!isSubmitting"
-                    type="button"
-                    @click.prevent="submit"
-                    class="btn btn-primary"
-                    value="Submit"
-                  />
-                  <button v-else disabled class="btn btn-primary">
-                    <i class="fa fa-spin fa-spinner"></i>&nbsp;Submitting
-                  </button>
-                </template>
-              </div>
-            </div>
-          </div>
+    <div class="row">
+        <div class="col-md-3">
+            <h3 v-if="proposal">
+                Application: {{ proposal.lodgement_number }}
+            </h3>
+            <h4>Temporary Use</h4>
         </div>
-      </div>
+
+        <div class="col-md-9 sections-proposal-temporary-use">
+            <div v-if="proposal">
+                <SectionsProposalTemporaryUse
+                    ref="section_proposal_temporary_use"
+                    :is_internal="false"
+                    :is_external="true"
+                    :proposal="proposal"
+                />
+            </div>
+        </div>
+
+        <div style="margin-bottom: 50px">
+            <div class="navbar fixed-bottom" style="background-color: #f5f5f5">
+                <div class="container">
+                    <div class="row w-100 py-2">
+                        <div class="col d-flex justify-content-end gap-2">
+                            <template
+                                v-if="
+                                    proposal &&
+                                    proposal.customer_status == 'Draft'
+                                "
+                            >
+                                <input
+                                    type="button"
+                                    @click.prevent="save_exit"
+                                    class="btn btn-primary"
+                                    value="Save and Exit"
+                                />
+                                <input
+                                    type="button"
+                                    @click.prevent="save"
+                                    class="btn btn-primary"
+                                    value="Save and Continue"
+                                />
+                                <input
+                                    v-if="!isSubmitting"
+                                    type="button"
+                                    @click.prevent="submit"
+                                    class="btn btn-primary"
+                                    value="Submit"
+                                />
+                                <button v-else disabled class="btn btn-primary">
+                                    <i class="fa fa-spin fa-spinner"></i
+                                    >&nbsp;Submitting
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
-import { v4 as uuid } from "uuid";
-import { helpers } from "@/utils/hooks";
-import SectionsProposalTemporaryUse from "@/components/common/apiary/sections_proposal_temporary_use.vue";
-import $ from "jquery";
+import { v4 as uuid } from 'uuid';
+import { helpers } from '@/utils/hooks';
+import SectionsProposalTemporaryUse from '@/components/common/apiary/sections_proposal_temporary_use.vue';
+import $ from 'jquery';
 
 export default {
-  name: "ExternalProposalTemporaryUse",
-  props: {
-    is_external: {
-      type: Boolean,
-      default: false,
+    name: 'ExternalProposalTemporaryUse',
+    props: {
+        is_external: {
+            type: Boolean,
+            default: false,
+        },
+        is_internal: {
+            type: Boolean,
+            default: false,
+        },
+        proposalId: {
+            type: Number,
+            default: null,
+        },
     },
-    is_internal: {
-      type: Boolean,
-      default: false,
+    data() {
+        return {
+            //proposalId: null,
+            applicationTypeName: '',
+            isSubmitting: false,
+            proposal: null,
+        };
     },
-    proposalId: {
-      type: Number,
-      default: null,
+    components: {
+        SectionsProposalTemporaryUse,
     },
-  },
-  data() {
-    return {
-      //proposalId: null,
-      applicationTypeName: "",
-      isSubmitting: false,
-      proposal: null,
-    };
-  },
-  components: {
-    SectionsProposalTemporaryUse,
-  },
-  computed: {
-    csrf_token: function () {
-      return helpers.getCookie("csrftoken");
+    computed: {
+        csrf_token: function () {
+            return helpers.getCookie('csrftoken');
+        },
+        temporaryProposal: function () {
+            let retVal = false;
+            if (this.applicationTypeName === 'Temporary Use') {
+                retVal = true;
+            }
+            return retVal;
+        },
     },
-    temporaryProposal: function () {
-      let retVal = false;
-      if (this.applicationTypeName === "Temporary Use") {
-        retVal = true;
-      }
-      return retVal;
+    created: function () {
+        if (this.$route.params.proposal_id) {
+            this.loadProposal(this.$route.params.proposal_id);
+        }
     },
-  },
-  created: function () {
-    if (this.$route.params.proposal_id) {
-      this.loadProposal(this.$route.params.proposal_id);
-    }
-  },
-  methods: {
-    loadProposal: async function (proposal_id) {
-      let vm = this;
-      fetch(`/api/proposal/${proposal_id}.json`)
-        .then(async (response) => {
-          console.log("in loadProposal");
-          const responseBody = await response.json();
-          console.log(responseBody);
-          if (!response.ok) {
-            return response.json().then((err) => {
-              throw err;
+    methods: {
+        loadProposal: async function (proposal_id) {
+            let vm = this;
+            fetch(`/api/proposal/${proposal_id}.json`)
+                .then(async (response) => {
+                    console.log('in loadProposal');
+                    const responseBody = await response.json();
+                    console.log(responseBody);
+                    if (!response.ok) {
+                        return response.json().then((err) => {
+                            throw err;
+                        });
+                    }
+
+                    vm.proposal = responseBody;
+                    //let temp_use = re.body.apiary_temporary_use
+                    vm.apiary_temporary_use = responseBody.apiary_temporary_use;
+                    if (vm.apiary_temporary_use.from_date) {
+                        vm.apiary_temporary_use.from_date = moment(
+                            vm.apiary_temporary_use.from_date,
+                            'YYYY-MM-DD'
+                        );
+                    }
+                    if (vm.apiary_temporary_use.to_date) {
+                        vm.apiary_temporary_use.to_date = moment(
+                            vm.apiary_temporary_use.to_date,
+                            'YYYY-MM-DD'
+                        );
+                    }
+
+                    // Update PeriodAndSites component
+                    vm.period_and_sites_key = uuid();
+                    // Update TemporaryOccupier component
+                    vm.temporary_occupier_key = uuid();
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        },
+        save: function () {
+            this.proposal_update();
+        },
+        save_exit: async function () {
+            await this.proposal_update();
+            this.exit();
+        },
+        submit: async function () {
+            console.log('in submit()');
+            await this.proposal_submit();
+            //this.exit();
+        },
+        exit: function () {
+            console.log('in exit()');
+            this.$router.push({
+                name: 'external-proposals-dash',
             });
-          }
+        },
+        _get_basic_data: function () {
+            let data = {
+                category: '',
+                profile: '', // TODO on cleanup: remove/review (old comment) how to determine this?
+                district: '',
+                application: '3', // TODO on cleanup: remove/review (old comment) Retrieve the id of the 'Temporary Use' type or handle it at the server side
+                //      like if there is apiary_temporary_use attribute, it must be a temporary use application, or so.
+                sub_activity2: '',
+                region: '',
+                approval_level: '',
+                behalf_of: '', // TODO on cleanup: remove/review (old comment) how to determine this?
+                activity: '',
+                sub_activity1: '',
+                apiary_temporary_use: this.apiary_temporary_use,
 
-          vm.proposal = responseBody;
-          //let temp_use = re.body.apiary_temporary_use
-          vm.apiary_temporary_use = responseBody.apiary_temporary_use;
-          if (vm.apiary_temporary_use.from_date) {
-            vm.apiary_temporary_use.from_date = moment(
-              vm.apiary_temporary_use.from_date,
-              "YYYY-MM-DD",
-            );
-          }
-          if (vm.apiary_temporary_use.to_date) {
-            vm.apiary_temporary_use.to_date = moment(
-              vm.apiary_temporary_use.to_date,
-              "YYYY-MM-DD",
-            );
-          }
-
-          // Update PeriodAndSites component
-          vm.period_and_sites_key = uuid();
-          // Update TemporaryOccupier component
-          vm.temporary_occupier_key = uuid();
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    save: function () {
-      this.proposal_update();
-    },
-    save_exit: async function () {
-      await this.proposal_update();
-      this.exit();
-    },
-    submit: async function () {
-      console.log("in submit()");
-      await this.proposal_submit();
-      //this.exit();
-    },
-    exit: function () {
-      console.log("in exit()");
-      this.$router.push({
-        name: "external-proposals-dash",
-      });
-    },
-    _get_basic_data: function () {
-      let data = {
-        category: "",
-        profile: "", // TODO on cleanup: remove/review (old comment) how to determine this?
-        district: "",
-        application: "3", // TODO on cleanup: remove/review (old comment) Retrieve the id of the 'Temporary Use' type or handle it at the server side
-        //      like if there is apiary_temporary_use attribute, it must be a temporary use application, or so.
-        sub_activity2: "",
-        region: "",
-        approval_level: "",
-        behalf_of: "", // TODO on cleanup: remove/review (old comment) how to determine this?
-        activity: "",
-        sub_activity1: "",
-        apiary_temporary_use: this.apiary_temporary_use,
-
-        application_type_str: "temporary_use",
-      };
-      //TODO on-cleanup - ideally should only send what has changed no the entire list
-      data["apiary_temporary_use"]["temporary_use_apiary_sites"] =
-        this.$refs.section_proposal_temporary_use.temporary_use_apiary_sites;
-      data["apiary_temporary_use"]["to_date"] =
-        this.$refs.section_proposal_temporary_use.to_date;
-      data["apiary_temporary_use"]["from_date"] =
-        this.$refs.section_proposal_temporary_use.from_date;
-      return data;
-    },
-    perform_redirect: function (url, postData) {
-      /* http.post and ajax do not allow redirect from Django View (post method),
+                application_type_str: 'temporary_use',
+            };
+            //TODO on-cleanup - ideally should only send what has changed no the entire list
+            data['apiary_temporary_use']['temporary_use_apiary_sites'] =
+                this.$refs.section_proposal_temporary_use.temporary_use_apiary_sites;
+            data['apiary_temporary_use']['to_date'] =
+                this.$refs.section_proposal_temporary_use.to_date;
+            data['apiary_temporary_use']['from_date'] =
+                this.$refs.section_proposal_temporary_use.from_date;
+            return data;
+        },
+        perform_redirect: function (url, postData) {
+            /* http.post and ajax do not allow redirect from Django View (post method),
                    this function allows redirect by mimicking a form submit.
 
                    usage:  vm.post_and_redirect(vm.application_fee_url, {'csrfmiddlewaretoken' : vm.csrf_token});
                 */
-      console.log("in perform_redirect");
-      var postFormStr = "<form method='POST' action='" + url + "'>";
+            console.log('in perform_redirect');
+            var postFormStr = "<form method='POST' action='" + url + "'>";
 
-      for (var key in postData) {
-        if (Object.prototype.hasOwnProperty.call(postData, key)) {
-          postFormStr +=
-            "<input type='hidden' name='" +
-            key +
-            "' value='" +
-            postData[key] +
-            "'>";
-        }
-      }
-      postFormStr += "</form>";
-      console.log(postFormStr);
-      var formElement = $(postFormStr);
-      $("body").append(formElement);
-      $(formElement).submit();
-    },
-    proposal_submit: async function () {
-      console.log("in proposal_submit");
-
-      let vm = this;
-      let data = vm._get_basic_data();
-      let proposal_id = this.$route.params.proposal_id;
-
-      fetch("/api/proposal/" + proposal_id + "/submit/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+            for (var key in postData) {
+                if (Object.prototype.hasOwnProperty.call(postData, key)) {
+                    postFormStr +=
+                        "<input type='hidden' name='" +
+                        key +
+                        "' value='" +
+                        postData[key] +
+                        "'>";
+                }
+            }
+            postFormStr += '</form>';
+            console.log(postFormStr);
+            var formElement = $(postFormStr);
+            $('body').append(formElement);
+            $(formElement).submit();
         },
-        body: JSON.stringify(data),
-      })
-        .then(async (response) => {
-          if (!response.ok) {
-            let errorString = await helpers.apiVueResourceError(response);
-            throw errorString;
-          }
-          console.log("success");
-          vm.perform_redirect(
-            "/external/proposal/" + proposal_id + "/submit_temp_use_success/",
-            {
-              csrfmiddlewaretoken: vm.csrf_token,
-              proposal_id: proposal_id,
-            },
-          );
-        })
-        .catch((err) => {
-          let errorString =
-            typeof err === "string"
-              ? err
-              : (err && err.message) || "Network error";
+        proposal_submit: async function () {
+            console.log('in proposal_submit');
 
-          swal.fire({
-            title: "Error",
-            text: String(errorString),
-            icon: "error",
-            customClass: {
-              confirmButton: "btn btn-primary",
-            },
-          });
-        });
+            let vm = this;
+            let data = vm._get_basic_data();
+            let proposal_id = this.$route.params.proposal_id;
+
+            fetch('/api/proposal/' + proposal_id + '/submit/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+                .then(async (response) => {
+                    if (!response.ok) {
+                        let errorString =
+                            await helpers.apiVueResourceError(response);
+                        throw errorString;
+                    }
+                    console.log('success');
+                    vm.perform_redirect(
+                        '/external/proposal/' +
+                            proposal_id +
+                            '/submit_temp_use_success/',
+                        {
+                            csrfmiddlewaretoken: vm.csrf_token,
+                            proposal_id: proposal_id,
+                        }
+                    );
+                })
+                .catch((err) => {
+                    let errorString =
+                        typeof err === 'string'
+                            ? err
+                            : (err && err.message) || 'Network error';
+
+                    swal.fire({
+                        title: 'Error',
+                        text: String(errorString),
+                        icon: 'error',
+                        customClass: {
+                            confirmButton: 'btn btn-primary',
+                        },
+                    });
+                });
+        },
+        proposal_update: async function () {
+            console.log('in proposal_update');
+
+            let vm = this;
+            let data = vm._get_basic_data();
+            let proposal_id = this.$route.params.proposal_id;
+
+            try {
+                const response = await fetch(
+                    '/api/proposal/' + proposal_id + '/draft/',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    }
+                );
+
+                if (!response.ok) {
+                    // Handle non-200 responses
+                    let errorString =
+                        await helpers.apiVueResourceError(response);
+                    throw errorString;
+                }
+
+                const res = await response.json();
+                console.log('Proposal updated:', res);
+                // Show success alert
+                swal.fire({
+                    title: 'Saved',
+                    text: 'Your proposal has been updated',
+                    icon: 'success',
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                    },
+                });
+            } catch (err) {
+                let errorString =
+                    typeof err === 'string'
+                        ? err
+                        : (err && err.message) || 'Network error';
+
+                await swal.fire({
+                    title: 'Error',
+                    text: String(errorString),
+                    icon: 'error',
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                    },
+                });
+            }
+        },
     },
-    proposal_update: async function () {
-      console.log("in proposal_update");
-
-      let vm = this;
-      let data = vm._get_basic_data();
-      let proposal_id = this.$route.params.proposal_id;
-
-      try {
-        const response = await fetch(
-          "/api/proposal/" + proposal_id + "/draft/",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          },
-        );
-
-        if (!response.ok) {
-          // Handle non-200 responses
-          let errorString = await helpers.apiVueResourceError(response);
-          throw errorString;
-        }
-
-        const res = await response.json();
-        console.log("Proposal updated:", res);
-        // Show success alert
-        swal.fire({
-          title: "Saved",
-          text: "Your proposal has been updated",
-          icon: "success",
-          customClass: {
-            confirmButton: "btn btn-primary",
-          },
-        });
-      } catch (err) {
-        let errorString =
-          typeof err === "string"
-            ? err
-            : (err && err.message) || "Network error";
-
-        await swal.fire({
-          title: "Error",
-          text: String(errorString),
-          icon: "error",
-          customClass: {
-            confirmButton: "btn btn-primary",
-          },
-        });
-      }
-    },
-  },
 };
 </script>
 <style>
 .sections-proposal-temporary-use {
-  margin: 0 0 4em 0;
+    margin: 0 0 4em 0;
 }
 </style>
