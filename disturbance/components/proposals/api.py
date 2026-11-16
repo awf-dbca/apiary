@@ -1091,7 +1091,7 @@ class ProposalApiaryViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
     def process_public_liability_insurance_document(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
-        except ProposalApiary.DoesNotExist:
+        except (Http404, ProposalApiary.DoesNotExist):
             instance = ProposalApiaryTemporaryUse.objects.get(proposal__id=kwargs.get("pk"))
 
         returned_data = None
