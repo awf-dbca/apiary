@@ -319,58 +319,119 @@ class MapColumnInline(admin.TabularInline):
     extra = 0
 
 
-def check_individual_layer_status(layer_name):
+def get_geoserver_wms_url():
     """
-    Check if a specific layer is accessible via WMS DescribeLayer.
-    Caches the response per layer so the admin list view loads fast.
-    Returns: (is_serving: bool, detail: str)
+    Safely construct the GeoServer WMS base endpoint, avoiding duplicate /geoserver.
     """
-    if not layer_name:
-        return False, "Layer name is empty"
-
-    clean_name = layer_name.strip()
-    cache_key = f"kb_layer_status_{clean_name}"
-    cached_result = cache.get(cache_key)
-    if cached_result is not None:
-        return cached_result
-
     base_url = (getattr(settings, "KB_SERVER_URL", "") or "").rstrip("/")
     if not base_url:
-        return False, "KB_SERVER_URL not set"
+        return ""
+    if base_url.endswith("/geoserver"):
+        return f"{base_url}/wms"
+    return f"{base_url}/geoserver/wms"
 
-    url = f"{base_url}/geoserver/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=DescribeLayer&LAYERS={clean_name}"
 
+def get_requests_auth_and_verify():
+    """Helper to get credentials and SSL verify setting."""
     auth = None
     if getattr(settings, "KB_USER", None) and getattr(settings, "KB_PASSWORD", None):
         auth = (settings.KB_USER, settings.KB_PASSWORD)
 
+    # Set KB_VERIFY_SSL = False in settings.py if using internal/self-signed certs
+    verify_ssl = getattr(settings, "KB_VERIFY_SSL", True)
+    return auth, verify_ssl
+
+
+def check_individual_layer_status(layer_name):
+    """
+    Checks if a specific layer is actively serving without downloading GetCapabilities.
+    Uses a 1x1 test GetMap request.
+    Returns: (is_serving: bool, message: str)
+    """
+    if not layer_name:
+        return False, "Empty layer name"
+
+    clean_name = layer_name.strip()
+    cache_key = f"kb_layer_status_{clean_name}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    wms_url = get_geoserver_wms_url()
+    if not wms_url:
+        return False, "KB_SERVER_URL not set"
+
+    auth, verify_ssl = get_requests_auth_and_verify()
+
+    # 1x1 GetMap test request.
+    # We explicitly request EXCEPTIONS=application/vnd.ogc.se_xml so GeoServer
+    # returns readable XML instead of drawing the error onto an image.
+    test_url = (
+        f"{wms_url}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap"
+        f"&LAYERS={clean_name}&STYLES=&SRS=EPSG:4326"
+        f"&BBOX=0,0,1,1&WIDTH=1&HEIGHT=1&FORMAT=image/png"
+        f"&EXCEPTIONS=application/vnd.ogc.se_xml"
+    )
+
     try:
-        response = requests.get(url, auth=auth, timeout=5)
+        resp = requests.get(test_url, auth=auth, verify=verify_ssl, timeout=8)
+        content_type = resp.headers.get("Content-Type", "").lower()
+        content_bytes = resp.content
 
-        # GeoServer returns 200 with XML.
-        # If the layer exists: contains <LayerDescription>
-        # If the layer does not exist: contains <ServiceException>Layer not defined</ServiceException>
-        if response.status_code == 200:
-            body = response.text.lower()
-            if "serviceexception" in body or "layernotdefined" in body:
+        # 1. Check if the response is an OGC XML Service Exception (even if HTTP 200)
+        # GeoServer often returns HTTP 200 with an XML body on failure.
+        is_xml_or_text = (
+            "xml" in content_type
+            or "text" in content_type
+            or content_bytes.startswith(b"<?xml")
+            or b"<ServiceExceptionReport" in content_bytes
+        )
+
+        if is_xml_or_text or b"<ServiceException" in content_bytes:
+            text = resp.text
+            # Distinguish missing layer vs broken backend data store
+            if "layernotdefined" in text.lower() or "unknown layer" in text.lower():
                 result = (False, "Layer not defined on server")
-                cache.set(cache_key, result, 300)  # 5 min cache if missing
-                return result
+            elif "unable to obtain connection" in text.lower() or "does not exist" in text.lower():
+                result = (False, "Underlying data source missing / broken store")
+            else:
+                # Extract first snippet of error if possible
+                result = (False, "ServiceException (rendering error)")
 
+            cache.set(cache_key, result, 300)
+            return result
+
+        # 2. Strict check for a valid image payload
+        # PNG magic number: \x89PNG\r\n\x1a\n | JPEG magic number: \xff\xd8\xff
+        is_valid_image = (
+            content_bytes.startswith(b"\x89PNG\r\n\x1a\n")
+            or content_bytes.startswith(b"\xff\xd8\xff")
+            or (resp.status_code == 200 and "image/png" in content_type)
+        )
+
+        if resp.status_code == 200 and is_valid_image:
             result = (True, "Serving")
-            cache.set(cache_key, result, 3600)  # 1 hour cache if active
+            cache.set(cache_key, result, 3600)  # Cache 1 hour
             return result
         else:
-            result = (False, f"HTTP {response.status_code}")
+            result = (False, f"HTTP {resp.status_code} ({content_type})")
             cache.set(cache_key, result, 60)
             return result
 
-    except requests.exceptions.Timeout:
-        result = (False, "Request timed out")
+    except requests.exceptions.SSLError:
+        result = (False, "SSL Certificate Error")
         cache.set(cache_key, result, 60)
         return result
-    except Exception:
-        result = (False, "Connection failed")
+    except requests.exceptions.Timeout:
+        result = (False, "Timeout (>8s)")
+        cache.set(cache_key, result, 60)
+        return result
+    except requests.exceptions.ConnectionError:
+        result = (False, "Connection Refused / Network Error")
+        cache.set(cache_key, result, 60)
+        return result
+    except Exception as e:
+        result = (False, f"Error: {type(e).__name__}")
         cache.set(cache_key, result, 60)
         return result
 
@@ -428,35 +489,31 @@ class MapLayerAdmin(admin.ModelAdmin):
         if not obj.layer_name:
             return format_html('<span style="color: gray;">⚪ Empty</span>')
 
-        base_url = (getattr(settings, "KB_SERVER_URL", "") or "").rstrip("/")
         clean_name = obj.layer_name.strip()
+        is_serving, message = check_individual_layer_status(clean_name)
 
-        # Step 1: Fast-check cache from GetCapabilities (if global request was successful)
-        status_code, layer_names = check_kb_server_status()
-        if status_code == 200 and clean_name in layer_names:
-            return format_html(
-                '<span style="color: green; font-weight: bold;" title="Found in GetCapabilities at {}">🟢 Found</span>',
-                base_url,
-            )
-
-        # Step 2: Fallback — Directly check this specific layer
-        is_serving, detail = check_individual_layer_status(clean_name)
         if is_serving:
             return format_html(
-                '<span style="color: green; font-weight: bold;" title="Layer is serving directly (GetCapabilities may be slow/down)">🟢 Serving</span>'
+                '<span style="color: green; font-weight: bold;" title="Layer is active and rendering tiles successfully">🟢 Serving</span>'
             )
 
-        # Step 3: Layer is missing or connection failed
-        if status_code != 200 and detail in ("Request timed out", "Connection failed"):
+        # Distinguish between layer missing vs underlying datastore/gpkg broken
+        if "data source missing" in message.lower() or "broken store" in message.lower():
             return format_html(
-                '<span style="color: orange; font-weight: bold;" title="Cannot connect to {}: {}">🟡 Server Error</span>',
-                base_url,
-                detail,
+                '<span style="color: #d9534f; font-weight: bold;" title="{}">🔴 Store Broken (File Missing)</span>',
+                message,
+            )
+
+        if "not defined" in message.lower():
+            return format_html(
+                '<span style="color: red; font-weight: bold;" title="{}">🔴 Not Found</span>',
+                message,
             )
 
         return format_html(
-            '<span style="color: red; font-weight: bold;" title="Layer check failed: {}">🔴 Not Found</span>',
-            detail,
+            '<span style="color: orange; font-weight: bold;" title="{}">🟡 Server Error ({})</span>',
+            message,
+            message,
         )
 
 
