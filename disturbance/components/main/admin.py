@@ -1,12 +1,14 @@
-import requests
 import xml.etree.ElementTree as ET
+
+import requests
 from django import forms
 from django.conf import settings
-from django.core.cache import cache
 from django.contrib import admin
+from django.core.cache import cache
 from django.utils.html import format_html
-from disturbance.components.main.models import MapLayer, MapColumn, FileExtensionWhitelist
 from django.utils.safestring import mark_safe
+
+from disturbance.components.main.models import FileExtensionWhitelist, MapColumn, MapLayer
 
 
 def check_kb_server_status():
@@ -23,7 +25,7 @@ def check_kb_server_status():
     try:
         base_url = (getattr(settings, "KB_SERVER_URL", "") or "").rstrip("/")
         url = f"{base_url}/geoserver/wms?request=GetCapabilities&service=WMS"
-        
+
         auth = None
         if getattr(settings, "KB_USER", None) and getattr(settings, "KB_PASSWORD", None):
             auth = (settings.KB_USER, settings.KB_PASSWORD)
@@ -68,11 +70,11 @@ def get_kb_layer_choices():
 class SearchableSelectWidget(forms.Select):
     def render(self, name, value, attrs=None, renderer=None):
         attrs = attrs or {}
-        attrs['style'] = 'width: 100%; box-sizing: border-box;'
+        attrs["style"] = "width: 100%; box-sizing: border-box;"
         select_html = super().render(name, value, attrs, renderer)
 
-        select_id = attrs.get('id', f'id_{name}')
-        
+        select_id = attrs.get("id", f"id_{name}")
+
         container_html = mark_safe(f"""
         <div style="display: flex; flex-direction: column; gap: 6px; width: 600px; max-width: 100%; clear: both;">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -159,12 +161,13 @@ class SearchableSelectWidget(forms.Select):
         """)
         return container_html
 
+
 class MyForm(forms.ModelForm):
     layer_name = forms.ChoiceField(
         choices=[],
         required=False,
         widget=SearchableSelectWidget(),  # Use Searchable Select Widget
-        help_text="Select a layer from KB GeoServer GetCapabilities"
+        help_text="Select a layer from KB GeoServer GetCapabilities",
     )
 
     class Meta:
@@ -174,7 +177,7 @@ class MyForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         layer_choices = get_kb_layer_choices()
-        
+
         # If the current instance's layer_name is not in choices, add it so data is not lost
         current_layer = self.instance.layer_name if self.instance and self.instance.layer_name else None
         existing_keys = [c[0] for c in layer_choices]
@@ -185,17 +188,19 @@ class MyForm(forms.ModelForm):
 
         # Restore original help texts
         if "display_all_columns" in self.fields:
-            self.fields["display_all_columns"].help_text = (
+            self.fields[
+                "display_all_columns"
+            ].help_text = (
                 "When checked, display all the attributes(columns) in the table regardless of the configurations below"
             )
         if "option_for_internal" in self.fields:
-            self.fields["option_for_internal"].help_text = (
-                "When checked, a checkbox for this layer is displayed for the internal user"
-            )
+            self.fields[
+                "option_for_internal"
+            ].help_text = "When checked, a checkbox for this layer is displayed for the internal user"
         if "option_for_external" in self.fields:
-            self.fields["option_for_external"].help_text = (
-                "When checked, a checkbox for this layer is displayed for the external user"
-            )
+            self.fields[
+                "option_for_external"
+            ].help_text = "When checked, a checkbox for this layer is displayed for the external user"
 
 
 class MapColumnInline(admin.TabularInline):
@@ -206,20 +211,20 @@ class MapColumnInline(admin.TabularInline):
 @admin.register(MapLayer)
 class MapLayerAdmin(admin.ModelAdmin):
     list_display = [
-        'display_name',
-        'layer_name',
-        'server_status',
-        'option_for_internal',
-        'option_for_external',
-        'display_all_columns',
-        'column_names',
+        "display_name",
+        "layer_name",
+        "server_status",
+        "option_for_internal",
+        "option_for_external",
+        "display_all_columns",
+        "column_names",
     ]
-    list_filter = ['option_for_internal', 'option_for_external', 'display_all_columns']
-    search_fields = ['display_name', 'layer_name', 'columns__name']
+    list_filter = ["option_for_internal", "option_for_external", "display_all_columns"]
+    search_fields = ["display_name", "layer_name", "columns__name"]
     form = MyForm
     inlines = [MapColumnInline]
 
-    actions = ['refresh_server_status']
+    actions = ["refresh_server_status"]
 
     @admin.action(description="Force refresh KB GeoServer status cache")
     def refresh_server_status(self, request, queryset):
@@ -230,7 +235,8 @@ class MapLayerAdmin(admin.ModelAdmin):
         check_kb_server_status()  # Immediately re-fetch from KB GeoServer
         self.message_user(request, "KB GeoServer status cache refreshed successfully.")
 
-    kb_url = getattr(settings, 'KB_SERVER_URL', '').rstrip('/')
+    kb_url = getattr(settings, "KB_SERVER_URL", "").rstrip("/")
+
     @admin.display(
         description=mark_safe(
             f"<span style='display: block !important; margin: 0 !important; padding: 0 !important; line-height: 1.0 !important; text-transform: none !important; text-align: left !important;'>"
@@ -252,20 +258,20 @@ class MapLayerAdmin(admin.ModelAdmin):
                 '<span style="color: orange; font-weight: bold;" title="Failed connecting to {} (Status: {})">🟡 Server Error ({})</span>',
                 base_url,
                 status_code if status_code else "Offline",
-                status_code if status_code else "Offline"
+                status_code if status_code else "Offline",
             )
 
         # Server connected, check if layer exists
         if obj.layer_name in layer_names:
             return format_html(
-                '<span style="color: green; font-weight: bold;" title="Connected to {}">🟢 Found</span>',
-                base_url
+                '<span style="color: green; font-weight: bold;" title="Connected to {}">🟢 Found</span>', base_url
             )
         else:
             return format_html(
                 '<span style="color: red; font-weight: bold;" title="Connected to {} but layer is missing">🔴 Not Found</span>',
-                base_url
+                base_url,
             )
+
 
 @admin.register(FileExtensionWhitelist)
 class FileExtensionWhitelistAdmin(admin.ModelAdmin):
