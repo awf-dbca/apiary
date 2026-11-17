@@ -319,6 +319,62 @@ class MapColumnInline(admin.TabularInline):
     extra = 0
 
 
+def check_individual_layer_status(layer_name):
+    """
+    Check if a specific layer is accessible via WMS DescribeLayer.
+    Caches the response per layer so the admin list view loads fast.
+    Returns: (is_serving: bool, detail: str)
+    """
+    if not layer_name:
+        return False, "Layer name is empty"
+
+    clean_name = layer_name.strip()
+    cache_key = f"kb_layer_status_{clean_name}"
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+
+    base_url = (getattr(settings, "KB_SERVER_URL", "") or "").rstrip("/")
+    if not base_url:
+        return False, "KB_SERVER_URL not set"
+
+    url = f"{base_url}/geoserver/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=DescribeLayer&LAYERS={clean_name}"
+
+    auth = None
+    if getattr(settings, "KB_USER", None) and getattr(settings, "KB_PASSWORD", None):
+        auth = (settings.KB_USER, settings.KB_PASSWORD)
+
+    try:
+        response = requests.get(url, auth=auth, timeout=5)
+
+        # GeoServer returns 200 with XML.
+        # If the layer exists: contains <LayerDescription>
+        # If the layer does not exist: contains <ServiceException>Layer not defined</ServiceException>
+        if response.status_code == 200:
+            body = response.text.lower()
+            if "serviceexception" in body or "layernotdefined" in body:
+                result = (False, "Layer not defined on server")
+                cache.set(cache_key, result, 300)  # 5 min cache if missing
+                return result
+
+            result = (True, "Serving")
+            cache.set(cache_key, result, 3600)  # 1 hour cache if active
+            return result
+        else:
+            result = (False, f"HTTP {response.status_code}")
+            cache.set(cache_key, result, 60)
+            return result
+
+    except requests.exceptions.Timeout:
+        result = (False, "Request timed out")
+        cache.set(cache_key, result, 60)
+        return result
+    except Exception:
+        result = (False, "Connection failed")
+        cache.set(cache_key, result, 60)
+        return result
+
+
 @admin.register(MapLayer)
 class MapLayerAdmin(admin.ModelAdmin):
     list_display = [
@@ -349,11 +405,14 @@ class MapLayerAdmin(admin.ModelAdmin):
     @admin.action(description="Force refresh KB GeoServer status cache")
     def refresh_server_status(self, request, queryset):
         """
-        Action to clear the cached GetCapabilities and force re-fetching from KB GeoServer.
+        Clears the global GetCapabilities cache and the individual layer caches
+        for the selected rows.
         """
         cache.delete("kb_geoserver_status_info")
-        check_kb_server_status()  # Immediately re-fetch from KB GeoServer
-        self.message_user(request, "KB GeoServer status cache refreshed successfully.")
+        for obj in queryset:
+            if obj.layer_name:
+                cache.delete(f"kb_layer_status_{obj.layer_name.strip()}")
+        self.message_user(request, "KB GeoServer status cache refreshed for selected layers.")
 
     kb_url = getattr(settings, "KB_SERVER_URL", "").rstrip("/")
 
@@ -370,27 +429,35 @@ class MapLayerAdmin(admin.ModelAdmin):
             return format_html('<span style="color: gray;">⚪ Empty</span>')
 
         base_url = (getattr(settings, "KB_SERVER_URL", "") or "").rstrip("/")
+        clean_name = obj.layer_name.strip()
+
+        # Step 1: Fast-check cache from GetCapabilities (if global request was successful)
         status_code, layer_names = check_kb_server_status()
-
-        # Connection failed or server error
-        if status_code != 200:
+        if status_code == 200 and clean_name in layer_names:
             return format_html(
-                '<span style="color: orange; font-weight: bold;" title="Failed connecting to {} (Status: {})">🟡 Server Error ({})</span>',
-                base_url,
-                status_code if status_code else "Offline",
-                status_code if status_code else "Offline",
-            )
-
-        # Server connected, check if layer exists
-        if obj.layer_name in layer_names:
-            return format_html(
-                '<span style="color: green; font-weight: bold;" title="Connected to {}">🟢 Found</span>', base_url
-            )
-        else:
-            return format_html(
-                '<span style="color: red; font-weight: bold;" title="Connected to {} but layer is missing">🔴 Not Found</span>',
+                '<span style="color: green; font-weight: bold;" title="Found in GetCapabilities at {}">🟢 Found</span>',
                 base_url,
             )
+
+        # Step 2: Fallback — Directly check this specific layer
+        is_serving, detail = check_individual_layer_status(clean_name)
+        if is_serving:
+            return format_html(
+                '<span style="color: green; font-weight: bold;" title="Layer is serving directly (GetCapabilities may be slow/down)">🟢 Serving</span>'
+            )
+
+        # Step 3: Layer is missing or connection failed
+        if status_code != 200 and detail in ("Request timed out", "Connection failed"):
+            return format_html(
+                '<span style="color: orange; font-weight: bold;" title="Cannot connect to {}: {}">🟡 Server Error</span>',
+                base_url,
+                detail,
+            )
+
+        return format_html(
+            '<span style="color: red; font-weight: bold;" title="Layer check failed: {}">🔴 Not Found</span>',
+            detail,
+        )
 
 
 @admin.register(FileExtensionWhitelist)
