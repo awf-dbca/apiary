@@ -319,6 +319,123 @@ class MapColumnInline(admin.TabularInline):
     extra = 0
 
 
+def get_geoserver_wms_url():
+    """
+    Safely construct the GeoServer WMS base endpoint, avoiding duplicate /geoserver.
+    """
+    base_url = (getattr(settings, "KB_SERVER_URL", "") or "").rstrip("/")
+    if not base_url:
+        return ""
+    if base_url.endswith("/geoserver"):
+        return f"{base_url}/wms"
+    return f"{base_url}/geoserver/wms"
+
+
+def get_requests_auth_and_verify():
+    """Helper to get credentials and SSL verify setting."""
+    auth = None
+    if getattr(settings, "KB_USER", None) and getattr(settings, "KB_PASSWORD", None):
+        auth = (settings.KB_USER, settings.KB_PASSWORD)
+
+    # Set KB_VERIFY_SSL = False in settings.py if using internal/self-signed certs
+    verify_ssl = getattr(settings, "KB_VERIFY_SSL", True)
+    return auth, verify_ssl
+
+
+def check_individual_layer_status(layer_name):
+    """
+    Checks if a specific layer is actively serving without downloading GetCapabilities.
+    Uses a 1x1 test GetMap request.
+    Returns: (is_serving: bool, message: str)
+    """
+    if not layer_name:
+        return False, "Empty layer name"
+
+    clean_name = layer_name.strip()
+    cache_key = f"kb_layer_status_{clean_name}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    wms_url = get_geoserver_wms_url()
+    if not wms_url:
+        return False, "KB_SERVER_URL not set"
+
+    auth, verify_ssl = get_requests_auth_and_verify()
+
+    # 1x1 GetMap test request.
+    # We explicitly request EXCEPTIONS=application/vnd.ogc.se_xml so GeoServer
+    # returns readable XML instead of drawing the error onto an image.
+    test_url = (
+        f"{wms_url}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap"
+        f"&LAYERS={clean_name}&STYLES=&SRS=EPSG:4326"
+        f"&BBOX=0,0,1,1&WIDTH=1&HEIGHT=1&FORMAT=image/png"
+        f"&EXCEPTIONS=application/vnd.ogc.se_xml"
+    )
+
+    try:
+        resp = requests.get(test_url, auth=auth, verify=verify_ssl, timeout=8)
+        content_type = resp.headers.get("Content-Type", "").lower()
+        content_bytes = resp.content
+
+        # 1. Check if the response is an OGC XML Service Exception (even if HTTP 200)
+        # GeoServer often returns HTTP 200 with an XML body on failure.
+        is_xml_or_text = (
+            "xml" in content_type
+            or "text" in content_type
+            or content_bytes.startswith(b"<?xml")
+            or b"<ServiceExceptionReport" in content_bytes
+        )
+
+        if is_xml_or_text or b"<ServiceException" in content_bytes:
+            text = resp.text
+            # Distinguish missing layer vs broken backend data store
+            if "layernotdefined" in text.lower() or "unknown layer" in text.lower():
+                result = (False, "Layer not defined on server")
+            elif "unable to obtain connection" in text.lower() or "does not exist" in text.lower():
+                result = (False, "Underlying data source missing / broken store")
+            else:
+                # Extract first snippet of error if possible
+                result = (False, "ServiceException (rendering error)")
+
+            cache.set(cache_key, result, 300)
+            return result
+
+        # 2. Strict check for a valid image payload
+        # PNG magic number: \x89PNG\r\n\x1a\n | JPEG magic number: \xff\xd8\xff
+        is_valid_image = (
+            content_bytes.startswith(b"\x89PNG\r\n\x1a\n")
+            or content_bytes.startswith(b"\xff\xd8\xff")
+            or (resp.status_code == 200 and "image/png" in content_type)
+        )
+
+        if resp.status_code == 200 and is_valid_image:
+            result = (True, "Serving")
+            cache.set(cache_key, result, 3600)  # Cache 1 hour
+            return result
+        else:
+            result = (False, f"HTTP {resp.status_code} ({content_type})")
+            cache.set(cache_key, result, 60)
+            return result
+
+    except requests.exceptions.SSLError:
+        result = (False, "SSL Certificate Error")
+        cache.set(cache_key, result, 60)
+        return result
+    except requests.exceptions.Timeout:
+        result = (False, "Timeout (>8s)")
+        cache.set(cache_key, result, 60)
+        return result
+    except requests.exceptions.ConnectionError:
+        result = (False, "Connection Refused / Network Error")
+        cache.set(cache_key, result, 60)
+        return result
+    except Exception as e:
+        result = (False, f"Error: {type(e).__name__}")
+        cache.set(cache_key, result, 60)
+        return result
+
+
 @admin.register(MapLayer)
 class MapLayerAdmin(admin.ModelAdmin):
     list_display = [
@@ -349,11 +466,14 @@ class MapLayerAdmin(admin.ModelAdmin):
     @admin.action(description="Force refresh KB GeoServer status cache")
     def refresh_server_status(self, request, queryset):
         """
-        Action to clear the cached GetCapabilities and force re-fetching from KB GeoServer.
+        Clears the global GetCapabilities cache and the individual layer caches
+        for the selected rows.
         """
         cache.delete("kb_geoserver_status_info")
-        check_kb_server_status()  # Immediately re-fetch from KB GeoServer
-        self.message_user(request, "KB GeoServer status cache refreshed successfully.")
+        for obj in queryset:
+            if obj.layer_name:
+                cache.delete(f"kb_layer_status_{obj.layer_name.strip()}")
+        self.message_user(request, "KB GeoServer status cache refreshed for selected layers.")
 
     kb_url = getattr(settings, "KB_SERVER_URL", "").rstrip("/")
 
@@ -369,28 +489,32 @@ class MapLayerAdmin(admin.ModelAdmin):
         if not obj.layer_name:
             return format_html('<span style="color: gray;">⚪ Empty</span>')
 
-        base_url = (getattr(settings, "KB_SERVER_URL", "") or "").rstrip("/")
-        status_code, layer_names = check_kb_server_status()
+        clean_name = obj.layer_name.strip()
+        is_serving, message = check_individual_layer_status(clean_name)
 
-        # Connection failed or server error
-        if status_code != 200:
+        if is_serving:
             return format_html(
-                '<span style="color: orange; font-weight: bold;" title="Failed connecting to {} (Status: {})">🟡 Server Error ({})</span>',
-                base_url,
-                status_code if status_code else "Offline",
-                status_code if status_code else "Offline",
+                '<span style="color: green; font-weight: bold;" title="Layer is active and rendering tiles successfully">🟢 Serving</span>'
             )
 
-        # Server connected, check if layer exists
-        if obj.layer_name in layer_names:
+        # Distinguish between layer missing vs underlying datastore/gpkg broken
+        if "data source missing" in message.lower() or "broken store" in message.lower():
             return format_html(
-                '<span style="color: green; font-weight: bold;" title="Connected to {}">🟢 Found</span>', base_url
+                '<span style="color: #d9534f; font-weight: bold;" title="{}">🔴 Store Broken (File Missing)</span>',
+                message,
             )
-        else:
+
+        if "not defined" in message.lower():
             return format_html(
-                '<span style="color: red; font-weight: bold;" title="Connected to {} but layer is missing">🔴 Not Found</span>',
-                base_url,
+                '<span style="color: red; font-weight: bold;" title="{}">🔴 Not Found</span>',
+                message,
             )
+
+        return format_html(
+            '<span style="color: orange; font-weight: bold;" title="{}">🟡 Server Error ({})</span>',
+            message,
+            message,
+        )
 
 
 @admin.register(FileExtensionWhitelist)
